@@ -1,11 +1,5 @@
 package engine.map;
 
-/**
- * Copyright SEDAMOP - Software Engineering
- *
- * @author tianxiao.liu@cyu.fr
- *
- */
 public class Block {
     private int line;
     private int column;
@@ -16,16 +10,14 @@ public class Block {
     }
 
     public int getLine() {
-        return line;
+        return this.line;
     }
 
     public int getColumn() {
-        return column;
+        return this.column;
     }
 
-    @Override
     public String toString() {
-        return "Block [line=" + line + ", column=" + column + "]";
+        return "Block [line=" + this.line + ", column=" + this.column + "]";
     }
-
 }
