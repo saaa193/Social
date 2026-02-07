@@ -1,4 +1,4 @@
 package engine.evenement;
 
-public class meteo {
+public class EventSocial {
 }
