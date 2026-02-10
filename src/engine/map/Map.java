@@ -1,11 +1,19 @@
 package engine.map;
 
+import engine.habitant.Habitants;
+
+import java.util.HashMap;
+
 /**
  * Classe Map adaptée pour le projet SOCIAL.
  * Gère la grille de la ville et les limites du terrain.
  */
+
 public class Map {
     private Block[][] blocks;
+
+    private HashMap<Block, Habitants> habitants = new HashMap<Block, Habitants>();
+
     private int lineCount;
     private int columnCount;
 
@@ -14,19 +22,27 @@ public class Map {
 
         for (int lineIndex = 0; lineIndex < lineCount; lineIndex++) {
             for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
-                // Initialise chaque case de la ville
                 blocks[lineIndex][columnIndex] = new Block(lineIndex, columnIndex);
             }
         }
     }
 
+    public HashMap<Block, Habitants> getHabitants() {
+        return habitants;
+    }
+
+    public void setHabitants(HashMap<Block, Habitants> habitants) {
+        this.habitants = habitants;
+    }
+
     private void init(int lineCount, int columnCount) {
         this.lineCount = lineCount;
         this.columnCount = columnCount;
+
         blocks = new Block[lineCount][columnCount];
+
     }
 
-    // --- Getters standards ---
     public Block[][] getBlocks() {
         return blocks;
     }
@@ -43,21 +59,23 @@ public class Map {
         return blocks[line][column];
     }
 
-    // --- Gestion des bordures (utile pour empêcher les gens de sortir de la ville) ---
     public boolean isOnTop(Block block) {
-        return block.getLine() == 0;
+        int line = block.getLine();
+        return line == 0;
     }
-
     public boolean isOnBottom(Block block) {
-        return block.getLine() == lineCount - 1;
+        int line = block.getLine();
+        return line == lineCount - 1;
     }
 
     public boolean isOnLeftBorder(Block block) {
-        return block.getColumn() == 0;
+        int column = block.getColumn();
+        return column == 0;
     }
 
     public boolean isOnRightBorder(Block block) {
-        return block.getColumn() == columnCount - 1;
+        int column = block.getColumn();
+        return column == columnCount - 1;
     }
 
     public boolean isOnBorder(Block block) {
