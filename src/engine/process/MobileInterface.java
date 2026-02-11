@@ -1,13 +1,17 @@
 package engine.process;
 
-import engine.habitant.Habitants;
-import engine.map.Horloge;
-
 import java.util.List;
+import engine.map.Horloge;
+import engine.habitant.Habitant; // Attention au rename (sans S)
 
 public interface MobileInterface {
+
     void nextRound();
+
+    // C'est cette ligne qui manquait peut-être !
     Horloge getHorloge();
-    List<Habitants> getHabitants();
-    Habitants  getHabitant(int line, int column);
+
+    List<Habitant> getHabitants();
+
+    Habitant getHabitant(int line, int column);
 }

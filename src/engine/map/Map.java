@@ -1,6 +1,6 @@
 package engine.map;
 
-import engine.habitant.Habitants;
+import engine.habitant.Habitant;
 
 import java.util.HashMap;
 
@@ -12,7 +12,7 @@ import java.util.HashMap;
 public class Map {
     private Block[][] blocks;
 
-    private HashMap<Block, Habitants> habitants = new HashMap<Block, Habitants>();
+    private HashMap<Block, Habitant> habitants = new HashMap<Block, Habitant>();
 
     private int lineCount;
     private int columnCount;
@@ -27,11 +27,11 @@ public class Map {
         }
     }
 
-    public HashMap<Block, Habitants> getHabitants() {
+    public HashMap<Block, Habitant> getHabitants() {
         return habitants;
     }
 
-    public void setHabitants(HashMap<Block, Habitants> habitants) {
+    public void setHabitants(HashMap<Block, Habitant> habitants) {
         this.habitants = habitants;
     }
 

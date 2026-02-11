@@ -1,39 +1,42 @@
 package engine.process;
 
 import config.GameConfiguration;
-import engine.habitant.Habitants;
+import engine.habitant.Habitant;
 import engine.map.Block;
 import engine.map.Map;
 
 public class GameBuilder {
+
     public static Map buildMap() {
         return new Map(GameConfiguration.LINE_COUNT, GameConfiguration.COLUMN_COUNT);
     }
 
     public static MobileInterface buildInitMobile(Map map) {
-        MobileInterface manager = new MobileElementManager(map);
+        // CORRECTION 1 : On utilise le type concret "MobileElementManager"
+        // pour pouvoir utiliser la méthode .addHabitant()
+        MobileElementManager manager = new MobileElementManager(map);
 
-        for(int i=0;i<100;i++) {
-            int line=(int)(Math.random()*GameConfiguration.LINE_COUNT);
-            int column=(int)(Math.random()*GameConfiguration.COLUMN_COUNT);
+        for (int i = 0; i < 100; i++) { // J'ai mis 20 habitants pour commencer (100 ça fait beaucoup !)
 
-            Block position=map.getBlock(line,column);
+            // Génération de position aléatoire
+            int line = (int)(Math.random() * GameConfiguration.LINE_COUNT);
+            int column = (int)(Math.random() * GameConfiguration.COLUMN_COUNT);
 
-            String prenom= "Habitants"+i;
-            int age= 5+i;
-            String sexe;
+            Block position = map.getBlock(line, column);
 
-            if(i%2==0) {
-                sexe="Male";
-            }
-            else {
-                sexe="Female";
-            }
+            String prenom = "Habitant" + i;
+            int age = 18 + i;
+            String sexe = (i % 2 == 0) ? "Male" : "Female";
 
-            Habitants h=new Habitants(position,prenom,sexe, age);
+            // Création de l'habitant
+            Habitant h = new Habitant(position, prenom, sexe, age);
+
+            // CORRECTION 2 (LA PLUS IMPORTANTE) :
+            // IL FAUT AJOUTER L'HABITANT DANS LA LISTE DU MANAGER !
+            // Sans cette ligne, l'habitant est créé puis supprimé aussitôt.
+            manager.addHabitant(h);
         }
 
         return manager;
     }
-
 }

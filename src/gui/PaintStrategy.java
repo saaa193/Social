@@ -6,11 +6,11 @@ import java.awt.Graphics;
 import config.GameConfiguration;
 import engine.map.Block;
 import engine.map.Map;
-import engine.habitant.Habitants;
-
+import engine.habitant.Habitant;
 
 public class PaintStrategy {
 
+    // Dessine le terrain (Damier)
     public void paint(Map map, Graphics graphics) {
         int blockSize = GameConfiguration.BLOCK_SIZE;
         Block[][] blocks = map.getBlocks();
@@ -19,22 +19,29 @@ public class PaintStrategy {
             for (int columnIndex = 0; columnIndex < map.getColumnCount(); columnIndex++) {
                 Block block = blocks[lineIndex][columnIndex];
 
+                // Un damier gris clair / blanc pour mieux voir
                 if ((lineIndex + columnIndex) % 2 == 0) {
-                    graphics.setColor(Color.GRAY);
+                    graphics.setColor(Color.LIGHT_GRAY);
                     graphics.fillRect(block.getColumn() * blockSize, block.getLine() * blockSize, blockSize, blockSize);
                 }
             }
         }
     }
 
-    public void paint(Habitants habitants, Graphics graphics) {
-        Block position = habitants.getPosition();
+    // Dessine UN habitant (appelé par la boucle dans GameDisplay)
+    public void paint(Habitant habitant, Graphics graphics) {
+        Block position = habitant.getPosition();
         int blockSize = GameConfiguration.BLOCK_SIZE;
 
         int y = position.getLine();
         int x = position.getColumn();
 
-        graphics.setColor(Color.RED);
+        // Le rond rouge (le corps)
+        graphics.setColor(Color.ORANGE);
         graphics.fillOval(x * blockSize, y * blockSize, blockSize, blockSize);
+
+        // Un petit contour noir pour faire propre (optionnel)
+        graphics.setColor(Color.BLACK);
+        graphics.drawOval(x * blockSize, y * blockSize, blockSize, blockSize);
     }
 }

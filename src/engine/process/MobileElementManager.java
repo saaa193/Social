@@ -1,7 +1,7 @@
 package engine.process;
 
 import engine.map.Map;
-import engine.habitant.Habitants;
+import engine.habitant.Habitant;
 import engine.map.Horloge;
 import engine.map.Block;
 
@@ -12,7 +12,7 @@ import java.util.Random;
 public class MobileElementManager implements MobileInterface {
 
     private Map map;
-    private List<Habitants> habitants= new ArrayList<Habitants>();
+    private List<Habitant> habitants= new ArrayList<Habitant>();
     private Horloge horloge= new Horloge();
     private Random random = new Random();
 
@@ -22,13 +22,13 @@ public class MobileElementManager implements MobileInterface {
     @Override
     public void nextRound() {
         horloge.incrementer();
-        for (Habitants h: habitants){
+        for (Habitant h: habitants){
             moveRandomly(h);
         }
 
     }
 
-    private void moveRandomly(Habitants h) {
+    private void moveRandomly(Habitant h) {
         int direction = random.nextInt(4);
         Block pos = h.getPosition();
         int l = pos.getLine();
@@ -48,13 +48,13 @@ public class MobileElementManager implements MobileInterface {
     }
 
     @Override
-    public List<Habitants> getHabitants(){
+    public List<Habitant> getHabitants(){
         return habitants;
     }
 
     @Override
-    public Habitants getHabitant(int line, int column) {
-        for (Habitants h : habitants) {
+    public Habitant getHabitant(int line, int column) {
+        for (Habitant h : habitants) {
             if (h.getPosition().getLine() == line && h.getPosition().getColumn() == column) {
                 return h;
             }
@@ -62,7 +62,7 @@ public class MobileElementManager implements MobileInterface {
         return null;
     }
 
-    public void addHabitants(Habitants h){
+    public void addHabitant(Habitant h){
         habitants.add(h);
     }
 

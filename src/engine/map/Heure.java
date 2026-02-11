@@ -3,43 +3,37 @@ package engine.map;
 public class Heure {
     private int heures;
     private int minutes;
-    private int seconds;
 
-    public Heure(int heures, int minutes, int seconds) {
+    // On enlève les secondes pour la V1, sinon c'est trop lent !
+    // Si tu veux vraiment les garder, remets-les, mais la journée durera 2h réelles.
+
+    public Heure(int heures, int minutes) {
         this.heures = heures;
         this.minutes = minutes;
-        this.seconds = seconds;
     }
 
-    public boolean incrementer(){
-        seconds++;
-        if(seconds >= 59){
-            seconds = 0;
-            minutes++;
-            if(minutes > (59)){
-                minutes = 0;
-                heures++;
-                if(heures > (23)){
-                    heures = 0;
-                    return true;
-                }
+    public boolean incrementer() {
+        minutes++; // On avance de minute en minute
+        if (minutes >= 60) {
+            minutes = 0;
+            heures++;
+            if (heures >= 24) {
+                heures = 0;
+                return true; // Nouvelle journée !
             }
         }
         return false;
-
     }
 
     public static String transform(int value) {
-        String result = "";
         if (value < 10) {
-            result = "0" + value;
-        } else {
-            result = String.valueOf(value);
+            return "0" + value;
         }
-        return result;
+        return String.valueOf(value);
     }
 
-    public String toString(){
-        return transform(heures) + ":" + transform(minutes)+ ":" + transform(seconds);
+    @Override
+    public String toString() {
+        return transform(heures) + ":" + transform(minutes);
     }
 }

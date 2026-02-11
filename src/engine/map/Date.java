@@ -5,35 +5,36 @@ public class Date {
     private int mois;
     private int annee;
 
-    private int jourSemaine=0;
-    private String[] nomsJours={"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"};
+    private int jourSemaine = 0;
+    // J'ai ajouté des espaces pour que l'affichage soit plus joli
+    private String[] nomsJours = {"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"};
 
     public Date(int jour, int mois, int annee) {
-        this.jour=jour;
-        this.mois=mois;
-        this.annee=annee;
+        this.jour = jour;
+        this.mois = mois;
+        this.annee = annee;
     }
 
     public void incrementerJour() {
         jourSemaine++;
-        if(jourSemaine>6){
-            jourSemaine=0;
+        if (jourSemaine > 6) {
+            jourSemaine = 0;
         }
 
         jour++;
-        if(jour>30){
-            jour=1;
+        if (jour > 30) {
+            jour = 1;
             mois++;
-            if(mois>12){
-                mois=1;
+            if (mois > 12) {
+                mois = 1;
                 annee++;
             }
         }
-
     }
 
     @Override
-    public String toString(){
-        return nomsJours[jour]+":"+mois+":"+annee;
+    public String toString() {
+        // CORRECTION ICI : Utilise jourSemaine, pas jour !
+        return nomsJours[jourSemaine] + " " + jour + "/" + mois + "/" + annee;
     }
 }
