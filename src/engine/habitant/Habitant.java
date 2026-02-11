@@ -3,12 +3,12 @@ package engine.habitant;
 import engine.MobileElement;
 import engine.map.Block;
 
-public class Habitants extends MobileElement {
+public class Habitant extends MobileElement {
     private String prenom;
     private String sexe;
     private int age;
 
-    public Habitants(Block position,String prenom, String sexe, int age) {
+    public Habitant(Block position, String prenom, String sexe, int age) {
         super(position);
         this.prenom = prenom;
         this.sexe = sexe;

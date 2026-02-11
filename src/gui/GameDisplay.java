@@ -4,7 +4,7 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 import config.GameConfiguration;
-import engine.habitant.Habitants;
+import engine.habitant.Habitant;
 import engine.map.Block;
 import engine.map.Map;
 import engine.process.MobileInterface;
@@ -33,7 +33,7 @@ public class GameDisplay extends JPanel {
 
         paintStrategy.paint(map, g);
 
-        for (Habitants h : manager.getHabitants()) {
+        for (Habitant h : manager.getHabitants()) {
             paintStrategy.paint(h, g);
         }
     }
