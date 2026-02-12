@@ -40,13 +40,15 @@ public class MainGUI extends JFrame implements Runnable {
     private int speed = GameConfiguration.GAME_SPEED;
     private int currentSpeed = GameConfiguration.GAME_SPEED;
 
-    private JLabel lblHorloge = new JLabel("Horloge : 00:00");
+    private JLabel lblHorloge = new JLabel("Lancement : 00:00");
     private JButton btnStartStop = new JButton("Start");
     private JButton btnAccelerer = new JButton("Accelerer");
 
     private JLabel nomLabel = new JLabel("Nom : -");
     private JLabel sexeLabel = new JLabel("Sexe : -");
     private JLabel ageLabel = new JLabel("Age : -");
+
+    private JLabel moralLabel = new JLabel("Moral : -");
 
     private JPanel control = new JPanel();
 
@@ -81,6 +83,7 @@ public class MainGUI extends JFrame implements Runnable {
         infoPanel.add(nomLabel);
         infoPanel.add(sexeLabel);
         infoPanel.add(ageLabel);
+        infoPanel.add(moralLabel);
 
         contentPane.add(infoPanel, BorderLayout.EAST);
 
@@ -162,11 +165,15 @@ public class MainGUI extends JFrame implements Runnable {
                 nomLabel.setText("  Nom : " + h.getPrenom());
                 sexeLabel.setText("  Sexe : " + h.getSexe());
                 ageLabel.setText("  Age : " + h.getAge() + " ans");
+                moralLabel.setText("  Moral : " + h.getMoral());
+
                 System.out.println("Clic sur : " + h.getPrenom());
             } else {
                 nomLabel.setText("  Nom : -");
                 sexeLabel.setText("  Sexe : -");
                 ageLabel.setText("  Age : -");
+                moralLabel.setText("  Moral : -");
+
             }
         }
 
