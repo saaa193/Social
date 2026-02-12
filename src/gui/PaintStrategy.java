@@ -33,7 +33,16 @@ public class PaintStrategy {
         int y = position.getLine();
         int x = position.getColumn();
 
-        graphics.setColor(Color.ORANGE);
+        int moral = habitant.getMoral();
+
+        if (moral < 30) {
+            graphics.setColor(Color.RED); // Triste / En détresse
+        } else if (moral > 70) {
+            graphics.setColor(Color.MAGENTA); // Heureux
+        } else {
+            graphics.setColor(Color.ORANGE); // Normal
+        }
+
         graphics.fillOval(x * blockSize, y * blockSize, blockSize, blockSize);
 
         graphics.setColor(Color.BLACK);
