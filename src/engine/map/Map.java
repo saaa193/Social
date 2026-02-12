@@ -1,13 +1,6 @@
 package engine.map;
-
 import engine.habitant.Habitant;
-
 import java.util.HashMap;
-
-/**
- * Classe Map adaptée pour le projet SOCIAL.
- * Gère la grille de la ville et les limites du terrain.
- */
 
 public class Map {
     private Block[][] blocks;

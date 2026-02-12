@@ -6,7 +6,6 @@ public class Date {
     private int annee;
 
     private int jourSemaine = 0;
-    // J'ai ajouté des espaces pour que l'affichage soit plus joli
     private String[] nomsJours = {"Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"};
 
     public Date(int jour, int mois, int annee) {
@@ -34,7 +33,6 @@ public class Date {
 
     @Override
     public String toString() {
-        // CORRECTION ICI : Utilise jourSemaine, pas jour !
         return nomsJours[jourSemaine] + " " + jour + "/" + mois + "/" + annee;
     }
 }

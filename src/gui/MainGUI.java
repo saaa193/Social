@@ -1,22 +1,21 @@
 package gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color; // <--- AJOUT : Pour la couleur
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout; // <--- AJOUT : Pour aligner les textes verticalement
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.BorderFactory; // <--- AJOUT : Pour faire une bordure noire
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-// import javax.swing.JTextField; // <--- RETRAIT : On vire la barre blanche inutile
 
 import config.GameConfiguration;
 import engine.habitant.Habitant;
@@ -27,12 +26,10 @@ import engine.process.MobileInterface;
 
 public class MainGUI extends JFrame implements Runnable {
 
-    // private static final Dimension IDEAL_MAIN_DIMENSION = ... (On s'en sert pas vraiment ici, pas grave)
     private static final long serialVersionUID = 1L;
 
     private Map map;
 
-    // J'ai un peu élargi la fenetre (+200 en largeur) pour que le panneau de droite rentre bien
     private final static Dimension preferredSize = new Dimension(GameConfiguration.WINDOW_WIDTH + 200, GameConfiguration.WINDOW_HEIGHT);
 
     private MobileInterface manager;
@@ -47,14 +44,12 @@ public class MainGUI extends JFrame implements Runnable {
     private JButton btnStartStop = new JButton("Start");
     private JButton btnAccelerer = new JButton("Accelerer");
 
-    // --- MODIFICATION ICI : On initialise les labels avec du texte vide ou des tirets ---
     private JLabel nomLabel = new JLabel("Nom : -");
     private JLabel sexeLabel = new JLabel("Sexe : -");
     private JLabel ageLabel = new JLabel("Age : -");
 
     private JPanel control = new JPanel();
 
-    // --- MODIFICATION ICI : Création du panneau latéral pour les infos ---
     private JPanel infoPanel = new JPanel();
 
     public MainGUI(String title) {
@@ -66,7 +61,6 @@ public class MainGUI extends JFrame implements Runnable {
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
-        // 1. LE HAUT (Boutons + Horloge)
         control.setLayout(new FlowLayout(FlowLayout.CENTER));
         control.add(lblHorloge);
 
@@ -78,23 +72,18 @@ public class MainGUI extends JFrame implements Runnable {
 
         contentPane.add(BorderLayout.NORTH, control);
 
-        // --- MODIFICATION ICI : CONFIGURATION DU PANNEAU DE DROITE ---
         infoPanel.setLayout(new GridLayout(10, 1)); // 10 lignes pour espacer
         infoPanel.setPreferredSize(new Dimension(200, 0)); // Largeur fixe de 200px
         infoPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK)); // Petit cadre noir autour
         infoPanel.setBackground(Color.LIGHT_GRAY); // Fond gris pour bien voir la zone
 
-        // On ajoute un titre et tes labels dans ce panneau
         infoPanel.add(new JLabel("   --- INFOS HABITANT ---"));
         infoPanel.add(nomLabel);
         infoPanel.add(sexeLabel);
         infoPanel.add(ageLabel);
 
-        // On place ce panneau à DROITE (EAST)
         contentPane.add(infoPanel, BorderLayout.EAST);
-        // -------------------------------------------------------------
 
-        // JTextField textField = new JTextField(...) <--- RETRAIT : On supprime la barre blanche en bas
 
         map = GameBuilder.buildMap();
         manager = GameBuilder.buildInitMobile(map);
@@ -109,7 +98,6 @@ public class MainGUI extends JFrame implements Runnable {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         pack();
         setVisible(true);
-        // setPreferredSize(preferredSize); // Pas besoin de le mettre 2 fois
         setResizable(false);
     }
 
@@ -122,16 +110,11 @@ public class MainGUI extends JFrame implements Runnable {
                 System.out.println(e.getMessage());
             }
 
-            // 1. Calcul du moteur
             manager.nextRound();
 
-            // 2. Mise à jour de l'affichage (Animation)
-            if (!stop) {
-                dashboard.repaint(); // Redessine la carte
 
-                // --- AJOUT POUR L'HORLOGE (Tu l'avais déjà, c'est bien) ---
-                lblHorloge.setText(manager.getHorloge().getHeureActuelle());
-            }
+            dashboard.repaint();
+            lblHorloge.setText(manager.getHorloge().getHeureActuelle());
         }
     }
 
@@ -141,6 +124,7 @@ public class MainGUI extends JFrame implements Runnable {
             if (!stop) {
                 stop = true;
                 btnStartStop.setText(" Start ");
+                dashboard.repaint();
             } else {
                 stop = false;
                 btnStartStop.setText(" Pause ");
@@ -155,7 +139,6 @@ public class MainGUI extends JFrame implements Runnable {
         public void actionPerformed(ActionEvent e) {
             if (speed > 100) {
                 speed -= 100;
-                // Petit bonus visuel pour savoir
                 btnAccelerer.setText("Vitesse: Rapide");
             } else {
                 speed = GameConfiguration.GAME_SPEED;
@@ -171,13 +154,10 @@ public class MainGUI extends JFrame implements Runnable {
             int x = e.getX();
             int y = e.getY();
 
-            // 1. On trouve la case cliquée
             Block position = dashboard.getBlockAt(x, y);
 
-            // 2. On demande au manager
             Habitant h = manager.getHabitant(position.getLine(), position.getColumn());
 
-            // 3. Mise à jour des labels DANS LE PANNEAU DE DROITE
             if (h != null) {
                 nomLabel.setText("  Nom : " + h.getPrenom());
                 sexeLabel.setText("  Sexe : " + h.getSexe());
