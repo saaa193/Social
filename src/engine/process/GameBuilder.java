@@ -14,7 +14,7 @@ public class GameBuilder {
     public static MobileInterface buildInitMobile(Map map) {
         MobileElementManager manager = new MobileElementManager(map);
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 150; i++) {
 
             int line = (int)(Math.random() * GameConfiguration.LINE_COUNT);
             int column = (int)(Math.random() * GameConfiguration.COLUMN_COUNT);
