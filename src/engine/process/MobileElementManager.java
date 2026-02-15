@@ -24,10 +24,35 @@ public class MobileElementManager implements MobileInterface {
         horloge.incrementer();
         for (Habitant h: habitants){
             moveRandomly(h);
+            h.baisserMoral();
         }
+        verifierRencontres();
 
     }
 
+
+
+    private void verifierRencontres() {
+        for (int i = 0; i < habitants.size(); i++) {
+            for (int j = i + 1; j < habitants.size(); j++) {
+
+                Habitant h1 = habitants.get(i);
+                Habitant h2 = habitants.get(j);
+
+                // Si h1 et h2 sont sur la même case (Position identique)
+                if (h1.getPosition().equals(h2.getPosition())) {
+
+                    // ILS SE RENCONTRENT !
+                    // On augmente le moral des deux (Interaction sociale)
+                    h1.augmenterMoral();
+                    h2.augmenterMoral();
+
+                    h1.ajouterAmi(h2);
+                    h2.ajouterAmi(h1);
+                }
+            }
+        }
+    }
     private void moveRandomly(Habitant h) {
         int direction = random.nextInt(4);
         Block pos = h.getPosition();

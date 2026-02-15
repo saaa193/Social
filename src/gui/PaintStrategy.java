@@ -30,6 +30,22 @@ public class PaintStrategy {
         Block position = habitant.getPosition();
         int blockSize = GameConfiguration.BLOCK_SIZE;
 
+        int x1 = position.getColumn() * blockSize + blockSize / 2;
+        int y1 = position.getLine() * blockSize + blockSize / 2;
+
+        if (habitant.getAmis() != null) {
+            graphics.setColor(Color.GREEN); // Vert pour lien Amical (PDF Page 5)
+
+            for (Habitant ami : habitant.getAmis()) {
+                Block posAmi = ami.getPosition();
+                int x2 = posAmi.getColumn() * blockSize + blockSize / 2;
+                int y2 = posAmi.getLine() * blockSize + blockSize / 2;
+
+                // On dessine la ligne entre les deux potes
+                graphics.drawLine(x1, y1, x2, y2);
+            }
+        }
+
         int y = position.getLine();
         int x = position.getColumn();
 
