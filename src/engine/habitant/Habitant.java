@@ -28,6 +28,8 @@ public class Habitant extends MobileElement {
 
         this.besoins=new Besoins();
 
+        this.besoins.setMoral(50);
+
         this.ouverture=(int)(Math.random() * 101);
         this.conscience=(int)(Math.random() * 101);
         this.extraversion=(int)(Math.random() * 101);
@@ -39,10 +41,10 @@ public class Habitant extends MobileElement {
     public void vivre(){
         besoins.vivre();
         if (extraversion > 70 && besoins.getSocial() < 30){
-            besoins.setMoral(besoins.getMoral() - 1);
+            besoins.setMoral(besoins.getMoral() - 2);
         }
         if(nevrosisme > 70 && besoins.getSante() < 50){
-            besoins.setMoral(besoins.getMoral() - 2);
+            besoins.setMoral(besoins.getMoral() - 3);
         }
     }
 

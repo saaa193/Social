@@ -19,13 +19,25 @@ public class MobileElementManager implements MobileInterface {
     public MobileElementManager(Map map) {
         this.map = map;
     }
+
     @Override
     public void nextRound() {
         horloge.incrementer();
         for (Habitant h: habitants){
-            moveRandomly(h);
+            if (h.getBesoins().getSante() <= 0) {
+                continue; // Il est mort, on ignore ses actions et on passe au suivant
+            }
             h.vivre();
+
+            if (h.getBesoins().getFatigue() < 20) {
+                // Il est trop fatigué (Gris), il s'arrête pour dormir
+                // Optionnel : on peut faire remonter un peu sa fatigue ici
+                h.getBesoins().setFatigue(h.getBesoins().getFatigue() + 5);
+            } else {
+                moveRandomly(h);
+            }
         }
+
         verifierRencontres();
 
     }
