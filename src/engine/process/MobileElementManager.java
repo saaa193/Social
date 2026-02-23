@@ -24,13 +24,11 @@ public class MobileElementManager implements MobileInterface {
         horloge.incrementer();
         for (Habitant h: habitants){
             moveRandomly(h);
-            h.baisserMoral();
+            h.vivre();
         }
         verifierRencontres();
 
     }
-
-
 
     private void verifierRencontres() {
         for (int i = 0; i < habitants.size(); i++) {
@@ -39,16 +37,14 @@ public class MobileElementManager implements MobileInterface {
                 Habitant h1 = habitants.get(i);
                 Habitant h2 = habitants.get(j);
 
-                // Si h1 et h2 sont sur la même case (Position identique)
+                // Si h1 et h2 sont sur la même case
                 if (h1.getPosition().equals(h2.getPosition())) {
 
                     // ILS SE RENCONTRENT !
-                    // On augmente le moral des deux (Interaction sociale)
-                    h1.augmenterMoral();
-                    h2.augmenterMoral();
-
+                    // On augmente le moral des deux
                     h1.ajouterAmi(h2);
                     h2.ajouterAmi(h1);
+
                 }
             }
         }
