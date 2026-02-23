@@ -34,7 +34,7 @@ public class PaintStrategy {
         int y1 = position.getLine() * blockSize + blockSize / 2;
 
         if (habitant.getAmis() != null) {
-            graphics.setColor(Color.GREEN); // Vert pour lien Amical (PDF Page 5)
+            graphics.setColor(Color.GREEN); // Vert pour lien Amical
 
             for (Habitant ami : habitant.getAmis()) {
                 Block posAmi = ami.getPosition();

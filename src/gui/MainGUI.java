@@ -1,5 +1,7 @@
 package gui;
 
+import javax.swing.JProgressBar;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -19,6 +21,7 @@ import javax.swing.JPanel;
 
 import config.GameConfiguration;
 import engine.habitant.Habitant;
+import engine.habitant.besoin.Besoins;
 import engine.map.Block;
 import engine.map.Map;
 import engine.process.GameBuilder;
@@ -48,7 +51,12 @@ public class MainGUI extends JFrame implements Runnable {
     private JLabel sexeLabel = new JLabel("Sexe : -");
     private JLabel ageLabel = new JLabel("Age : -");
 
-    private JLabel moralLabel = new JLabel("Moral : -");
+    private JProgressBar faimBar = new JProgressBar(0, 100);
+    private JProgressBar fatigueBar = new JProgressBar(0, 100);
+    private JProgressBar socialBar = new JProgressBar(0, 100);
+    private JProgressBar santeBar = new JProgressBar(0, 100);
+    private JProgressBar moralBar = new JProgressBar(0, 100);
+
 
     private JPanel control = new JPanel();
 
@@ -74,7 +82,7 @@ public class MainGUI extends JFrame implements Runnable {
 
         contentPane.add(BorderLayout.NORTH, control);
 
-        infoPanel.setLayout(new GridLayout(10, 1)); // 10 lignes pour espacer
+        infoPanel.setLayout(new GridLayout(15, 1)); // 10 lignes pour espacer
         infoPanel.setPreferredSize(new Dimension(200, 0)); // Largeur fixe de 200px
         infoPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK)); // Petit cadre noir autour
         infoPanel.setBackground(Color.LIGHT_GRAY); // Fond gris pour bien voir la zone
@@ -83,7 +91,15 @@ public class MainGUI extends JFrame implements Runnable {
         infoPanel.add(nomLabel);
         infoPanel.add(sexeLabel);
         infoPanel.add(ageLabel);
-        infoPanel.add(moralLabel);
+
+        infoPanel.add(new JLabel("   --- BESOINS ---"));
+
+        // Ajout des barres avec une méthode utilitaire
+        setupBar(infoPanel, " Faim :", faimBar, Color.ORANGE);
+        setupBar(infoPanel, " Fatigue :", fatigueBar, new Color(100, 149, 237)); // Bleu
+        setupBar(infoPanel, " Social :", socialBar, Color.YELLOW);
+        setupBar(infoPanel, " Santé :", santeBar, Color.GREEN);
+        setupBar(infoPanel, " Moral :", moralBar, Color.MAGENTA);
 
         contentPane.add(infoPanel, BorderLayout.EAST);
 
@@ -102,6 +118,13 @@ public class MainGUI extends JFrame implements Runnable {
         pack();
         setVisible(true);
         setResizable(false);
+    }
+
+    private void setupBar(JPanel panel, String title, JProgressBar bar, Color color) {
+        panel.add(new JLabel(title));
+        bar.setStringPainted(true); // Affiche le %
+        bar.setForeground(color);
+        panel.add(bar);
     }
 
     @Override
@@ -165,14 +188,25 @@ public class MainGUI extends JFrame implements Runnable {
                 nomLabel.setText("  Nom : " + h.getPrenom());
                 sexeLabel.setText("  Sexe : " + h.getSexe());
                 ageLabel.setText("  Age : " + h.getAge() + " ans");
-                moralLabel.setText("  Moral : " + h.getMoral());
+
+                Besoins b = h.getBesoins();
+                faimBar.setValue(b.getFaim());
+                fatigueBar.setValue(b.getFatigue());
+                socialBar.setValue(b.getSocial());
+                santeBar.setValue(b.getSante());
+                moralBar.setValue(b.getMoral());
 
                 System.out.println("Clic sur : " + h.getPrenom());
             } else {
                 nomLabel.setText("  Nom : -");
                 sexeLabel.setText("  Sexe : -");
                 ageLabel.setText("  Age : -");
-                moralLabel.setText("  Moral : -");
+
+                faimBar.setValue(0);
+                fatigueBar.setValue(0);
+                socialBar.setValue(0);
+                santeBar.setValue(0);
+                moralBar.setValue(0);
 
             }
         }
