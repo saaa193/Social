@@ -8,21 +8,27 @@ public class Besoins {
     private int social=100;
 
     public void vivre(){
-        if(faim>0){
-            faim--;
+        this.faim -= 2;
+        this.fatigue -= 2;
+        this.social -= 2;
+
+
+        // Si l'habitant a trop faim ou est trop triste (moral à 0), sa santé baisse
+        if (faim < 20 || fatigue < 20 || social < 20) {
+            this.moral -= 2;
         }
-        if(fatigue>0){
-            fatigue--;
+
+        // Si l'habitant a trop faim ou est trop triste, sa santé baisse
+        if (this.faim <= 0 || this.moral <= 0) {
+            this.sante -= 3;
         }
-        if(fatigue<20 || faim<20){
-            sante=(Math.max(0,sante-1));
-        }
-        if(social>0){
-            social--;
-        }
-        if(fatigue<20 || faim<20 || sante<20 || faim<20 || social<20){
-            moral=(Math.max(0,moral-1));
-        }
+
+        // Sécurité pour rester entre 0 et 100
+        if (faim < 0) faim = 0;
+        if (fatigue < 0) fatigue = 0;
+        if (social < 0) social = 0;
+        if (sante < 0) sante = 0;
+        if (moral < 0) moral = 0;
     }
 
     public int getFaim(){
@@ -42,7 +48,7 @@ public class Besoins {
     }
 
     public void setFaim(int faim){
-        this.faim=Math.min(0, Math.min(100, faim));
+        this.faim = Math.max(0, Math.min(100, faim));
     }
     public void setMoral(int moral){
         this.moral=Math.max(0, Math.min(100, moral));

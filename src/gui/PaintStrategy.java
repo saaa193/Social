@@ -46,18 +46,30 @@ public class PaintStrategy {
             }
         }
 
-        int y = position.getLine();
-        int x = position.getColumn();
 
         int moral = habitant.getMoral();
+        int fatigue = habitant.getBesoins().getFatigue();
+        int sante = habitant.getBesoins().getSante();
 
-        if (moral < 30) {
-            graphics.setColor(Color.RED); // Triste / En détresse
-        } else if (moral > 70) {
-            graphics.setColor(Color.MAGENTA); // Heureux
-        } else {
-            graphics.setColor(Color.ORANGE); // Normal
+        if (sante <= 0) {
+            graphics.setColor(Color.black); // Décès
         }
+        else if (fatigue < 20) {
+            graphics.setColor(Color.GRAY); // Sommeil
+        }
+        else if (moral < 30) {
+            graphics.setColor(Color.RED); // Détresse
+        }
+        else if (moral < 70) {
+            graphics.setColor(Color.ORANGE); // Neutre
+        }
+        else {
+            graphics.setColor(new Color(128, 0, 128)); //Bonheur
+        }
+
+
+        int y = position.getLine();
+        int x = position.getColumn();
 
         graphics.fillOval(x * blockSize, y * blockSize, blockSize, blockSize);
 
