@@ -33,8 +33,7 @@ public class MainGUI extends JFrame implements Runnable {
 
     private Map map;
 
-    private final static Dimension preferredSize = new Dimension(GameConfiguration.WINDOW_WIDTH + 200, GameConfiguration.WINDOW_HEIGHT);
-
+    private final static Dimension preferredSize = new Dimension(GameConfiguration.WINDOW_WIDTH - GameConfiguration.MENU_WIDTH, GameConfiguration.WINDOW_HEIGHT);
     private MobileInterface manager;
     private GameDisplay dashboard;
 
@@ -62,6 +61,7 @@ public class MainGUI extends JFrame implements Runnable {
 
     private JPanel infoPanel = new JPanel();
 
+
     public MainGUI(String title) {
         super(title);
         init();
@@ -83,7 +83,7 @@ public class MainGUI extends JFrame implements Runnable {
         contentPane.add(BorderLayout.NORTH, control);
 
         infoPanel.setLayout(new GridLayout(15, 1)); // 10 lignes pour espacer
-        infoPanel.setPreferredSize(new Dimension(200, 0)); // Largeur fixe de 200px
+        infoPanel.setPreferredSize(new Dimension(GameConfiguration.MENU_WIDTH, 0));
         infoPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK)); // Petit cadre noir autour
         infoPanel.setBackground(Color.LIGHT_GRAY); // Fond gris pour bien voir la zone
 

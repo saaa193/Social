@@ -52,9 +52,11 @@ public class Habitant extends MobileElement {
         }
     }
 
-    public void ajouterLien(Habitant autre) {
+    // NOUVELLE MÉTHODE : On cible spécifiquement l'amitié pour les rencontres de rue
+    public void ajouterLienAmical(Habitant autre) {
         boolean dejaConnu = false;
 
+        // On vérifie si on le connaît déjà
         for (Liens l : relations) {
             if (l.getPartenaire() == autre) {
                 l.appliquerBonusMental(this);
@@ -62,26 +64,17 @@ public class Habitant extends MobileElement {
             }
         }
 
+        // S'ils ne se connaissent pas, ils deviennent amis
         if (!dejaConnu) {
-            int chance = (int) (Math.random() * 3);
-            Liens nouveauLien;
-
-            if (chance == 0) {
-                nouveauLien = new Familial(autre, 80);
-            } else if (chance == 1) {
-                nouveauLien = new Professionnel(autre, 30);
-            } else {
-                nouveauLien = new Amical(autre, 50);
-            }
-
+            Liens nouveauLien = new Amical(autre, 50); // Toujours un lien Amical
             relations.add(nouveauLien);
             nouveauLien.appliquerBonusMental(this);
         }
 
-        // Gain social calculé une seule fois à la fin de la méthode
+        // Gain social calculé à chaque interaction
         int gainSocial = 15;
         if (this.extraversion > 70) {
-            gainSocial += 10;
+            gainSocial += 10; // Les extravertis gagnent plus
         }
         this.besoins.setSocial(this.besoins.getSocial() + gainSocial);
     }

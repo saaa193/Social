@@ -4,6 +4,7 @@ import config.GameConfiguration;
 import engine.habitant.Habitant;
 import engine.map.Block;
 import engine.map.Map;
+import java.util.List;
 
 public class GameBuilder {
 
@@ -28,6 +29,15 @@ public class GameBuilder {
             Habitant h = new Habitant(position, prenom, sexe, age);
 
             manager.addHabitant(h);
+        }
+        List<Habitant> liste = manager.getHabitants();
+        for (int i = 0; i < liste.size() - 1; i += 2) {
+            Habitant h1 = liste.get(i);
+            Habitant h2 = liste.get(i + 1);
+
+            // On utilise la classe du prof (Familial)
+            h1.getRelation().add(new engine.habitant.lien.Familial(h2, 100));
+            h2.getRelation().add(new engine.habitant.lien.Familial(h1, 100));
         }
 
         return manager;
