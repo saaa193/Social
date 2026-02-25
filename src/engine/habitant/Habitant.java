@@ -42,8 +42,8 @@ public class Habitant extends MobileElement {
 
     }
 
-    public void vivre(){
-        besoins.vivre();
+    public void vivre(boolean estLaNuit){
+        besoins.vivre(estLaNuit);
         if (extraversion > 70 && besoins.getSocial() < 30){
             besoins.setMoral(besoins.getMoral() - 2);
         }

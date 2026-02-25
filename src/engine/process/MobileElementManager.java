@@ -22,31 +22,39 @@ public class MobileElementManager implements MobileInterface {
 
     @Override
     public void nextRound() {
+
+        // 1. Déterminer s'il fait nuit (entre 23h et 06h59)
+        int heureActuelle = horloge.getHeureObject().getHeures();
+        boolean estLaNuit = (heureActuelle >= 23 || heureActuelle < 7);
         horloge.incrementer();
+
+
         for (Habitant h: habitants){
             if (h.getBesoins().getSante() <= 0) {
                 continue; // Il est mort, on ignore ses actions et on passe au suivant
             }
-            h.vivre();
+            h.vivre(estLaNuit);
 
-            if (h.getBesoins().getFatigue() < 20) {
-                // Il est trop fatigué (Gris), il s'arrête pour dormir
-                // Optionnel : on peut faire remonter un peu sa fatigue ici
-                h.getBesoins().setFatigue(h.getBesoins().getFatigue() + 5);
+            if (estLaNuit || h.getBesoins().getFatigue() < 20) {
+                // S'il fait nuit OU qu'il tombe de fatigue en journée : IL DORT (Gris)
+                // Il ne bouge pas. On ne fait pas appel à moveRandomly().
             }
-            //Si le point est rouge il se déplace au ralenti
-            else if (h.getMoral()< 30) {
-                if (random.nextInt(30)== 0) {
+            else if (h.getMoral() < 30) {
+                // Déprime (Rouge) : Mouvement très ralenti
+                if (random.nextInt(3) == 0) { // 1 chance sur 3 d'avancer
                     moveRandomly(h);
                 }
-                
-            } else {
+            }
+            else {
+                // Forme normale : Bouge normalement
                 moveRandomly(h);
             }
         }
 
-        verifierRencontres();
-
+        // 3. On vérifie les rencontres (Seulement le jour ! On ne rencontre pas de gens en dormant)
+        if (!estLaNuit) {
+            verifierRencontres();
+        }
     }
 
     private void verifierRencontres() {
