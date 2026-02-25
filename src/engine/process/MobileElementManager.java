@@ -94,7 +94,6 @@ public class MobileElementManager implements MobileInterface {
 
         h.setPosition(map.getBlock(l, col));
     }
-
     @Override
     public Horloge getHorloge() {
         return horloge;
