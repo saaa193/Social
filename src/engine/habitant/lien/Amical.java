@@ -2,18 +2,19 @@ package engine.habitant.lien;
 
 import engine.habitant.Habitant;
 
-public class Familial extends Liens {
+public class Amical extends Liens {
 
-    public Familial(Habitant partenaire, int force) {
+    public Amical(Habitant partenaire, int force) {
         super(partenaire, force);
     }
 
     @Override
     public void appliquerBonusMental(Habitant proprietaire) {
+
         int moralActuel=proprietaire.getBesoins().getMoral();
-        proprietaire.getBesoins().setMoral(moralActuel+30);
+        proprietaire.getBesoins().setMoral(moralActuel+15);
 
         int socialActuel=proprietaire.getBesoins().getSocial();
-        proprietaire.getBesoins().setSocial(socialActuel+20);
+        proprietaire.getBesoins().setSocial(socialActuel+30);
     }
 }

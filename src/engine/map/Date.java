@@ -14,6 +14,10 @@ public class Date {
         this.annee = annee;
     }
 
+    public boolean estWeekend(){
+        return (jourSemaine==5 || jourSemaine==6);
+    }
+
     public void incrementerJour() {
         jourSemaine++;
         if (jourSemaine > 6) {

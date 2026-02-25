@@ -33,6 +33,13 @@ public class MobileElementManager implements MobileInterface {
                 // Il est trop fatigué (Gris), il s'arrête pour dormir
                 // Optionnel : on peut faire remonter un peu sa fatigue ici
                 h.getBesoins().setFatigue(h.getBesoins().getFatigue() + 5);
+            }
+            //Si le point est rouge il se déplace au ralenti
+            else if (h.getMoral()< 30) {
+                if (random.nextInt(30)== 0) {
+                    moveRandomly(h);
+                }
+                
             } else {
                 moveRandomly(h);
             }
@@ -51,12 +58,12 @@ public class MobileElementManager implements MobileInterface {
 
                 // Si h1 et h2 sont sur la même case
                 if (h1.getPosition().equals(h2.getPosition())) {
-
-                    // ILS SE RENCONTRENT !
-                    // On augmente le moral des deux
-                    h1.ajouterAmi(h2);
-                    h2.ajouterAmi(h1);
-
+                    if (h1.getBesoins().getSante() > 0 && h2.getBesoins().getSante() > 0) {
+                        // ILS SE RENCONTRENT !
+                        // On augmente le moral des deux s'ils ne sont pas noir
+                        h1.ajouterLien(h2);
+                        h2.ajouterLien(h1);
+                    }
                 }
             }
         }
