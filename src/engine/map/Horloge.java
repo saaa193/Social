@@ -19,6 +19,11 @@ public class Horloge {
         return toString();
     }
 
+    // --- AJOUT : Permet au moteur de savoir quelle heure il est ---
+    public Heure getHeureObject() {
+        return heure;
+    }
+
     @Override
     public String toString() {
         return date.toString() + " - " + heure.toString();
