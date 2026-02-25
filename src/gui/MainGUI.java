@@ -33,7 +33,6 @@ public class MainGUI extends JFrame implements Runnable {
 
     private Map map;
 
-    private final static Dimension preferredSize = new Dimension(GameConfiguration.WINDOW_WIDTH - GameConfiguration.MENU_WIDTH, GameConfiguration.WINDOW_HEIGHT);
     private MobileInterface manager;
     private GameDisplay dashboard;
 
@@ -71,39 +70,35 @@ public class MainGUI extends JFrame implements Runnable {
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
+        // --- BARRE DU HAUT ---
         control.setLayout(new FlowLayout(FlowLayout.CENTER));
         control.add(lblHorloge);
-
         btnStartStop.addActionListener(new StartStopAction());
         control.add(btnStartStop);
-
         btnAccelerer.addActionListener(new SpeedAction());
         control.add(btnAccelerer);
-
         contentPane.add(BorderLayout.NORTH, control);
 
-        infoPanel.setLayout(new GridLayout(15, 1)); // 10 lignes pour espacer
-        infoPanel.setPreferredSize(new Dimension(GameConfiguration.MENU_WIDTH, 0));
-        infoPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK)); // Petit cadre noir autour
-        infoPanel.setBackground(Color.LIGHT_GRAY); // Fond gris pour bien voir la zone
+        // --- MENU DE DROITE ---
+        infoPanel.setLayout(new GridLayout(15, 1));
+        infoPanel.setPreferredSize(new Dimension(GameConfiguration.MENU_RIGHT_WIDTH, 0));
+        infoPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        infoPanel.setBackground(Color.LIGHT_GRAY);
 
         infoPanel.add(new JLabel("   --- INFOS HABITANT ---"));
         infoPanel.add(nomLabel);
         infoPanel.add(sexeLabel);
         infoPanel.add(ageLabel);
-
         infoPanel.add(new JLabel("   --- BESOINS ---"));
 
-        // Ajout des barres avec une méthode utilitaire
         setupBar(infoPanel, " Faim :", faimBar, Color.ORANGE);
-        setupBar(infoPanel, " Fatigue :", fatigueBar, new Color(100, 149, 237)); // Bleu
+        setupBar(infoPanel, " Fatigue :", fatigueBar, new Color(100, 149, 237));
         setupBar(infoPanel, " Social :", socialBar, Color.YELLOW);
         setupBar(infoPanel, " Santé :", santeBar, Color.GREEN);
         setupBar(infoPanel, " Moral :", moralBar, Color.MAGENTA);
-
         contentPane.add(infoPanel, BorderLayout.EAST);
 
-
+        // --- MOTEUR ET CARTE ---
         map = GameBuilder.buildMap();
         manager = GameBuilder.buildInitMobile(map);
         dashboard = new GameDisplay(map, manager);
@@ -111,11 +106,25 @@ public class MainGUI extends JFrame implements Runnable {
         MouseControls mouseControls = new MouseControls();
         dashboard.addMouseListener(mouseControls);
 
-        dashboard.setPreferredSize(preferredSize);
+        // --- NOUVEAU MENU DU BAS ---
+        JPanel bottomPanel = new JPanel(); // Création locale
+        bottomPanel.setPreferredSize(new Dimension(0, GameConfiguration.MENU_BOTTOM_HEIGHT));
+        bottomPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        bottomPanel.setBackground(Color.LIGHT_GRAY);
+        bottomPanel.add(new JLabel("--- ZONE OPÉRATIONNELLE ---"));
+        contentPane.add(bottomPanel, BorderLayout.SOUTH);
+
+        // --- CORRECTION DASHBOARD ---
+        int mapWidth = GameConfiguration.COLUMN_COUNT * GameConfiguration.BLOCK_SIZE;
+        int mapHeight = GameConfiguration.LINE_COUNT * GameConfiguration.BLOCK_SIZE;
+        dashboard.setPreferredSize(new Dimension(mapWidth, mapHeight));
         contentPane.add(dashboard, BorderLayout.CENTER);
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        pack();
+
+        // --- GESTION FENETRE PROPRE ---
+        pack(); // Java calcule la taille parfaite autour de la carte !
+        setLocationRelativeTo(null); // Ouvre la fenêtre au centre de l'écran
         setVisible(true);
         setResizable(false);
     }

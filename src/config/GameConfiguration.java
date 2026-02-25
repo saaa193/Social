@@ -1,19 +1,20 @@
 package config;
 
 public class GameConfiguration {
-    public static final int WINDOW_WIDTH = 1920;
-    public static final int WINDOW_HEIGHT = 1080;
+    // Tes dimensions validées
+    public static final int WINDOW_WIDTH = 1450;
+    public static final int WINDOW_HEIGHT = 835;
 
-    // LE PASSAGE EN HD : On réduit les blocs de 25 à 15.
-    // Ça va rendre la ville beaucoup plus grande et précise !
-    public static final int BLOCK_SIZE = 15;
+    public static final int BLOCK_SIZE = 15; // Passage en HD
 
-    // On définit la largeur de ton panneau de droite
-    public static final int MENU_WIDTH = 200;
+    // Taille des menus (pour que la carte ne les écrase pas)
+    public static final int MENU_RIGHT_WIDTH = 250;
+    public static final int MENU_BOTTOM_HEIGHT = 120;
+    public static final int TOP_BAR_HEIGHT = 50;
 
-    // LA CORRECTION : La grille s'arrête avant le menu !
-    public static final int LINE_COUNT = WINDOW_HEIGHT / BLOCK_SIZE;
-    public static final int COLUMN_COUNT = (WINDOW_WIDTH - MENU_WIDTH) / BLOCK_SIZE;
+    // Le calcul dynamique du prof
+    public static final int LINE_COUNT = (WINDOW_HEIGHT - MENU_BOTTOM_HEIGHT - TOP_BAR_HEIGHT) / BLOCK_SIZE;
+    public static final int COLUMN_COUNT = (WINDOW_WIDTH - MENU_RIGHT_WIDTH) / BLOCK_SIZE;
 
     public static final int GAME_SPEED = 500;
 }
