@@ -59,10 +59,17 @@ public class MobileElementManager implements MobileInterface {
                 // Si h1 et h2 sont sur la même case
                 if (h1.getPosition().equals(h2.getPosition())) {
                     if (h1.getBesoins().getSante() > 0 && h2.getBesoins().getSante() > 0) {
-                        // ILS SE RENCONTRENT !
-                        // On augmente le moral des deux s'ils ne sont pas noir
-                        h1.ajouterLien(h2);
-                        h2.ajouterLien(h1);
+
+                        // S'ils ont tous les deux une Agréabilité > 50, ils sympathisent et créent un lien
+                        if (h1.getAgreabilite() > 50 && h2.getAgreabilite() > 50) {
+                            h1.ajouterLienAmical(h2);
+                            h2.ajouterLienAmical(h1);
+                        } else {
+                            // S'ils ne sont pas assez agréables, ils ne deviennent pas amis.
+                            // Mais le simple fait de voir quelqu'un remonte un TOUT PETIT PEU le besoin social.
+                            h1.getBesoins().setSocial(h1.getBesoins().getSocial() + 2);
+                            h2.getBesoins().setSocial(h2.getBesoins().getSocial() + 2);
+                        }
                     }
                 }
             }
@@ -74,10 +81,16 @@ public class MobileElementManager implements MobileInterface {
         int l = pos.getLine();
         int col = pos.getColumn();
 
-        if (direction == 0 && l > 0) l--;
-        else if (direction == 1 && l < map.getLineCount() - 1) l++;
-        else if (direction == 2 && col > 0) col--;
-        else if (direction == 3 && col < map.getColumnCount() - 1) col++;
+        // RÉUTILISATION DU CODE DU PROF : On utilise les méthodes de la Map !
+        if (direction == 0 && !map.isOnTop(pos)) {
+            l--;
+        } else if (direction == 1 && !map.isOnBottom(pos)) {
+            l++;
+        } else if (direction == 2 && !map.isOnLeftBorder(pos)) {
+            col--;
+        } else if (direction == 3 && !map.isOnRightBorder(pos)) {
+            col++;
+        }
 
         h.setPosition(map.getBlock(l, col));
     }
