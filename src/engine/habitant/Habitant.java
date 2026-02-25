@@ -1,6 +1,10 @@
 package engine.habitant;
 
+import engine.habitant.lien.Amical;
+import engine.habitant.lien.Familial;
+import engine.habitant.lien.Liens;
 import engine.MobileElement;
+import engine.habitant.lien.Professionnel;
 import engine.map.Block;
 import engine.habitant.besoin.Besoins;
 import java.util.ArrayList;
@@ -17,7 +21,7 @@ public class Habitant extends MobileElement {
     private int ouverture,conscience,extraversion,agreabilite,nevrosisme;
 
 
-    private List<Habitant> amis = new ArrayList<Habitant>();
+    private List<Liens> relations = new ArrayList<Liens>();
 
 
     public Habitant(Block position, String prenom, String sexe, int age) {
@@ -48,21 +52,43 @@ public class Habitant extends MobileElement {
         }
     }
 
-    public void ajouterAmi(Habitant nouvelAmi) {
-        if (!amis.contains(nouvelAmi)) {
-            amis.add(nouvelAmi);
-            besoins.setMoral(besoins.getMoral() + 10);
+    public void ajouterLien(Habitant autre) {
+        boolean dejaConnu = false;
+
+        for (Liens l : relations) {
+            if (l.getPartenaire() == autre) {
+                l.appliquerBonusMental(this);
+                dejaConnu = true;
+            }
         }
-        int gainSocial=15;
-        if(this.extraversion > 70){
-            gainSocial+=10;
+
+        if (!dejaConnu) {
+            int chance = (int) (Math.random() * 3);
+            Liens nouveauLien;
+
+            if (chance == 0) {
+                nouveauLien = new Familial(autre, 80);
+            } else if (chance == 1) {
+                nouveauLien = new Professionnel(autre, 30);
+            } else {
+                nouveauLien = new Amical(autre, 50);
+            }
+
+            relations.add(nouveauLien);
+            nouveauLien.appliquerBonusMental(this);
         }
-        besoins.setSocial(besoins.getSocial() + gainSocial);
+
+        // Gain social calculé une seule fois à la fin de la méthode
+        int gainSocial = 15;
+        if (this.extraversion > 70) {
+            gainSocial += 10;
+        }
+        this.besoins.setSocial(this.besoins.getSocial() + gainSocial);
     }
 
 
-    public List<Habitant> getAmis() {
-        return amis;
+    public List<Liens> getRelation() {
+        return relations;
     }
     public String getPrenom() {
         return prenom;
