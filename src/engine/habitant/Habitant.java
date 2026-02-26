@@ -52,11 +52,11 @@ public class Habitant extends MobileElement {
         }
     }
 
-    // NOUVELLE MÉTHODE : On cible spécifiquement l'amitié pour les rencontres de rue
+    // NOUVELLE MÉTHODE : Avec limite d'amis basée sur l'Extraversion
     public void ajouterLienAmical(Habitant autre) {
         boolean dejaConnu = false;
 
-        // On vérifie si on le connaît déjà
+        // 1. On vérifie d'abord si on le connaît déjà
         for (Liens l : relations) {
             if (l.getPartenaire() == autre) {
                 l.appliquerBonusMental(this);
@@ -64,19 +64,29 @@ public class Habitant extends MobileElement {
             }
         }
 
-        // S'ils ne se connaissent pas, ils deviennent amis
+        // 2. S'ils ne se connaissent pas, on vérifie la limite sociale !
         if (!dejaConnu) {
-            Liens nouveauLien = new Amical(autre, 50); // Toujours un lien Amical
-            relations.add(nouveauLien);
-            nouveauLien.appliquerBonusMental(this);
-        }
+            // CALCUL DE LA LIMITE : (Extraversion / 10) + 1 minimum
+            int limiteAmis = (this.extraversion / 10) + 1;
 
-        // Gain social calculé à chaque interaction
-        int gainSocial = 15;
-        if (this.extraversion > 70) {
-            gainSocial += 10; // Les extravertis gagnent plus
+            if (this.relations.size() < limiteAmis) {
+                // Il a encore de la place dans son réseau social, il devient ami !
+                Liens nouveauLien = new Amical(autre, 50);
+                relations.add(nouveauLien);
+                nouveauLien.appliquerBonusMental(this);
+            } else {
+                // Il a déjà trop d'amis (sa liste est pleine)
+                // Il dit juste "Bonjour" en passant, sans créer de ligne verte
+                this.besoins.setSocial(this.besoins.getSocial() + 5);
+            }
+        } else {
+            // 3. S'ils se connaissaient déjà, on donne quand même le bonus social
+            int gainSocial = 15;
+            if (this.extraversion > 70) {
+                gainSocial += 10; // Les extravertis gagnent plus d'énergie en voyant leurs potes
+            }
+            this.besoins.setSocial(this.besoins.getSocial() + gainSocial);
         }
-        this.besoins.setSocial(this.besoins.getSocial() + gainSocial);
     }
 
 
