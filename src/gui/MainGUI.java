@@ -206,6 +206,12 @@ public class MainGUI extends JFrame implements Runnable {
                 moralBar.setValue(b.getMoral());
 
                 System.out.println("Clic sur : " + h.getPrenom());
+
+
+                InspectionGUI inspection = new InspectionGUI(MainGUI.this, h);
+                inspection.setVisible(true);
+
+
             } else {
                 nomLabel.setText("  Nom : -");
                 sexeLabel.setText("  Sexe : -");
