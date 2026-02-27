@@ -1,23 +1,14 @@
 package gui;
 
-import javax.swing.JProgressBar;
-
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import config.GameConfiguration;
 import engine.habitant.Habitant;
@@ -26,6 +17,10 @@ import engine.map.Block;
 import engine.map.Map;
 import engine.process.GameBuilder;
 import engine.process.MobileInterface;
+
+import gui.dashboards.ControlDashboard;
+import gui.dashboards.InspectorDashboard;
+import gui.dashboards.MacroDashboard;
 
 public class MainGUI extends JFrame implements Runnable {
 
@@ -41,24 +36,10 @@ public class MainGUI extends JFrame implements Runnable {
     private int speed = GameConfiguration.GAME_SPEED;
     private int currentSpeed = GameConfiguration.GAME_SPEED;
 
-    private JLabel lblHorloge = new JLabel("Lancement : 00:00");
-    private JButton btnStartStop = new JButton("Start");
-    private JButton btnAccelerer = new JButton("Accelerer");
 
-    private JLabel nomLabel = new JLabel("Nom : -");
-    private JLabel sexeLabel = new JLabel("Sexe : -");
-    private JLabel ageLabel = new JLabel("Age : -");
-
-    private JProgressBar faimBar = new JProgressBar(0, 100);
-    private JProgressBar fatigueBar = new JProgressBar(0, 100);
-    private JProgressBar socialBar = new JProgressBar(0, 100);
-    private JProgressBar santeBar = new JProgressBar(0, 100);
-    private JProgressBar moralBar = new JProgressBar(0, 100);
-
-
-    private JPanel control = new JPanel();
-
-    private JPanel infoPanel = new JPanel();
+    private ControlDashboard control;
+    private InspectorDashboard inspector;
+    private MacroDashboard macro;
 
 
     public MainGUI(String title) {
@@ -70,33 +51,15 @@ public class MainGUI extends JFrame implements Runnable {
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
-        // --- BARRE DU HAUT ---
-        control.setLayout(new FlowLayout(FlowLayout.CENTER));
-        control.add(lblHorloge);
-        btnStartStop.addActionListener(new StartStopAction());
-        control.add(btnStartStop);
-        btnAccelerer.addActionListener(new SpeedAction());
-        control.add(btnAccelerer);
+        // --- UTILISATION DU CONTROL DASHBOARD (HAUT) ---
+        control = new ControlDashboard();
+        control.addStartStopListener(new StartStopAction());
+        control.addAccelererListener(new SpeedAction());
         contentPane.add(BorderLayout.NORTH, control);
 
-        // --- MENU DE DROITE ---
-        infoPanel.setLayout(new GridLayout(15, 1));
-        infoPanel.setPreferredSize(new Dimension(GameConfiguration.MENU_RIGHT_WIDTH, 0));
-        infoPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        infoPanel.setBackground(Color.LIGHT_GRAY);
-
-        infoPanel.add(new JLabel("   --- INFOS HABITANT ---"));
-        infoPanel.add(nomLabel);
-        infoPanel.add(sexeLabel);
-        infoPanel.add(ageLabel);
-        infoPanel.add(new JLabel("   --- BESOINS ---"));
-
-        setupBar(infoPanel, " Faim :", faimBar, Color.ORANGE);
-        setupBar(infoPanel, " Fatigue :", fatigueBar, new Color(100, 149, 237));
-        setupBar(infoPanel, " Social :", socialBar, Color.YELLOW);
-        setupBar(infoPanel, " Santé :", santeBar, Color.GREEN);
-        setupBar(infoPanel, " Moral :", moralBar, Color.MAGENTA);
-        contentPane.add(infoPanel, BorderLayout.EAST);
+        // --- UTILISATION DE L'INSPECTOR DASHBOARD (DROITE) ---
+        inspector = new InspectorDashboard();
+        contentPane.add(BorderLayout.EAST, inspector);
 
         // --- MOTEUR ET CARTE ---
         map = GameBuilder.buildMap();
@@ -106,13 +69,8 @@ public class MainGUI extends JFrame implements Runnable {
         MouseControls mouseControls = new MouseControls();
         dashboard.addMouseListener(mouseControls);
 
-        // --- NOUVEAU MENU DU BAS ---
-        JPanel bottomPanel = new JPanel(); // Création locale
-        bottomPanel.setPreferredSize(new Dimension(0, GameConfiguration.MENU_BOTTOM_HEIGHT));
-        bottomPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        bottomPanel.setBackground(Color.LIGHT_GRAY);
-        bottomPanel.add(new JLabel("--- ZONE OPÉRATIONNELLE ---"));
-        contentPane.add(bottomPanel, BorderLayout.SOUTH);
+        macro = new MacroDashboard();
+        contentPane.add(macro, BorderLayout.SOUTH);
 
         // --- CORRECTION DASHBOARD ---
         int mapWidth = GameConfiguration.COLUMN_COUNT * GameConfiguration.BLOCK_SIZE;
@@ -129,12 +87,6 @@ public class MainGUI extends JFrame implements Runnable {
         setResizable(false);
     }
 
-    private void setupBar(JPanel panel, String title, JProgressBar bar, Color color) {
-        panel.add(new JLabel(title));
-        bar.setStringPainted(true); // Affiche le %
-        bar.setForeground(color);
-        panel.add(bar);
-    }
 
     @Override
     public void run() {
@@ -146,10 +98,15 @@ public class MainGUI extends JFrame implements Runnable {
             }
 
             manager.nextRound();
-
-
             dashboard.repaint();
-            lblHorloge.setText(manager.getHorloge().getHeureActuelle());
+
+            control.setLblHorloge(manager.getHorloge().getHeureActuelle());
+
+            if (manager.getHorloge().estWeekend()) {
+                control.setPeriodeText("WEEKEND");
+            } else {
+                control.setPeriodeText("SEMAINE");
+            }
         }
     }
 
@@ -158,11 +115,11 @@ public class MainGUI extends JFrame implements Runnable {
         public void actionPerformed(ActionEvent e) {
             if (!stop) {
                 stop = true;
-                btnStartStop.setText(" Start ");
+                control.setBtnStartStopText("▶");
                 dashboard.repaint();
             } else {
                 stop = false;
-                btnStartStop.setText(" Pause ");
+                control.setBtnStartStopText("⏸");
                 Thread gameThread = new Thread(instance);
                 gameThread.start();
             }
@@ -174,10 +131,10 @@ public class MainGUI extends JFrame implements Runnable {
         public void actionPerformed(ActionEvent e) {
             if (speed > 100) {
                 speed -= 100;
-                btnAccelerer.setText("Vitesse: Rapide");
+                control.setBtnVitesseText("Vitesse: Rapide");
             } else {
                 speed = GameConfiguration.GAME_SPEED;
-                btnAccelerer.setText("Vitesse: Normale");
+                control.setBtnVitesseText("Vitesse: Normale");
             }
         }
     }
@@ -194,35 +151,31 @@ public class MainGUI extends JFrame implements Runnable {
             Habitant h = manager.getHabitant(position.getLine(), position.getColumn());
 
             if (h != null) {
-                nomLabel.setText("  Nom : " + h.getPrenom());
-                sexeLabel.setText("  Sexe : " + h.getSexe());
-                ageLabel.setText("  Age : " + h.getAge() + " ans");
+                inspector.setInfos(h.getPrenom(), h.getSexe(), "" + h.getAge());
 
                 Besoins b = h.getBesoins();
-                faimBar.setValue(b.getFaim());
-                fatigueBar.setValue(b.getFatigue());
-                socialBar.setValue(b.getSocial());
-                santeBar.setValue(b.getSante());
-                moralBar.setValue(b.getMoral());
-
-                System.out.println("Clic sur : " + h.getPrenom());
+                inspector.setJauges(b.getFaim(), b.getFatigue(), b.getSocial(), b.getSante(), b.getMoral());
             } else {
-                nomLabel.setText("  Nom : -");
-                sexeLabel.setText("  Sexe : -");
-                ageLabel.setText("  Age : -");
-
-                faimBar.setValue(0);
-                fatigueBar.setValue(0);
-                socialBar.setValue(0);
-                santeBar.setValue(0);
-                moralBar.setValue(0);
+                inspector.setInfos("-", "-", "-");
+                inspector.setJauges(0, 0, 0, 0, 0);
 
             }
         }
 
-        @Override public void mousePressed(MouseEvent e) { }
-        @Override public void mouseReleased(MouseEvent e) { }
-        @Override public void mouseEntered(MouseEvent e) { }
-        @Override public void mouseExited(MouseEvent e) { }
+        @Override
+        public void mousePressed(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+        }
     }
 }

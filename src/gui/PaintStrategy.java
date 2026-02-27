@@ -22,7 +22,7 @@ public class PaintStrategy {
                 Block block = blocks[lineIndex][columnIndex];
 
                 if ((lineIndex + columnIndex) % 2 == 0) {
-                    graphics.setColor(Color.LIGHT_GRAY);
+                    graphics.setColor(Color.WHITE);
                     graphics.fillRect(block.getColumn() * blockSize, block.getLine() * blockSize, blockSize, blockSize);
                 }
             }

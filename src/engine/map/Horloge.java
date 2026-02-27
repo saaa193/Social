@@ -15,6 +15,10 @@ public class Horloge {
         }
     }
 
+    public boolean estWeekend() {
+        return date.estWeekend(); // L'horloge demande à son objet date
+    }
+
     public String getHeureActuelle() {
         return toString();
     }

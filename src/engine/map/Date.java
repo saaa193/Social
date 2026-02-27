@@ -35,6 +35,7 @@ public class Date {
         }
     }
 
+
     @Override
     public String toString() {
         return nomsJours[jourSemaine] + " " + jour + "/" + mois + "/" + annee;

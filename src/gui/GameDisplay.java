@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.Graphics;
+import java.awt.Color;
 
 import javax.swing.JPanel;
 import config.GameConfiguration;
@@ -33,6 +34,8 @@ public class GameDisplay extends JPanel {
 
         paintStrategy.paint(map, g);
 
+        g.setColor(Color.WHITE);
+        g.fillRect(0, 0, getWidth(), getHeight());
         for (Habitant h : manager.getHabitants()) {
             paintStrategy.paint(h, g);
         }
