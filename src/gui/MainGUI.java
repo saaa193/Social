@@ -7,8 +7,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import config.GameConfiguration;
 import engine.habitant.Habitant;
@@ -21,6 +22,7 @@ import engine.process.MobileInterface;
 import gui.dashboards.ControlDashboard;
 import gui.dashboards.InspectorDashboard;
 import gui.dashboards.MacroDashboard;
+import gui.dashboards.GraphDashboard;
 
 public class MainGUI extends JFrame implements Runnable {
 
@@ -40,6 +42,7 @@ public class MainGUI extends JFrame implements Runnable {
     private ControlDashboard control;
     private InspectorDashboard inspector;
     private MacroDashboard macro;
+    private GraphDashboard graph; // <-- Le nouveau composant graphique
 
 
     public MainGUI(String title) {
@@ -57,9 +60,19 @@ public class MainGUI extends JFrame implements Runnable {
         control.addAccelererListener(new SpeedAction());
         contentPane.add(BorderLayout.NORTH, control);
 
-        // --- UTILISATION DE L'INSPECTOR DASHBOARD (DROITE) ---
+        JPanel rightPanel = new JPanel(new BorderLayout(0, 15));
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Marges
+
+        // 2. On met le graphique en haut de cette boîte
+        graph = new GraphDashboard();
+        rightPanel.add(graph, BorderLayout.NORTH);
+
+        // 3. On met l'inspecteur au centre de cette boîte
         inspector = new InspectorDashboard();
-        contentPane.add(BorderLayout.EAST, inspector);
+        rightPanel.add(inspector, BorderLayout.CENTER);
+
+        // 4. On place la boîte entière tout à droite de la fenêtre !
+        contentPane.add(rightPanel, BorderLayout.EAST);
 
         // --- MOTEUR ET CARTE ---
         map = GameBuilder.buildMap();
@@ -69,6 +82,7 @@ public class MainGUI extends JFrame implements Runnable {
         MouseControls mouseControls = new MouseControls();
         dashboard.addMouseListener(mouseControls);
 
+        // --- TA ZONE DU BAS EST SAUVEGARDÉE ! ---
         macro = new MacroDashboard();
         contentPane.add(macro, BorderLayout.SOUTH);
 
@@ -81,8 +95,8 @@ public class MainGUI extends JFrame implements Runnable {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // --- GESTION FENETRE PROPRE ---
-        pack(); // Java calcule la taille parfaite autour de la carte !
-        setLocationRelativeTo(null); // Ouvre la fenêtre au centre de l'écran
+        pack();
+        setLocationRelativeTo(null);
         setVisible(true);
         setResizable(false);
     }
@@ -107,6 +121,10 @@ public class MainGUI extends JFrame implements Runnable {
             } else {
                 control.setPeriodeText("SEMAINE");
             }
+
+            // Mise à jour du graphique en temps réel
+            graph.updateStats(manager.getHabitants());
+            graph.updateStats(manager.getHabitants());
         }
     }
 
@@ -129,12 +147,25 @@ public class MainGUI extends JFrame implements Runnable {
     private class SpeedAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (speed > 100) {
-                speed -= 100;
-                control.setBtnVitesseText("Vitesse: Rapide");
-            } else {
+            // Si on est en x1, on passe en x2
+            if (speed == GameConfiguration.GAME_SPEED) {
+                speed = GameConfiguration.GAME_SPEED / 2;
+                control.setBtnVitesseText("Vitesse: x2");
+            }
+            // Si on est en x2, on passe en x5
+            else if (speed == GameConfiguration.GAME_SPEED / 2) {
+                speed = GameConfiguration.GAME_SPEED / 5;
+                control.setBtnVitesseText("Vitesse: x5");
+            }
+            // Si on est en x5, on passe en x10 <-- CORRECTION ICI
+            else if (speed == GameConfiguration.GAME_SPEED / 5){
+                speed = GameConfiguration.GAME_SPEED / 10; // <-- CORRECTION ICI
+                control.setBtnVitesseText("Vitesse: x10");
+            }
+            // Si on est en x10 (ou autre anomalie), on boucle et on revient à x1
+            else {
                 speed = GameConfiguration.GAME_SPEED;
-                control.setBtnVitesseText("Vitesse: Normale");
+                control.setBtnVitesseText("Vitesse: x1");
             }
         }
     }
@@ -152,30 +183,17 @@ public class MainGUI extends JFrame implements Runnable {
 
             if (h != null) {
                 inspector.setInfos(h.getPrenom(), h.getSexe(), "" + h.getAge());
-
                 Besoins b = h.getBesoins();
                 inspector.setJauges(b.getFaim(), b.getFatigue(), b.getSocial(), b.getSante(), b.getMoral());
             } else {
                 inspector.setInfos("-", "-", "-");
                 inspector.setJauges(0, 0, 0, 0, 0);
-
             }
         }
 
-        @Override
-        public void mousePressed(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseReleased(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseEntered(MouseEvent e) {
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-        }
+        @Override public void mousePressed(MouseEvent e) {}
+        @Override public void mouseReleased(MouseEvent e) {}
+        @Override public void mouseEntered(MouseEvent e) {}
+        @Override public void mouseExited(MouseEvent e) {}
     }
 }
