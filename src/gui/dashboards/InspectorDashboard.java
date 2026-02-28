@@ -34,6 +34,8 @@ public class InspectorDashboard extends JPanel {
         setupBar(" Social :", socialBar, Color.YELLOW);
         setupBar(" Santé :", santeBar, Color.GREEN);
         setupBar(" Moral :", moralBar, Color.MAGENTA);
+
+
     }
 
     private void setupBar(String title, JProgressBar bar, Color color) {
@@ -55,5 +57,37 @@ public class InspectorDashboard extends JPanel {
         socialBar.setValue(social);
         santeBar.setValue(sante);
         moralBar.setValue(moral);
+    }
+
+    // --- NOUVELLE MÉTHODE : Calcule et affiche la moyenne de toute la ville ---
+    public void updateAverages(java.util.List<engine.habitant.Habitant> habitants) {
+        if (habitants == null || habitants.isEmpty()) return;
+
+        int totalFaim = 0, totalFatigue = 0, totalSocial = 0, totalSante = 0, totalMoral = 0;
+        int totalAge = 0;
+
+        // On additionne les besoins de tout le monde
+        for (engine.habitant.Habitant h : habitants) {
+            totalAge += h.getAge();
+            totalFaim += h.getBesoins().getFaim();
+            totalFatigue += h.getBesoins().getFatigue();
+            totalSocial += h.getBesoins().getSocial();
+            totalSante += h.getBesoins().getSante();
+            totalMoral += h.getBesoins().getMoral();
+        }
+
+        int taille = habitants.size();
+
+        // On met à jour les textes pour bien montrer que c'est une moyenne
+        setInfos("Moyenne de la ville", "Mixte", "" + (totalAge / taille));
+
+        // On divise par le nombre d'habitants pour avoir la moyenne des jauges !
+        setJauges(
+                totalFaim / taille,
+                totalFatigue / taille,
+                totalSocial / taille,
+                totalSante / taille,
+                totalMoral / taille
+        );
     }
 }

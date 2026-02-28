@@ -38,6 +38,8 @@ public class MainGUI extends JFrame implements Runnable {
     private int speed = GameConfiguration.GAME_SPEED;
     private int currentSpeed = GameConfiguration.GAME_SPEED;
 
+    private Habitant habitantSelectionne = null; // Mémorise la personne cliquée
+
 
     private ControlDashboard control;
     private InspectorDashboard inspector;
@@ -125,6 +127,16 @@ public class MainGUI extends JFrame implements Runnable {
             // Mise à jour du graphique en temps réel
             graph.updateStats(manager.getHabitants());
             graph.updateStats(manager.getHabitants());
+
+            if (habitantSelectionne == null) {
+                // Personne n'est cliqué : on affiche la MOYENNE de la ville
+                inspector.updateAverages(manager.getHabitants());
+            } else {
+                // Quelqu'un est cliqué : on met à jour SES barres en temps réel
+                Besoins b = habitantSelectionne.getBesoins();
+                inspector.setInfos(habitantSelectionne.getPrenom(), habitantSelectionne.getSexe(), "" + habitantSelectionne.getAge());
+                inspector.setJauges(b.getFaim(), b.getFatigue(), b.getSocial(), b.getSante(), b.getMoral());
+            }
         }
     }
 
@@ -179,16 +191,9 @@ public class MainGUI extends JFrame implements Runnable {
 
             Block position = dashboard.getBlockAt(x, y);
 
-            Habitant h = manager.getHabitant(position.getLine(), position.getColumn());
-
-            if (h != null) {
-                inspector.setInfos(h.getPrenom(), h.getSexe(), "" + h.getAge());
-                Besoins b = h.getBesoins();
-                inspector.setJauges(b.getFaim(), b.getFatigue(), b.getSocial(), b.getSante(), b.getMoral());
-            } else {
-                inspector.setInfos("-", "-", "-");
-                inspector.setJauges(0, 0, 0, 0, 0);
-            }
+            // On met à jour la variable globale.
+            // Si on clique dans le vide, ça deviendra 'null' et le run() repassera sur la moyenne !
+            habitantSelectionne = manager.getHabitant(position.getLine(), position.getColumn());
         }
 
         @Override public void mousePressed(MouseEvent e) {}
