@@ -24,121 +24,126 @@ import gui.dashboards.InspectorDashboard;
 import gui.dashboards.MacroDashboard;
 import gui.dashboards.GraphDashboard;
 
+/**
+ * MainGUI : La classe principale qui orchestre tout le programme.
+ * Elle implémente Runnable car elle gère la boucle de jeu
+ * dans un Thread séparé pour ne pas bloquer l'interface graphique.
+ */
 public class MainGUI extends JFrame implements Runnable {
 
     private static final long serialVersionUID = 1L;
 
+    // --- Composants de structure (Modèle et Moteur) ---
     private Map map;
-
     private MobileInterface manager;
     private GameDisplay dashboard;
 
     private boolean stop = true;
     private MainGUI instance = this;
     private int speed = GameConfiguration.GAME_SPEED;
-    private int currentSpeed = GameConfiguration.GAME_SPEED;
 
-    private Habitant habitantSelectionne = null; // Mémorise la personne cliquée
+    // Variable d'état : Permet de basculer entre vue "Moyenne" et vue "Habitant"
+    private Habitant habitantSelectionne = null;
 
-
+    // --- Composants de l'interface (Vue) ---
     private ControlDashboard control;
     private InspectorDashboard inspector;
     private MacroDashboard macro;
-    private GraphDashboard graph; // <-- Le nouveau composant graphique
-
+    private GraphDashboard graph;
 
     public MainGUI(String title) {
         super(title);
         init();
     }
 
+    /**
+     * Initialisation de la structure : Utilisation du BorderLayout pour
+     * organiser l'espace visuel efficacement.
+     */
     private void init() {
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
-        // --- UTILISATION DU CONTROL DASHBOARD (HAUT) ---
+        // 1. Barre de contrôle (Haut)
         control = new ControlDashboard();
         control.addStartStopListener(new StartStopAction());
         control.addAccelererListener(new SpeedAction());
         contentPane.add(BorderLayout.NORTH, control);
 
+        // 2. Panneau latéral droit : Graphiques et Inspecteur
         JPanel rightPanel = new JPanel(new BorderLayout(0, 15));
-        rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Marges
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // 2. On met le graphique en haut de cette boîte
         graph = new GraphDashboard();
         rightPanel.add(graph, BorderLayout.NORTH);
 
-        // 3. On met l'inspecteur au centre de cette boîte
         inspector = new InspectorDashboard();
         rightPanel.add(inspector, BorderLayout.CENTER);
 
-        // 4. On place la boîte entière tout à droite de la fenêtre !
         contentPane.add(rightPanel, BorderLayout.EAST);
 
-        // --- MOTEUR ET CARTE ---
+        // 3. Initialisation Moteur & Carte
         map = GameBuilder.buildMap();
         manager = GameBuilder.buildInitMobile(map);
         dashboard = new GameDisplay(map, manager);
 
+        // Gestion des interactions souris
         MouseControls mouseControls = new MouseControls();
         dashboard.addMouseListener(mouseControls);
 
-        // --- TA ZONE DU BAS EST SAUVEGARDÉE ! ---
+        // 4. Zone opérationnelle (Bas)
         macro = new MacroDashboard();
         contentPane.add(macro, BorderLayout.SOUTH);
 
-        // --- CORRECTION DASHBOARD ---
+        // 5. Zone principale : la Carte
         int mapWidth = GameConfiguration.COLUMN_COUNT * GameConfiguration.BLOCK_SIZE;
         int mapHeight = GameConfiguration.LINE_COUNT * GameConfiguration.BLOCK_SIZE;
         dashboard.setPreferredSize(new Dimension(mapWidth, mapHeight));
         contentPane.add(dashboard, BorderLayout.CENTER);
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-
-        // --- GESTION FENETRE PROPRE ---
-        pack();
-        setLocationRelativeTo(null);
+        pack(); // Ajuste la fenêtre au contenu
+        setLocationRelativeTo(null); // Centre la fenêtre
         setVisible(true);
         setResizable(false);
     }
 
-
+    /**
+     * La "Game Loop" : Le cœur de l'animation.
+     * Cette boucle s'exécute en continu tant que le jeu n'est pas en pause.
+     */
     @Override
     public void run() {
         while (!stop) {
             try {
-                Thread.sleep(speed);
+                Thread.sleep(speed); // Contrôle de la vitesse de simulation
             } catch (InterruptedException e) {
                 System.out.println(e.getMessage());
             }
 
+            // A. Mise à jour logique
             manager.nextRound();
-            dashboard.repaint();
+            dashboard.repaint(); // Demande à Swing de redessiner
 
+            // B. Mise à jour de l'affichage (Date/Période)
             control.setLblHorloge(manager.getHorloge().getHeureActuelle());
+            control.setPeriodeText(manager.getHorloge().estWeekend() ? "WEEKEND" : "SEMAINE");
 
-            if (manager.getHorloge().estWeekend()) {
-                control.setPeriodeText("WEEKEND");
-            } else {
-                control.setPeriodeText("SEMAINE");
-            }
-
-            // Mise à jour du graphique en temps réel
-            graph.updateStats(manager.getHabitants());
+            // C. Mise à jour des Dashboards
             graph.updateStats(manager.getHabitants());
 
+            // Gestion intelligente de l'inspecteur : Moyenne ou Individu
             if (habitantSelectionne == null) {
-                // Personne n'est cliqué : on affiche la MOYENNE de la ville
                 inspector.updateAverages(manager.getHabitants());
             } else {
-                // Quelqu'un est cliqué : on met à jour SES barres en temps réel
                 Besoins b = habitantSelectionne.getBesoins();
                 inspector.setInfos(habitantSelectionne.getPrenom(), habitantSelectionne.getSexe(), "" + habitantSelectionne.getAge());
                 inspector.setJauges(b.getFaim(), b.getFatigue(), b.getSocial(), b.getSante(), b.getMoral());
             }
         }
     }
+
+    // --- Pattern "Listener" pour gérer les clics ---
 
     private class StartStopAction implements ActionListener {
         @Override
@@ -150,7 +155,7 @@ public class MainGUI extends JFrame implements Runnable {
             } else {
                 stop = false;
                 control.setBtnStartStopText("⏸");
-                Thread gameThread = new Thread(instance);
+                Thread gameThread = new Thread(instance); // Nouveau thread pour la boucle
                 gameThread.start();
             }
         }
@@ -159,22 +164,19 @@ public class MainGUI extends JFrame implements Runnable {
     private class SpeedAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            // Si on est en x1, on passe en x2
+            // Logique de cycle de vitesse (x1 -> x2 -> x5 -> x10 -> x1)
             if (speed == GameConfiguration.GAME_SPEED) {
                 speed = GameConfiguration.GAME_SPEED / 2;
                 control.setBtnVitesseText("Vitesse: x2");
             }
-            // Si on est en x2, on passe en x5
             else if (speed == GameConfiguration.GAME_SPEED / 2) {
                 speed = GameConfiguration.GAME_SPEED / 5;
                 control.setBtnVitesseText("Vitesse: x5");
             }
-            // Si on est en x5, on passe en x10 <-- CORRECTION ICI
             else if (speed == GameConfiguration.GAME_SPEED / 5){
-                speed = GameConfiguration.GAME_SPEED / 10; // <-- CORRECTION ICI
+                speed = GameConfiguration.GAME_SPEED / 10;
                 control.setBtnVitesseText("Vitesse: x10");
             }
-            // Si on est en x10 (ou autre anomalie), on boucle et on revient à x1
             else {
                 speed = GameConfiguration.GAME_SPEED;
                 control.setBtnVitesseText("Vitesse: x1");
@@ -183,19 +185,14 @@ public class MainGUI extends JFrame implements Runnable {
     }
 
     private class MouseControls implements MouseListener {
-
         @Override
         public void mouseClicked(MouseEvent e) {
-            int x = e.getX();
-            int y = e.getY();
-
-            Block position = dashboard.getBlockAt(x, y);
-
-            // On met à jour la variable globale.
-            // Si on clique dans le vide, ça deviendra 'null' et le run() repassera sur la moyenne !
+            // Conversion des pixels en coordonnées de la Grille
+            Block position = dashboard.getBlockAt(e.getX(), e.getY());
             habitantSelectionne = manager.getHabitant(position.getLine(), position.getColumn());
         }
 
+        // Méthodes requises par MouseListener mais non utilisées
         @Override public void mousePressed(MouseEvent e) {}
         @Override public void mouseReleased(MouseEvent e) {}
         @Override public void mouseEntered(MouseEvent e) {}
