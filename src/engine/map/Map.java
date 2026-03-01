@@ -1,7 +1,11 @@
 package engine.map;
+
 import engine.habitant.Habitant;
 import java.util.HashMap;
 
+/**
+ * Classe Map : Représente la grille de jeu.
+ */
 public class Map {
     private Block[][] blocks;
 
@@ -31,9 +35,7 @@ public class Map {
     private void init(int lineCount, int columnCount) {
         this.lineCount = lineCount;
         this.columnCount = columnCount;
-
         blocks = new Block[lineCount][columnCount];
-
     }
 
     public Block[][] getBlocks() {
@@ -52,25 +54,26 @@ public class Map {
         return blocks[line][column];
     }
 
+    // --- LOGIQUE DE GESTION DES BORDURES ---
+    // Ces méthodes sont essentielles pour la "collision detection" :
+    // elles empêchent les habitants de sortir de la grille.
+
     public boolean isOnTop(Block block) {
-        int line = block.getLine();
-        return line == 0;
+        return block.getLine() == 0;
     }
     public boolean isOnBottom(Block block) {
-        int line = block.getLine();
-        return line == lineCount - 1;
+        return block.getLine() == lineCount - 1;
     }
 
     public boolean isOnLeftBorder(Block block) {
-        int column = block.getColumn();
-        return column == 0;
+        return block.getColumn() == 0;
     }
 
     public boolean isOnRightBorder(Block block) {
-        int column = block.getColumn();
-        return column == columnCount - 1;
+        return block.getColumn() == columnCount - 1;
     }
 
+    // Méthode pour vérifier si un bloc est sur n'importe quel bord
     public boolean isOnBorder(Block block) {
         return isOnTop(block) || isOnBottom(block) || isOnLeftBorder(block) || isOnRightBorder(block);
     }
