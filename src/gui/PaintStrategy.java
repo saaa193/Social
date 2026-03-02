@@ -20,7 +20,6 @@ public class PaintStrategy {
 
     /**
      * Dessine la grille de la carte.
-     * Utilise un motif en damier pour une meilleure lisibilité spatiale.
      */
     public void paint(Map map, Graphics graphics) {
         int blockSize = GameConfiguration.BLOCK_SIZE;
@@ -30,11 +29,9 @@ public class PaintStrategy {
             for (int columnIndex = 0; columnIndex < map.getColumnCount(); columnIndex++) {
                 Block block = blocks[lineIndex][columnIndex];
 
-                // Alternance de couleur pour créer un effet de damier (1 case sur 2)
-                if ((lineIndex + columnIndex) % 2 == 0) {
-                    graphics.setColor(Color.WHITE);
-                    graphics.fillRect(block.getColumn() * blockSize, block.getLine() * blockSize, blockSize, blockSize);
-                }
+                // On applique la couleur blanche sur TOUS les blocs
+                graphics.setColor(Color.WHITE);
+                graphics.fillRect(block.getColumn() * blockSize, block.getLine() * blockSize, blockSize, blockSize);
             }
         }
     }
