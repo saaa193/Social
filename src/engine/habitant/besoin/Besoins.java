@@ -76,7 +76,11 @@ public class Besoins {
 
     // Utilisation de Math.max/min pour assurer une sécurité supplémentaire lors de la modification.
     public void setFaim(int faim){ this.faim = Math.max(0, Math.min(100, faim)); }
-    public void setMoral(int moral){ this.moral=Math.max(0, Math.min(100, moral)); }
+
+    public void setMoral(int moral){
+        this.moral=Math.max(0, Math.min(100, moral));
+    }
+
     public void setFatigue(int fatigue){ this.fatigue=Math.max(0, Math.min(100, fatigue)); }
     public void setSante(int sante){ this.sante=Math.max(0, Math.min(100, sante)); }
     public void setSocial(int social){ this.social=Math.max(0, Math.min(100, social)); }

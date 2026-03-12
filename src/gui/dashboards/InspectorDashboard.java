@@ -25,26 +25,6 @@ public class InspectorDashboard extends JPanel {
     private JProgressBar santeBar = new JProgressBar(0, 100);
     private JProgressBar moralBar = new JProgressBar(0, 100);
 
-    public InspectorDashboard() {
-        // Layout en grille (15 lignes, 1 colonne) pour un affichage vertical propre
-        this.setLayout(new GridLayout(15, 1));
-        this.setPreferredSize(new Dimension(GameConfiguration.MENU_RIGHT_WIDTH, 0));
-        this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        this.setBackground(Color.LIGHT_GRAY);
-
-        this.add(new JLabel("   --- INFOS HABITANT ---"));
-        this.add(nomLabel);
-        this.add(sexeLabel);
-        this.add(ageLabel);
-        this.add(new JLabel("   --- BESOINS ---"));
-
-        // Utilisation de la méthode utilitaire pour éviter la répétition de code
-        setupBar(" Faim :", faimBar, Color.ORANGE);
-        setupBar(" Fatigue :", fatigueBar, new Color(100, 149, 237));
-        setupBar(" Social :", socialBar, Color.YELLOW);
-        setupBar(" Santé :", santeBar, Color.GREEN);
-        setupBar(" Moral :", moralBar, Color.MAGENTA);
-    }
 
     /**
      * Méthode utilitaire : Configure le style des jauges uniformément.
