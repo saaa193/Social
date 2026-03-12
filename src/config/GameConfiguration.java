@@ -22,4 +22,14 @@ public class GameConfiguration {
 
     // Vitesse de la boucle de jeu (en millisecondes). 500ms signifie un tour toutes les 0.5s
     public static final int GAME_SPEED = 500;
+
+
+
+    // Taux de base (sans influence OCEAN)
+    public static final double BASE_FAIM    = 0.37;
+    public static final double BASE_FATIGUE = 0.55;
+    public static final double BASE_SOCIAL  = 0.26;
+
+    // Amplitude max de l'influence OCEAN (±20%)
+    public static final double OCEAN_IMPACT = 0.20;
 }
