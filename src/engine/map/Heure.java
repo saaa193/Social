@@ -35,7 +35,7 @@ public class Heure {
         for (int i = 0; i < nbMinutes; i++) {
             minutes++;
 
-            // Gestion du passage à l'heure suivante
+            // Gestion du passage  à l'heure suivante
             if (minutes >= 60) {
                 minutes = 0;
                 heures++;

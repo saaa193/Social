@@ -49,7 +49,6 @@ public class ControlDashboard extends JPanel {
         this.add(droite, BorderLayout.EAST);
     }
 
-    // --- API DE MISE À JOUR ---
     // Au lieu de rendre les labels publics, on expose des méthodes "set".
     // Cela permet au Controller de mettre à jour l'IHM sans connaître les détails techniques.
 
