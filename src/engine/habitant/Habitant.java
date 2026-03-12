@@ -1,5 +1,6 @@
 package engine.habitant;
 
+import config.GameConfiguration;
 import engine.habitant.lien.Amical;
 import engine.habitant.lien.Familial;
 import engine.habitant.lien.Liens;
@@ -27,6 +28,12 @@ public class Habitant extends MobileElement {
     // Cela permet de rendre chaque habitant unique dans son comportement.
     private int ouverture, conscience, extraversion, agreabilite, nevrosisme;
 
+    // Taux de dégradation personnels (calculés depuis OCEAN)
+    private double tauxFaim;
+    private double tauxFatigue;
+    private double tauxSocial;
+
+
     // Liste des relations sociales (le réseau social de l'habitant)
     private List<Liens> relations = new ArrayList<Liens>();
 
@@ -44,21 +51,26 @@ public class Habitant extends MobileElement {
         this.extraversion = (int)(Math.random() * 101);
         this.agreabilite = (int)(Math.random() * 101);
         this.nevrosisme = (int)(Math.random() * 101);
+
+        // Dans le constructeur, APRES la génération OCEAN :
+        this.tauxFaim    = GameConfiguration.BASE_FAIM - (conscience   / 100.0) * GameConfiguration.OCEAN_IMPACT;
+
+        this.tauxFatigue = GameConfiguration.BASE_FATIGUE + (nevrosisme   / 100.0) * GameConfiguration.OCEAN_IMPACT + (extraversion / 100.0) * GameConfiguration.OCEAN_IMPACT / 2;
+
+        this.tauxSocial  = GameConfiguration.BASE_SOCIAL + (extraversion / 100.0) * GameConfiguration.OCEAN_IMPACT - (agreabilite  / 100.0) * GameConfiguration.OCEAN_IMPACT / 2;
     }
 
     /**
      * Méthode appelée à chaque tour pour mettre à jour l'état de l'habitant.
      */
-    public void vivre(boolean estLaNuit){
-        besoins.vivre(estLaNuit);
+    public void vivre(boolean estLaNuit) {
+        besoins.vivre(estLaNuit, tauxFaim, tauxFatigue, tauxSocial);
 
-        // Influence du caractère sur les besoins :
-        // Un extraverti souffre davantage d'un manque de vie sociale.
-        if (extraversion > 70 && besoins.getSocial() < 30){
+        // Influence OCEAN sur le moral → inchangé
+        if (extraversion > 70 && besoins.getSocial() < 30) {
             besoins.setMoral(besoins.getMoral() - 2);
         }
-        // Un névrosé gère moins bien sa santé fragile.
-        if(nevrosisme > 70 && besoins.getSante() < 50){
+        if (nevrosisme > 70 && besoins.getSante() < 50) {
             besoins.setMoral(besoins.getMoral() - 3);
         }
     }
