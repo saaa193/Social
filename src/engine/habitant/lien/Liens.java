@@ -2,37 +2,34 @@ package engine.habitant.lien;
 
 import engine.habitant.Habitant;
 
-/**
- * Classe abstraite Liens.
- * Elle sert de modèle (ou de "contrat") pour tous les types de relations sociales.
- * Le fait qu'elle soit abstraite empêche d'instancier un "lien" générique :
- * on doit obligatoirement définir s'il s'agit d'un lien Amical, Familial ou Professionnel.
- */
 public abstract class Liens {
 
-    // protected permet aux classes filles (Familial, Amical, etc.) d'accéder directement aux données,
-    // tout en restant caché pour le reste du programme (encapsulation).
     protected Habitant partenaire;
     protected int force;
 
     public Liens(Habitant partenaire, int force) {
         this.partenaire = partenaire;
-        this.force = force;
+        this.setForce(force); // setter pour sécuriser dès la création
     }
 
-    // Accesseurs
-    public Habitant getPartenaire() {
-        return partenaire;
+    public Habitant getPartenaire() { return partenaire; }
+    public int getForce() { return force; }
+
+    // Clamping : la force reste toujours entre 0 et 100
+    public void setForce(int force) {
+        this.force = Math.max(0, Math.min(100, force));
     }
 
-    public int getForce() {
-        return force;
-    }
+    public abstract void appliquerBonusMental(Habitant proprietaire);
 
     /**
-     * Méthode abstraite : C'est le point clé de notre polymorphisme.
-     * Chaque type de lien devra définir sa propre façon d'impacter le moral/social.
-     * Le manager n'a pas besoin de savoir quel est le type de lien, il appelle juste cette méthode.
+     * Fait évoluer la force du lien selon l'état des habitants.
+     * @return true = lien vivant | false = lien mort à supprimer
      */
-    public abstract void appliquerBonusMental(Habitant proprietaire);
+    public abstract boolean evoluerForce(Habitant proprietaire);
+
+    // Utilitaire pour le nettoyage dans Habitant
+    public boolean estMort() {
+        return this.force <= 0;
+    }
 }

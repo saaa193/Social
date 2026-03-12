@@ -2,29 +2,37 @@ package engine.habitant.lien;
 
 import engine.habitant.Habitant;
 
-/**
- * Classe représentant une relation familiale.
- * Elle se distingue du lien Amical par une priorité donnée à la stabilité émotionnelle (Moral).
- */
 public class Familial extends Liens {
 
     public Familial(Habitant partenaire, int force) {
         super(partenaire, force);
     }
 
-    /**
-     * Applique les effets d'un lien familial sur les besoins de l'habitant.
-     * Le bonus de moral est plus élevé (+30) car la famille est une source de réconfort profond.
-     */
     @Override
     public void appliquerBonusMental(Habitant proprietaire) {
+        double ratio = this.force / 100.0;
 
-        // Boost important du moral (+30) : le soutien familial est vital pour le bien-être.
-        int moralActuel = proprietaire.getBesoins().getMoral();
-        proprietaire.getBesoins().setMoral(moralActuel + 30);
+        int bonusMoral = (int) (25 * ratio);
+        int bonusSocial = (int) (15 * ratio);
 
-        // Boost social (+20) : un peu moins que l'amitié, car c'est un lien plus durable et moins centré sur l'événementiel.
-        int socialActuel = proprietaire.getBesoins().getSocial();
-        proprietaire.getBesoins().setSocial(socialActuel + 20);
+        proprietaire.getBesoins().setMoral(proprietaire.getBesoins().getMoral() + bonusMoral);
+        proprietaire.getBesoins().setSocial(proprietaire.getBesoins().getSocial() + bonusSocial);
+    }
+
+    @Override
+    public boolean evoluerForce(Habitant proprietaire) {
+
+        if (proprietaire.getMoral() > 50 && partenaire.getMoral() > 50) {
+            // Les deux vont bien → lien se renforce doucement
+            setForce(getForce() + 1);
+        } else if (proprietaire.getMoral() < 30 || partenaire.getMoral() < 30) {
+            // L'un va mal → dégradation très faible (famille = stable)
+            setForce(getForce() - 1);
+        }
+
+        // Un lien familial ne meurt JAMAIS → on le bloque à 10 minimum
+        if (this.force < 10) setForce(10);
+
+        return true; // toujours vivant
     }
 }
