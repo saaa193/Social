@@ -19,6 +19,8 @@ public class MobileElementManager implements MobileInterface {
     private List<Habitant> habitants = new ArrayList<Habitant>();
     private Horloge horloge = new Horloge();
     private Random random = new Random();
+    // L'information active en cours de propagation (null = aucune)
+    private InformationTransmission informationEnCours = null;
 
     public MobileElementManager(Map map) {
         this.map = map;
@@ -61,11 +63,17 @@ public class MobileElementManager implements MobileInterface {
                 // État Normal : Mouvement libre
                 moveRandomly(h);
             }
+
         }
 
         // 3. Gestion des interactions sociales (seulement le jour, quand ils sont actifs)
         if (!estLaNuit) {
             verifierRencontres();
+        }
+
+        // Propagation de l'information si une est active
+        if (informationEnCours != null) {
+            informationEnCours.propagerDansReseau(habitants);
         }
     }
 
@@ -121,6 +129,22 @@ public class MobileElementManager implements MobileInterface {
         }
 
         h.setPosition(map.getBlock(l, col));
+    }
+
+    /**
+     * Déclenche la propagation d'une nouvelle information.
+     * Appelée depuis MacroDashboard quand l'utilisateur clique
+     * sur "Propager une Information".
+     */
+    public void lancerInformation(String theme, float virulence, float veracite) {
+        this.informationEnCours = new InformationTransmission(theme, virulence, veracite);
+    }
+
+    /**
+     * Arrête la propagation en cours.
+     */
+    public void arreterInformation() {
+        this.informationEnCours = null;
     }
 
     // --- ACCESSEURS ---

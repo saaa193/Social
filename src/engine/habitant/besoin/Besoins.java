@@ -1,34 +1,33 @@
 package engine.habitant.besoin;
 
-/**
- * Cette classe gère le modèle biologique et psychologique d'un habitant.
- * Elle contient l'état actuel des besoins et la logique de mise à jour à chaque tour de jeu.
- */
+import engine.habitant.nutrition.StrategieNutrition;
+
 public class Besoins {
 
-    private int faim = 100;
-    private int moral = 100;
+    private int faim    = 100;
+    private int moral   = 100;
     private int fatigue = 100;
-    private int sante = 100;
-    private int social = 100;
+    private int sante   = 100;
+    private int social  = 100;
+    private StrategieNutrition strategieNutrition;
 
-    /**
-     * Méthode appelée à chaque tour de simulation.
-     * @param estLaNuit : cycle jour/nuit
-     *
-     */
+    public Besoins(StrategieNutrition strategie) {
+        this.strategieNutrition = strategie;
+    }
+
     public void vivre(boolean estLaNuit, double tauxFaim, double tauxFatigue, double tauxSocial) {
 
-        if (estLaNuit) {
-            if (Math.random() < 0.85) this.fatigue += 1;
+        strategieNutrition.appliquer(this);
 
+        if (estLaNuit) {
+            if (Math.random() < 0.85) this.fatigue += 3;
+            if (Math.random() < 0.50) this.faim    += 2;
         } else {
             if (Math.random() < tauxFaim)    this.faim    -= 1;
             if (Math.random() < tauxFatigue) this.fatigue -= 1;
             if (Math.random() < tauxSocial)  this.social  -= 1;
         }
 
-        // Moral et Santé → inchangés
         if (this.faim < 30 || this.social < 30 || this.fatigue < 20) {
             if (Math.random() < 0.15) this.moral -= 1;
         } else if (this.faim > 70 && this.social > 70 && this.fatigue > 50) {
