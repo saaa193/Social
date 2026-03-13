@@ -189,10 +189,17 @@ public class MainGUI extends JFrame implements Runnable {
         public void mouseClicked(MouseEvent e) {
             // Conversion des pixels en coordonnées de la Grille
             Block position = dashboard.getBlockAt(e.getX(), e.getY());
-            habitantSelectionne = manager.getHabitant(position.getLine(), position.getColumn());
+            Habitant habitant = manager.getHabitant(position.getLine(), position.getColumn());
+
+            if (habitant != null) {
+                // Ouvre la fenêtre modale d'inspection
+                new InspectionCitoyenModal(instance, habitant);
+            } else {
+                // Aucun habitant cliqué → on remet la vue moyenne
+                habitantSelectionne = null;
+            }
         }
 
-        // Méthodes requises par MouseListener mais non utilisées
         @Override public void mousePressed(MouseEvent e) {}
         @Override public void mouseReleased(MouseEvent e) {}
         @Override public void mouseEntered(MouseEvent e) {}
