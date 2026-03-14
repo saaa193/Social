@@ -30,6 +30,7 @@ public class Habitant extends MobileElement {
     private double tauxFaim;
     private double tauxFatigue;
     private double tauxSocial;
+    private double tauxRecuperation;
 
     // Réseau social
     private List<Liens> relations = new ArrayList<Liens>();
@@ -43,17 +44,26 @@ public class Habitant extends MobileElement {
         this.psychologie = new Psychologie();
 
         this.besoins = new Besoins(this.psychologie.determinerStrategieNutrition());
-        this.besoins.setMoral(50);
+        // Légère variance initiale pour diversifier la population
+        this.besoins.setFaim(   60 + (int)(Math.random() * 40));  // entre 60 et 100
+        this.besoins.setFatigue(50 + (int)(Math.random() * 50));  // entre 50 et 100
+        this.besoins.setSocial( 40 + (int)(Math.random() * 60));  // entre 40 et 100
+        this.besoins.setMoral(  40 + (int)(Math.random() * 40));  // entre 40 et 80
 
         // Calcul des taux personnels depuis OCEAN
         this.tauxFaim    = GameConfiguration.BASE_FAIM
                 - (psychologie.getConscience()   / 100.0) * GameConfiguration.OCEAN_IMPACT;
+
         this.tauxFatigue = GameConfiguration.BASE_FATIGUE
                 + (psychologie.getNevrosisme()   / 100.0) * GameConfiguration.OCEAN_IMPACT
                 + (psychologie.getExtraversion() / 100.0) * GameConfiguration.OCEAN_IMPACT / 2;
+
         this.tauxSocial  = GameConfiguration.BASE_SOCIAL
                 + (psychologie.getExtraversion() / 100.0) * GameConfiguration.OCEAN_IMPACT
                 - (psychologie.getAgreabilite()  / 100.0) * GameConfiguration.OCEAN_IMPACT / 2;
+
+        this.tauxRecuperation = GameConfiguration.BASE_RECUPERATION
+                - (psychologie.getNevrosisme() / 100.0) * GameConfiguration.OCEAN_IMPACT * 2;
     }
     /**
      * Pattern Visitor : L'habitant "accepte" de subir un événement (météo, social, etc.)
@@ -63,16 +73,7 @@ public class Habitant extends MobileElement {
         visiteurEvenement.visit(this);
     }
 
-    // --- VIVRE ---
-    public void vivre(boolean estLaNuit) {
-        besoins.vivre(estLaNuit, tauxFaim, tauxFatigue, tauxSocial);
 
-        EtatHabitant etat = psychologie.determinerEtat(besoins);
-        etat.appliquer(this);
-
-        // NETTOYAGE des liens morts à chaque tour
-        nettoyerLiensMorts();
-    }
 
     /**
      * Supprime tous les liens dont la force est tombée à 0.
@@ -149,6 +150,8 @@ public class Habitant extends MobileElement {
     public int getAgreabilite()          { return psychologie.getAgreabilite(); }
     public int getNevrosisme()           { return psychologie.getNevrosisme(); }
 
+    
+
     @Override
     public String toString() {
         return prenom + " (" + sexe + ", " + age + " ans) - Moral: " + getMoral();
@@ -164,7 +167,7 @@ public class Habitant extends MobileElement {
         if (estLaNuit()) return;
 
         // FATIGUE → trop épuisé pour bouger
-        if (besoins.getFatigue() < 20) return;
+        if (besoins.getFatigue() < 35) return; // ← était < 20
 
         // DÉPRIMÉ → bouge au ralenti
         if (getMoral() < 30 && Math.random() > 0.33) return;
@@ -185,6 +188,12 @@ public class Habitant extends MobileElement {
 
     @Override
     protected void agir(boolean estLaNuit) {
-        vivre(estLaNuit);
+        // Ancien contenu de vivre()
+        besoins.vivre(estLaNuit, tauxFaim, tauxFatigue, tauxSocial, tauxRecuperation);
+
+        EtatHabitant etat = psychologie.determinerEtat(besoins);
+        etat.appliquer(this);
+
+        nettoyerLiensMorts();
     }
 }
