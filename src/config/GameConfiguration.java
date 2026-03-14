@@ -27,9 +27,10 @@ public class GameConfiguration {
 
     // Taux de base (sans influence OCEAN)
     public static final double BASE_FAIM    = 0.37;
-    public static final double BASE_FATIGUE = 0.55;
+    public static final double BASE_FATIGUE = 0.42;
     public static final double BASE_SOCIAL  = 0.26;
-
+    // Taux de récupération de base la nuit
+    public static final double BASE_RECUPERATION = 0.70;
     // Amplitude max de l'influence OCEAN (±20%)
     public static final double OCEAN_IMPACT = 0.20;
 }

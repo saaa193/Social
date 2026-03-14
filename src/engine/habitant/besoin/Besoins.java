@@ -15,19 +15,22 @@ public class Besoins {
         this.strategieNutrition = strategie;
     }
 
-    public void vivre(boolean estLaNuit, double tauxFaim, double tauxFatigue, double tauxSocial) {
-
-        strategieNutrition.appliquer(this);
+    public void vivre(boolean estLaNuit, double tauxFaim,
+                      double tauxFatigue, double tauxSocial,
+                      double tauxRecuperation) {
 
         if (estLaNuit) {
-            if (Math.random() < 0.85) this.fatigue += 3;
-            if (Math.random() < 0.50) this.faim    += 2;
+            if (Math.random() < tauxRecuperation) this.fatigue += 2;
+            if (Math.random() < 0.35)             this.faim    += 1;
+
         } else {
+            strategieNutrition.appliquer(this);
             if (Math.random() < tauxFaim)    this.faim    -= 1;
             if (Math.random() < tauxFatigue) this.fatigue -= 1;
             if (Math.random() < tauxSocial)  this.social  -= 1;
         }
 
+        // moral et santé — inchangés
         if (this.faim < 30 || this.social < 30 || this.fatigue < 20) {
             if (Math.random() < 0.15) this.moral -= 1;
         } else if (this.faim > 70 && this.social > 70 && this.fatigue > 50) {
