@@ -8,6 +8,8 @@ import engine.habitant.lien.Liens;
 import engine.MobileElement;
 import engine.map.Block;
 import engine.habitant.besoin.Besoins;
+import engine.map.Map;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,11 +34,12 @@ public class Habitant extends MobileElement {
     // Réseau social
     private List<Liens> relations = new ArrayList<Liens>();
 
-    public Habitant(Block position, String prenom, String sexe, int age) {
+    public Habitant(Block position, Map map, String prenom, String sexe, int age) {
         super(position);
         this.prenom = prenom;
         this.sexe = sexe;
         this.age = age;
+        super(position, map);
 
         this.psychologie = new Psychologie();
 
@@ -158,13 +161,25 @@ public class Habitant extends MobileElement {
 
     @Override
     protected void seDeplacer() {
-        // La logique de déplacement se fera ici ou via le Manager.
-        // On laisse vide pour l'instant, mais la méthode DOIT exister pour le contrat !
+        // Cas où l'habitant ne bouge pas
+        if (besoins.getFatigue() < 20) return; // dort
+        if (getMoral() < 30 && Math.random() > 0.33) return; // déprimé
+
+        int direction = (int)(Math.random() * 4);
+        Block pos = getPosition();
+        int l   = pos.getLine();
+        int col = pos.getColumn();
+
+        if      (direction == 0 && !map.isOnTop(pos))         l--;
+        else if (direction == 1 && !map.isOnBottom(pos))      l++;
+        else if (direction == 2 && !map.isOnLeftBorder(pos))  col--;
+        else if (direction == 3 && !map.isOnRightBorder(pos)) col++;
+
+        setPosition(map.getBlock(l, col));
     }
 
     @Override
     protected void agir(boolean estLaNuit) {
-        // Le "Template Method" force l'habitant à agir. Son action, c'est de vivre.
         vivre(estLaNuit);
     }
 }

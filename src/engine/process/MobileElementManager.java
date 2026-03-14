@@ -32,50 +32,25 @@ public class MobileElementManager implements MobileInterface {
      */
     @Override
     public void nextRound() {
-
-        // 1. Gestion du cycle Jour/Nuit (déterminant pour le comportement des agents)
         int heureActuelle = horloge.getHeureObject().getHeures();
         boolean estLaNuit = (heureActuelle >= 23 || heureActuelle < 7);
-        int vitesse = 10; // Exemple : 10 minutes par tick
-        horloge.incrementer(vitesse);
+        horloge.incrementer(10);
 
-        // 2. Mise à jour de chaque habitant
         for (Habitant h : habitants) {
-            // On vérifie s'il est en vie avant de traiter son tour
-            if (h.getBesoins().getSante() <= 0) {
-                continue;
+            if (h.getBesoins().getSante() > 0) {
+                h.executerTour(estLaNuit); // ✅ Template Method — propre et complet
             }
-
-            // Mise à jour des besoins biologiques
-            h.vivre(estLaNuit);
-
-            // LOGIQUE D'ÉTAT : On décide du comportement de l'habitant selon son état
-            if (estLaNuit || h.getBesoins().getFatigue() < 20) {
-                // État Sommeil : L'habitant ne bouge pas (économie de ressources)
-            }
-            else if (h.getMoral() < 30) {
-                // État Déprime : Mouvement ralenti (1 chance sur 3 de bouger)
-                if (random.nextInt(3) == 0) {
-                    moveRandomly(h);
-                }
-            }
-            else {
-                // État Normal : Mouvement libre
-                moveRandomly(h);
-            }
-
         }
 
-        // 3. Gestion des interactions sociales (seulement le jour, quand ils sont actifs)
-        if (!estLaNuit) {
-            verifierRencontres();
-        }
+        if (!estLaNuit) verifierRencontres();
 
-        // Propagation de l'information si une est active
         if (informationEnCours != null) {
             informationEnCours.propagerDansReseau(habitants);
         }
     }
+
+    // ATTENTION : SUPPRIME totalement l'ancienne méthode "moveRandomly(Habitant h)"
+    // qui était dans ce fichier. Elle ne sert plus à rien !
 
     /**
      * Détection des collisions pour les interactions sociales.
@@ -107,29 +82,6 @@ public class MobileElementManager implements MobileInterface {
         }
     }
 
-    /**
-     * Algorithme de mouvement aléatoire.
-     * Utilise les méthodes de Map pour s'assurer que l'habitant ne sort pas du cadre.
-     */
-    private void moveRandomly(Habitant h) {
-        int direction = random.nextInt(4);
-        Block pos = h.getPosition();
-        int l = pos.getLine();
-        int col = pos.getColumn();
-
-        // Réutilisation des méthodes de la Map
-        if (direction == 0 && !map.isOnTop(pos)) {
-            l--;
-        } else if (direction == 1 && !map.isOnBottom(pos)) {
-            l++;
-        } else if (direction == 2 && !map.isOnLeftBorder(pos)) {
-            col--;
-        } else if (direction == 3 && !map.isOnRightBorder(pos)) {
-            col++;
-        }
-
-        h.setPosition(map.getBlock(l, col));
-    }
 
     /**
      * Déclenche la propagation d'une nouvelle information.
