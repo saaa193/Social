@@ -35,11 +35,10 @@ public class Habitant extends MobileElement {
     private List<Liens> relations = new ArrayList<Liens>();
 
     public Habitant(Block position, Map map, String prenom, String sexe, int age) {
-        super(position);
+        super(position, map);
         this.prenom = prenom;
         this.sexe = sexe;
         this.age = age;
-        super(position, map);
 
         this.psychologie = new Psychologie();
 
@@ -161,10 +160,16 @@ public class Habitant extends MobileElement {
 
     @Override
     protected void seDeplacer() {
-        // Cas où l'habitant ne bouge pas
-        if (besoins.getFatigue() < 20) return; // dort
-        if (getMoral() < 30 && Math.random() > 0.33) return; // déprimé
+        // NUIT → tout le monde dort, personne ne bouge
+        if (estLaNuit()) return;
 
+        // FATIGUE → trop épuisé pour bouger
+        if (besoins.getFatigue() < 20) return;
+
+        // DÉPRIMÉ → bouge au ralenti
+        if (getMoral() < 30 && Math.random() > 0.33) return;
+
+        // Mouvement normal
         int direction = (int)(Math.random() * 4);
         Block pos = getPosition();
         int l   = pos.getLine();
