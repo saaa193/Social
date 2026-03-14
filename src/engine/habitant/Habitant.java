@@ -1,6 +1,7 @@
 package engine.habitant;
 
 import config.GameConfiguration;
+import engine.evenement.EventVisitor;
 import engine.habitant.etat.EtatHabitant;
 import engine.habitant.lien.Amical;
 import engine.habitant.lien.Liens;
@@ -51,6 +52,13 @@ public class Habitant extends MobileElement {
         this.tauxSocial  = GameConfiguration.BASE_SOCIAL
                 + (psychologie.getExtraversion() / 100.0) * GameConfiguration.OCEAN_IMPACT
                 - (psychologie.getAgreabilite()  / 100.0) * GameConfiguration.OCEAN_IMPACT / 2;
+    }
+    /**
+     * Pattern Visitor : L'habitant "accepte" de subir un événement (météo, social, etc.)
+     * L'événement appliquera alors ses propres règles sur l'habitant.
+     */
+    public void acceptEvent(EventVisitor visiteurEvenement) {
+        visiteurEvenement.visit(this);
     }
 
     // --- VIVRE ---
@@ -142,5 +150,21 @@ public class Habitant extends MobileElement {
     @Override
     public String toString() {
         return prenom + " (" + sexe + ", " + age + " ans) - Moral: " + getMoral();
+    }
+
+    // =========================================================
+    // 2. IMPLEMENTATION DU PATTERN TEMPLATE METHOD (MobileElement)
+    // =========================================================
+
+    @Override
+    protected void seDeplacer() {
+        // La logique de déplacement se fera ici ou via le Manager.
+        // On laisse vide pour l'instant, mais la méthode DOIT exister pour le contrat !
+    }
+
+    @Override
+    protected void agir(boolean estLaNuit) {
+        // Le "Template Method" force l'habitant à agir. Son action, c'est de vivre.
+        vivre(estLaNuit);
     }
 }
