@@ -55,4 +55,11 @@ public class Besoins {
     public void setFatigue(int fatigue) { this.fatigue = Math.max(0, Math.min(100, fatigue)); }
     public void setSante(int sante)     { this.sante   = Math.max(0, Math.min(100, sante)); }
     public void setSocial(int social)   { this.social  = Math.max(0, Math.min(100, social)); }
+
+    /**
+     * Met à jour la stratégie de nutrition selon l'évolution du profil OCEAN.
+     */
+    public void setStrategieNutrition(StrategieNutrition strategie) {
+        this.strategieNutrition = strategie;
+    }
 }

@@ -63,14 +63,15 @@ public class MobileElementManager implements MobileInterface {
                 Habitant h1 = habitants.get(i);
                 Habitant h2 = habitants.get(j);
 
-                // Si les deux habitants sont sur la même case (collision)
                 if (h1.getPosition().equals(h2.getPosition())) {
                     if (h1.getBesoins().getSante() > 0 && h2.getBesoins().getSante() > 0) {
 
-                        // Logique de sociabilisation basée sur l'agréabilité
                         if (h1.getAgreabilite() > 50 && h2.getAgreabilite() > 50) {
                             h1.ajouterLienAmical(h2);
                             h2.ajouterLienAmical(h1);
+                        } else if (h1.getConscience() > 60 && h2.getConscience() > 60) {
+                            h1.ajouterLienProfessionnel(h2);
+                            h2.ajouterLienProfessionnel(h1);
                         } else {
                             // Interaction basique même sans devenir amis
                             h1.getBesoins().setSocial(h1.getBesoins().getSocial() + 2);

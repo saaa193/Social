@@ -72,7 +72,7 @@ public class Psychologie {
 
     /**
      * Retourne la stratégie de nutrition selon le profil OCEAN dominant.
-     * Pas de if enchaînés sur le type — on compare des valeurs métier.
+     * on compare des valeurs métier.
      */
     public StrategieNutrition determinerStrategieNutrition() {
         if (conscience > 65) {
@@ -83,4 +83,30 @@ public class Psychologie {
         }
         return new NutritionSociale();
     }
+
+    /**
+     * Fait évoluer légèrement les traits OCEAN selon l'état psychologique actuel.
+     * Appelée à chaque tour depuis Habitant.agir().
+     */
+    public void evoluer(EtatHabitant etat) {
+        if (etat instanceof EtatEpanoui) {
+            agreabilite = Math.min(100, agreabilite + 1);
+            nevrosisme  = Math.max(0,   nevrosisme  - 1);
+            conscience  = Math.min(100, conscience  + 1);
+            ouverture   = Math.min(100, ouverture   + 1);
+        } else if (etat instanceof EtatAnxieux) {
+            nevrosisme   = Math.min(100, nevrosisme   + 1);
+            extraversion = Math.max(0,   extraversion - 1);
+            conscience   = Math.max(0,   conscience   - 1);
+            ouverture    = Math.max(0,   ouverture    - 1);
+        } else if (etat instanceof EtatIsole) {
+            extraversion = Math.max(0, extraversion - 1);
+            agreabilite  = Math.max(0, agreabilite  - 1);
+            ouverture    = Math.max(0, ouverture    - 1);
+            conscience   = Math.max(0, conscience   - 1);
+        }
+        // EtatStable → rien ne change
+    }
+
+
 }
