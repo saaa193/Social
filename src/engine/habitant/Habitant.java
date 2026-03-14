@@ -6,6 +6,8 @@ import engine.habitant.etat.EtatHabitant;
 import engine.habitant.lien.Amical;
 import engine.habitant.lien.Liens;
 import engine.MobileElement;
+import engine.habitant.lien.Professionnel;
+import engine.habitant.visitor.ContagionVisitor;
 import engine.map.Block;
 import engine.habitant.besoin.Besoins;
 import engine.map.Map;
@@ -45,26 +47,27 @@ public class Habitant extends MobileElement {
 
         this.besoins = new Besoins(this.psychologie.determinerStrategieNutrition());
         // Légère variance initiale pour diversifier la population
-        this.besoins.setFaim(   60 + (int)(Math.random() * 40));  // entre 60 et 100
-        this.besoins.setFatigue(50 + (int)(Math.random() * 50));  // entre 50 et 100
-        this.besoins.setSocial( 40 + (int)(Math.random() * 60));  // entre 40 et 100
-        this.besoins.setMoral(  40 + (int)(Math.random() * 40));  // entre 40 et 80
+        this.besoins.setFaim(60 + (int) (Math.random() * 40));  // entre 60 et 100
+        this.besoins.setFatigue(50 + (int) (Math.random() * 50));  // entre 50 et 100
+        this.besoins.setSocial(40 + (int) (Math.random() * 60));  // entre 40 et 100
+        this.besoins.setMoral(40 + (int) (Math.random() * 40));  // entre 40 et 80
 
         // Calcul des taux personnels depuis OCEAN
-        this.tauxFaim    = GameConfiguration.BASE_FAIM
-                - (psychologie.getConscience()   / 100.0) * GameConfiguration.OCEAN_IMPACT;
+        this.tauxFaim = GameConfiguration.BASE_FAIM
+                - (psychologie.getConscience() / 100.0) * GameConfiguration.OCEAN_IMPACT;
 
         this.tauxFatigue = GameConfiguration.BASE_FATIGUE
-                + (psychologie.getNevrosisme()   / 100.0) * GameConfiguration.OCEAN_IMPACT
+                + (psychologie.getNevrosisme() / 100.0) * GameConfiguration.OCEAN_IMPACT
                 + (psychologie.getExtraversion() / 100.0) * GameConfiguration.OCEAN_IMPACT / 2;
 
-        this.tauxSocial  = GameConfiguration.BASE_SOCIAL
+        this.tauxSocial = GameConfiguration.BASE_SOCIAL
                 + (psychologie.getExtraversion() / 100.0) * GameConfiguration.OCEAN_IMPACT
-                - (psychologie.getAgreabilite()  / 100.0) * GameConfiguration.OCEAN_IMPACT / 2;
+                - (psychologie.getAgreabilite() / 100.0) * GameConfiguration.OCEAN_IMPACT / 2;
 
         this.tauxRecuperation = GameConfiguration.BASE_RECUPERATION
                 - (psychologie.getNevrosisme() / 100.0) * GameConfiguration.OCEAN_IMPACT * 2;
     }
+
     /**
      * Pattern Visitor : L'habitant "accepte" de subir un événement (météo, social, etc.)
      * L'événement appliquera alors ses propres règles sur l'habitant.
@@ -72,7 +75,6 @@ public class Habitant extends MobileElement {
     public void acceptEvent(EventVisitor visiteurEvenement) {
         visiteurEvenement.visit(this);
     }
-
 
 
     /**
@@ -129,6 +131,36 @@ public class Habitant extends MobileElement {
     }
 
     /**
+     * Gestion d'une rencontre professionnelle avec un autre habitant.
+     * Deux habitants consciencieux créent un lien professionnel.
+     */
+    public void ajouterLienProfessionnel(Habitant autre) {
+        boolean dejaConnu = false;
+
+        for (Liens l : relations) {
+            if (l.getPartenaire() == autre) {
+                l.evoluerForce(this);
+                l.appliquerBonusMental(this);
+                dejaConnu = true;
+                break;
+            }
+        }
+
+        if (!dejaConnu) {
+            int limiteCollegues = (psychologie.getConscience() / 10) + 1;
+
+            if (this.relations.size() < limiteCollegues) {
+                int forceInitiale = calculerCompatibilite(autre);
+                Liens nouveauLien = new Professionnel(autre, forceInitiale);
+                relations.add(nouveauLien);
+                nouveauLien.appliquerBonusMental(this);
+            } else {
+                this.besoins.setSocial(this.besoins.getSocial() + 3);
+            }
+        }
+    }
+
+    /**
      * Délègue le calcul de compatibilité à Psychologie.
      */
     private int calculerCompatibilite(Habitant autre) {
@@ -136,21 +168,54 @@ public class Habitant extends MobileElement {
     }
 
     // --- ACCESSEURS ---
-    public List<Liens> getRelation()   { return relations; }
-    public String getPrenom()          { return prenom; }
-    public String getSexe()            { return sexe; }
-    public int getAge()                { return age; }
-    public int getMoral()              { return besoins.getMoral(); }
-    public Besoins getBesoins()        { return besoins; }
+    public List<Liens> getRelation() {
+        return relations;
+    }
 
-    public Psychologie getPsychologie()  { return psychologie; }
-    public int getExtraversion()         { return psychologie.getExtraversion(); }
-    public int getOuverture()            { return psychologie.getOuverture(); }
-    public int getConscience()           { return psychologie.getConscience(); }
-    public int getAgreabilite()          { return psychologie.getAgreabilite(); }
-    public int getNevrosisme()           { return psychologie.getNevrosisme(); }
+    public String getPrenom() {
+        return prenom;
+    }
 
-    
+    public String getSexe() {
+        return sexe;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public int getMoral() {
+        return besoins.getMoral();
+    }
+
+    public Besoins getBesoins() {
+        return besoins;
+    }
+
+    public Psychologie getPsychologie() {
+        return psychologie;
+    }
+
+    public int getExtraversion() {
+        return psychologie.getExtraversion();
+    }
+
+    public int getOuverture() {
+        return psychologie.getOuverture();
+    }
+
+    public int getConscience() {
+        return psychologie.getConscience();
+    }
+
+    public int getAgreabilite() {
+        return psychologie.getAgreabilite();
+    }
+
+    public int getNevrosisme() {
+        return psychologie.getNevrosisme();
+    }
+
 
     @Override
     public String toString() {
@@ -173,14 +238,14 @@ public class Habitant extends MobileElement {
         if (getMoral() < 30 && Math.random() > 0.33) return;
 
         // Mouvement normal
-        int direction = (int)(Math.random() * 4);
+        int direction = (int) (Math.random() * 4);
         Block pos = getPosition();
-        int l   = pos.getLine();
+        int l = pos.getLine();
         int col = pos.getColumn();
 
-        if      (direction == 0 && !map.isOnTop(pos))         l--;
-        else if (direction == 1 && !map.isOnBottom(pos))      l++;
-        else if (direction == 2 && !map.isOnLeftBorder(pos))  col--;
+        if (direction == 0 && !map.isOnTop(pos)) l--;
+        else if (direction == 1 && !map.isOnBottom(pos)) l++;
+        else if (direction == 2 && !map.isOnLeftBorder(pos)) col--;
         else if (direction == 3 && !map.isOnRightBorder(pos)) col++;
 
         setPosition(map.getBlock(l, col));
@@ -188,12 +253,23 @@ public class Habitant extends MobileElement {
 
     @Override
     protected void agir(boolean estLaNuit) {
-        // Ancien contenu de vivre()
         besoins.vivre(estLaNuit, tauxFaim, tauxFatigue, tauxSocial, tauxRecuperation);
 
         EtatHabitant etat = psychologie.determinerEtat(besoins);
         etat.appliquer(this);
+        psychologie.evoluer(etat);
+        besoins.setStrategieNutrition(psychologie.determinerStrategieNutrition());
+
+        int impact = etat.accept(new ContagionVisitor());
+        if (impact != 0) {
+            for (Liens l : relations) {
+                Habitant proche = l.getPartenaire();
+                int impactModule = (int)(impact * (l.getForce() / 100.0));
+                proche.getBesoins().setMoral(proche.getBesoins().getMoral() + impactModule);
+            }
+        }
 
         nettoyerLiensMorts();
     }
+
 }

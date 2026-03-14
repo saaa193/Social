@@ -17,6 +17,7 @@ import engine.habitant.besoin.Besoins;
 import engine.map.Block;
 import engine.map.Map;
 import engine.process.GameBuilder;
+import engine.process.GestionnaireEvenements;
 import engine.process.MobileInterface;
 
 import gui.dashboards.ControlDashboard;
@@ -106,6 +107,8 @@ public class MainGUI extends JFrame implements Runnable {
         setLocationRelativeTo(null); // Centre la fenêtre
         setVisible(true);
         setResizable(false);
+
+        macro.addEvenementListener(new EvenementAction());
     }
 
     /**
@@ -180,6 +183,16 @@ public class MainGUI extends JFrame implements Runnable {
             else {
                 speed = GameConfiguration.GAME_SPEED;
                 control.setBtnVitesseText("Vitesse: x1");
+            }
+        }
+    }
+
+    private class EvenementAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String choix = macro.getEvenementSelectionne();
+            if (choix != null && !choix.equals("⚡ Déclencher un Événement")) {
+                GestionnaireEvenements.declencherEvenement(choix, manager.getHabitants());
             }
         }
     }
