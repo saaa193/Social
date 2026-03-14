@@ -40,7 +40,7 @@ public class GameBuilder {
             int age = 18 + i;
             String sexe = (i % 2 == 0) ? "Male" : "Female";
 
-            Habitant h = new Habitant(position, prenom, sexe, age);
+            Habitant h = new Habitant(position, map, prenom, sexe, age);
 
             manager.addHabitant(h);
         }
