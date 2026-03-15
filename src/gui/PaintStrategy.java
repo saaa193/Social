@@ -18,6 +18,22 @@ import engine.habitant.Habitant;
  */
 public class PaintStrategy {
 
+    // Filtres d'affichage des liens — contrôlés par ReseauDashboard
+    private boolean afficherFamille = true;
+    private boolean afficherTravail = true;
+    private boolean afficherAmis    = true;
+
+    /**
+     * Met à jour les filtres d'affichage des liens.
+     * Appelée depuis MainGUI à chaque tour.
+     */
+    public void setFiltres(boolean famille, boolean travail, boolean amis) {
+        this.afficherFamille = famille;
+        this.afficherTravail = travail;
+        this.afficherAmis    = amis;
+    }
+
+
     /**
      * Dessine la grille de la carte.
      */
@@ -48,25 +64,29 @@ public class PaintStrategy {
         int x1 = position.getColumn() * blockSize + blockSize / 2;
         int y1 = position.getLine() * blockSize + blockSize / 2;
 
-        // 1. DESSIN DES LIENS SOCIAUX (Dessinés en premier pour être en arrière-plan)
+        // 1. DESSIN DES LIENS SOCIAUX
         if (habitant.getRelation() != null) {
             for (Liens lien : habitant.getRelation()) {
                 Habitant ami = lien.getPartenaire();
 
-                // Code couleur par type de relation (Polymorphisme des liens)
+                // On vérifie si ce type de lien doit être affiché
+                if (lien instanceof Familial && !afficherFamille) continue;
+                if (lien instanceof Professionnel && !afficherTravail) continue;
+                if (!(lien instanceof Familial) && !(lien instanceof Professionnel) && !afficherAmis) continue;
+
+                // Code couleur par type de relation
                 if (lien instanceof Familial) {
-                    graphics.setColor(Color.PINK); // Famille = Rose
+                    graphics.setColor(Color.PINK);
                 } else if (lien instanceof Professionnel) {
-                    graphics.setColor(Color.BLUE); // Travail = Bleu
+                    graphics.setColor(Color.BLUE);
                 } else {
-                    graphics.setColor(Color.GREEN); // Amis = Vert
+                    graphics.setColor(Color.GREEN);
                 }
 
                 Block posAmi = ami.getPosition();
                 int x2 = posAmi.getColumn() * blockSize + blockSize / 2;
                 int y2 = posAmi.getLine() * blockSize + blockSize / 2;
 
-                // Ligne entre les deux habitants
                 graphics.drawLine(x1, y1, x2, y2);
             }
         }

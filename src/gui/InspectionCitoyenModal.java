@@ -32,7 +32,7 @@ public class InspectionCitoyenModal extends JDialog {
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(Color.WHITE);
 
-        // --- HAUT : Identité + État ---
+        // HAUT : Identité + État
         JPanel panneauHaut = new JPanel(new BorderLayout());
         panneauHaut.setBackground(new Color(80, 60, 180));
         panneauHaut.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
@@ -78,7 +78,7 @@ public class InspectionCitoyenModal extends JDialog {
         nordPanel.add(etatPanel, BorderLayout.SOUTH);
         add(nordPanel, BorderLayout.NORTH);
 
-        // --- CENTRE : Besoins + OCEAN ---
+        // CENTRE : Besoins + OCEAN
         JPanel panneauCentre = new JPanel(new GridLayout(1, 2, 10, 0));
         panneauCentre.setBackground(Color.WHITE);
         panneauCentre.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
@@ -107,9 +107,9 @@ public class InspectionCitoyenModal extends JDialog {
 
         add(panneauCentre, BorderLayout.CENTER);
 
-        // --- BAS : Bouton fermer ---
+        // BAS : Bouton fermer
         JButton fermerBtn = new JButton("Fermer");
-        fermerBtn.addActionListener(e -> dispose());
+        fermerBtn.addActionListener(new FermerAction());
         JPanel bas = new JPanel();
         bas.setBackground(Color.WHITE);
         bas.add(fermerBtn);
@@ -151,6 +151,16 @@ public class InspectionCitoyenModal extends JDialog {
         if (labelEtat.equals("ANXIEUX"))  return Color.ORANGE;
         if (labelEtat.equals("DÉTRESSE")) return Color.RED;
         return Color.BLACK;
+    }
+
+    /**
+     * Action du bouton Fermer.
+     */
+    private class FermerAction implements java.awt.event.ActionListener {
+        @Override
+        public void actionPerformed(java.awt.event.ActionEvent e) {
+            dispose();
+        }
     }
 
 }

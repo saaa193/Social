@@ -1,6 +1,7 @@
 package engine.habitant;
 
 import engine.habitant.besoin.Besoins;
+import engine.habitant.deplacement.*;
 import engine.habitant.etat.EtatAnxieux;
 import engine.habitant.etat.EtatEpanoui;
 import engine.habitant.etat.EtatHabitant;
@@ -10,6 +11,8 @@ import engine.habitant.nutrition.NutritionConsciente;
 import engine.habitant.nutrition.NutritionNevrosee;
 import engine.habitant.nutrition.NutritionSociale;
 import engine.habitant.nutrition.StrategieNutrition;
+import engine.habitant.lien.Liens;
+import java.util.List;
 
 /**
  * Psychologie : encapsule le profil Big Five (OCEAN) d'un Habitant.
@@ -64,11 +67,11 @@ public class Psychologie {
         }
 
      //Getters
-    public int getOuverture()    { return ouverture; }
-    public int getConscience()   { return conscience; }
+    public int getOuverture() { return ouverture; }
+    public int getConscience() { return conscience; }
     public int getExtraversion() { return extraversion; }
-    public int getAgreabilite()  { return agreabilite; }
-    public int getNevrosisme()   { return nevrosisme; }
+    public int getAgreabilite() { return agreabilite; }
+    public int getNevrosisme() { return nevrosisme; }
 
     /**
      * Retourne la stratégie de nutrition selon le profil OCEAN dominant.
@@ -85,28 +88,129 @@ public class Psychologie {
     }
 
     /**
-     * Fait évoluer légèrement les traits OCEAN selon l'état psychologique actuel.
-     * Appelée à chaque tour depuis Habitant.agir().
+     * Fait évoluer les traits OCEAN selon l'état psychologique actuel.
+     * L'évolution n'est plus fixe à 1 point — elle dépend de l'intensité
+     * des traits et des besoins de l'habitant.
      */
-    public void evoluer(EtatHabitant etat) {
+    public void evoluer(EtatHabitant etat, Besoins besoins) {
+
         if (etat instanceof EtatEpanoui) {
-            agreabilite = Math.min(100, agreabilite + 1);
-            nevrosisme  = Math.max(0,   nevrosisme  - 1);
+            // Quand on est épanoui, on s'améliore
+            // L'agréabilité aide à progresser plus vite
+            int bonus = 1;
+            if (agreabilite > 60) {
+                bonus = 2;
+            }
+            agreabilite = Math.min(100, agreabilite + bonus);
+            nevrosisme  = Math.max(0,   nevrosisme  - bonus);
             conscience  = Math.min(100, conscience  + 1);
             ouverture   = Math.min(100, ouverture   + 1);
+
         } else if (etat instanceof EtatAnxieux) {
-            nevrosisme   = Math.min(100, nevrosisme   + 1);
-            extraversion = Math.max(0,   extraversion - 1);
-            conscience   = Math.max(0,   conscience   - 1);
-            ouverture    = Math.max(0,   ouverture    - 1);
+            // Plus le moral est bas, plus on se dégrade vite
+            int malus = 1;
+            if (besoins.getMoral() < 25) {
+                malus = 2;
+            }
+            // La conscience protège contre la dégradation
+            if (conscience > 60) {
+                malus = Math.max(1, malus - 1);
+            }
+
+            nevrosisme = Math.min(100,nevrosisme + malus);
+            extraversion = Math.max(0, extraversion - malus);
+            conscience = Math.max(0, conscience - 1);
+            ouverture = Math.max(0, ouverture - 1);
+
         } else if (etat instanceof EtatIsole) {
-            extraversion = Math.max(0, extraversion - 1);
-            agreabilite  = Math.max(0, agreabilite  - 1);
-            ouverture    = Math.max(0, ouverture    - 1);
-            conscience   = Math.max(0, conscience   - 1);
+            // Plus le social est bas, plus l'isolement empire
+            int malus = 1;
+            if (besoins.getSocial() < 20) {
+                malus = 2;
+            }
+            extraversion = Math.max(0, extraversion - malus);
+            agreabilite = Math.max(0, agreabilite - 1);
+            ouverture = Math.max(0, ouverture - 1);
+            conscience = Math.max(0, conscience - 1);
+
         }
         // EtatStable → rien ne change
     }
 
+    /**
+     * Retourne la stratégie de déplacement selon le profil OCEAN.
+     * Même principe que determinerStrategieNutrition().
+     */
+    public StrategieDeplacement determinerStrategieDeplacement() {
+        // Névrosisme très élevé → anxieux, fuit les autres
+        if (nevrosisme > 65) {
+            return new DeplacementAnxieux();
+        }
+        // Extraversion élevée → cherche les autres
+        if (extraversion > 65) {
+            return new DeplacementExtraverti();
+        }
+        // Extraversion faible → introverti, bouge peu
+        if (extraversion < 35) {
+            return new DeplacementIntroverti();
+        }
+        // Par défaut → déplacement stable aléatoire
+        return new DeplacementStable();
+    }
+
+    /**
+     * Un habitant est vulnérable si son névrosisme est élevé
+     * et son agréabilité est faible.
+     * Une personne vulnérable absorbe facilement les émotions négatives des autres.
+     */
+    public boolean estVulnerable() {
+        return nevrosisme > 60 && agreabilite < 40;
+    }
+
+    /**
+     * Un habitant est résilient si sa conscience et son agréabilité sont élevées.
+     * Une personne résiliente résiste bien aux chocs émotionnels des autres.
+     */
+    public boolean estResiliant() {
+        return conscience > 60 && agreabilite > 60;
+    }
+
+    /**
+     * Fait évoluer les traits OCEAN selon les liens sociaux de l'habitant.
+     * Les personnes autour de nous influencent notre profil psychologique.
+     * Appelée depuis Habitant.agir() à chaque tour.
+     */
+    public void evoluerSelonReseau(List<Liens> relations) {
+
+        // Si l'habitant n'a pas de liens, rien ne se passe
+        if (relations.isEmpty()) {
+            return;
+        }
+
+        // On parcourt tous les liens de l'habitant
+        for (Liens lien : relations) {
+            Habitant proche = lien.getPartenaire();
+
+            // Plus le lien est fort, plus l'influence est grande
+            // Un lien de force 100 donne une influence de 1.0
+            // Un lien de force 50 donne une influence de 0.5
+            double influence = lien.getForce() / 100.0;
+
+            // Si le proche est très névrosé → notre névrosisme monte légèrement
+            if (proche.getNevrosisme() > 70) {
+                nevrosisme = Math.min(100, nevrosisme + (int)(influence * 2));
+            }
+
+            // Si le proche est très agréable → notre agréabilité monte légèrement
+            if (proche.getAgreabilite() > 70) {
+                agreabilite = Math.min(100, agreabilite + (int)(influence * 1));
+            }
+
+            // Si le proche est très extraverti → notre extraversion monte légèrement
+            if (proche.getExtraversion() > 70) {
+                extraversion = Math.min(100, extraversion + (int)(influence * 1));
+            }
+        }
+    }
 
 }

@@ -59,4 +59,11 @@ public class GameDisplay extends JPanel {
             paintStrategy.paint(h, g);
         }
     }
+
+    /**
+     * Retourne la stratégie de dessin pour modifier les filtres.
+     */
+    public PaintStrategy getPaintStrategy() {
+        return paintStrategy;
+    }
 }

@@ -1,10 +1,10 @@
 package gui.dashboards;
 
 import config.GameConfiguration;
-import engine.process.MobileElementManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
@@ -26,56 +26,53 @@ public class MacroDashboard extends JPanel {
     private JComboBox<String> comboEvenement = new JComboBox<String>();
     private JButton btnInformation = new JButton("(•) Propager une Information");
 
+    // Listener pour connecter le bouton rumeur à MainGUI
+    private ActionListener informationListener = null;
+
     public MacroDashboard() {
         this.setPreferredSize(new Dimension(0, GameConfiguration.MENU_BOTTOM_HEIGHT));
         this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         this.setBackground(Color.LIGHT_GRAY);
         this.setLayout(new BorderLayout());
 
-        // --- Zone gauche : titre + curseurs ---
+        //Zone gauche : titre + curseurs
         JPanel zoneGauche = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
         zoneGauche.setBackground(Color.LIGHT_GRAY);
 
-        JLabel titre = new JLabel("⚙ PARAMÈTRES DE SIMULATION");
+        JLabel titre = new JLabel("PARAMETRES DE SIMULATION");
         titre.setFont(new Font("Arial", Font.BOLD, 11));
         zoneGauche.add(titre);
 
-        zoneGauche.add(new JLabel("Résistance :"));
+        zoneGauche.add(new JLabel("Resistance :"));
         sliderResistance.setBackground(Color.LIGHT_GRAY);
         sliderResistance.setPreferredSize(new Dimension(100, 30));
-        sliderResistance.addChangeListener(e ->
-                valeurResistance.setText(sliderResistance.getValue() + "%")
-        );
+        sliderResistance.addChangeListener(new SliderResistanceAction());
         zoneGauche.add(sliderResistance);
         zoneGauche.add(valeurResistance);
 
         zoneGauche.add(new JLabel("Force d'influence :"));
         sliderInfluence.setBackground(Color.LIGHT_GRAY);
         sliderInfluence.setPreferredSize(new Dimension(100, 30));
-        sliderInfluence.addChangeListener(e ->
-                valeurInfluence.setText(sliderInfluence.getValue() + "/10")
-        );
+        sliderInfluence.addChangeListener(new SliderInfluenceAction());
         zoneGauche.add(sliderInfluence);
         zoneGauche.add(valeurInfluence);
 
         this.add(zoneGauche, BorderLayout.WEST);
 
-        // --- Zone droite : combo + bouton ---
+        //Zone droite : combo + bouton
         JPanel zoneDroite = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         zoneDroite.setBackground(Color.LIGHT_GRAY);
 
-        // JComboBox = bouton "Déclencher un Événement"
-        comboEvenement.addItem("⚡ Déclencher un Événement");
-        comboEvenement.addItem("Alerte Météo");
-        comboEvenement.addItem("Fête de Quartier");
+        comboEvenement.addItem("Declencher un Evenement");
+        comboEvenement.addItem("Alerte Meteo");
+        comboEvenement.addItem("Fete de Quartier");
         comboEvenement.addItem("Offres d'Emploi");
-        comboEvenement.addItem("Expo Musée");
+        comboEvenement.addItem("Expo Musee");
         zoneDroite.add(comboEvenement);
 
-        // Bouton Propager une Information
         btnInformation.setBackground(new Color(200, 50, 50));
         btnInformation.setForeground(Color.WHITE);
-        btnInformation.addActionListener(e -> ouvrirModalePropagation());
+        btnInformation.addActionListener(new BtnInformationAction());
         zoneDroite.add(btnInformation);
 
         this.add(zoneDroite, BorderLayout.EAST);
@@ -85,21 +82,24 @@ public class MacroDashboard extends JPanel {
      * Ouvre la modale "Propager une Information".
      */
     private void ouvrirModalePropagation() {
-        JDialog modale = new JDialog((JFrame) SwingUtilities.getWindowAncestor(this),
-                "(•) Propager une Information", true);
+        JDialog modale = new JDialog(
+                (JFrame) SwingUtilities.getWindowAncestor(this),
+                "Propager une Information",
+                true
+        );
         modale.setLayout(new BorderLayout(10, 10));
         modale.getContentPane().setBackground(Color.WHITE);
         modale.setSize(400, 320);
         modale.setLocationRelativeTo(this);
 
-        // --- Contenu principal ---
+        //Contenu principal
         JPanel contenu = new JPanel();
         contenu.setLayout(new BoxLayout(contenu, BoxLayout.Y_AXIS));
         contenu.setBackground(Color.WHITE);
         contenu.setBorder(BorderFactory.createEmptyBorder(15, 20, 10, 20));
 
-        // Thème de l'information
-        JLabel lblTheme = new JLabel("THÈME DE L'INFORMATION");
+        // Theme
+        JLabel lblTheme = new JLabel("THEME DE L'INFORMATION");
         lblTheme.setFont(new Font("Arial", Font.BOLD, 11));
         lblTheme.setForeground(Color.GRAY);
         contenu.add(lblTheme);
@@ -111,10 +111,10 @@ public class MacroDashboard extends JPanel {
         contenu.add(champTheme);
         contenu.add(Box.createVerticalStrut(15));
 
-        // Curseur Véracité
+        // Curseur Veracite
         JPanel panelVeracite = new JPanel(new BorderLayout());
         panelVeracite.setBackground(Color.WHITE);
-        JLabel lblVeracite = new JLabel("✅ VÉRACITÉ");
+        JLabel lblVeracite = new JLabel("VERACITE");
         lblVeracite.setFont(new Font("Arial", Font.BOLD, 11));
         JLabel valVeracite = new JLabel("50%");
         valVeracite.setForeground(new Color(0, 150, 0));
@@ -124,17 +124,14 @@ public class MacroDashboard extends JPanel {
 
         JSlider sliderVeracite = new JSlider(0, 100, 50);
         sliderVeracite.setBackground(Color.WHITE);
-        sliderVeracite.setForeground(new Color(0, 150, 0));
-        sliderVeracite.addChangeListener(e ->
-                valVeracite.setText(sliderVeracite.getValue() + "%")
-        );
+        sliderVeracite.addChangeListener(new SliderVeraciteAction(valVeracite));
         contenu.add(sliderVeracite);
         contenu.add(Box.createVerticalStrut(10));
 
-        // Curseur Virulence
+        //Curseur Virulence
         JPanel panelVirulence = new JPanel(new BorderLayout());
         panelVirulence.setBackground(Color.WHITE);
-        JLabel lblVirulence = new JLabel("🔥 VIRULENCE");
+        JLabel lblVirulence = new JLabel("VIRULENCE");
         lblVirulence.setFont(new Font("Arial", Font.BOLD, 11));
         JLabel valVirulence = new JLabel("50%");
         valVirulence.setForeground(new Color(200, 50, 50));
@@ -144,29 +141,19 @@ public class MacroDashboard extends JPanel {
 
         JSlider sliderVirulence = new JSlider(0, 100, 50);
         sliderVirulence.setBackground(Color.WHITE);
-        sliderVirulence.addChangeListener(e ->
-                valVirulence.setText(sliderVirulence.getValue() + "%")
-        );
+        sliderVirulence.addChangeListener(new SliderVirulenceAction(valVirulence));
         contenu.add(sliderVirulence);
-        contenu.add(Box.createVerticalStrut(5));
-
-        // Texte explicatif
-        JLabel lblExplication = new JLabel("Une virulence élevée augmente la vitesse de propagation mais aussi la panique.");
-        lblExplication.setFont(new Font("Arial", Font.ITALIC, 10));
-        lblExplication.setForeground(Color.GRAY);
-        contenu.add(lblExplication);
 
         modale.add(contenu, BorderLayout.CENTER);
 
-        // --- Bouton Lancer la Rumeur ---
-        JButton btnLancer = new JButton("(•) Lancer la Rumeur");
+        //Bouton Lancer
+        JButton btnLancer = new JButton("Lancer la Rumeur");
         btnLancer.setBackground(new Color(220, 80, 100));
         btnLancer.setForeground(Color.WHITE);
         btnLancer.setFont(new Font("Arial", Font.BOLD, 13));
-        btnLancer.addActionListener(e -> {
-            // Récupère les valeurs et ferme la modale
-            modale.dispose();
-        });
+        btnLancer.addActionListener(new BtnLancerAction(
+                modale, champTheme, sliderVirulence, sliderVeracite
+        ));
 
         JPanel bas = new JPanel();
         bas.setBackground(Color.WHITE);
@@ -176,17 +163,105 @@ public class MacroDashboard extends JPanel {
         modale.setVisible(true);
     }
 
-    // --- ACCESSEURS ---
-    public int getResistance() { return sliderResistance.getValue(); }
-    public int getInfluence()  { return sliderInfluence.getValue(); }
-    public String getEvenementSelectionne() { return (String) comboEvenement.getSelectedItem(); }
+    // CLASSES INTERNES
+    private class SliderResistanceAction implements javax.swing.event.ChangeListener {
+        @Override
+        public void stateChanged(javax.swing.event.ChangeEvent e) {
+            valeurResistance.setText(sliderResistance.getValue() + "%");
+        }
+    }
 
-    // --- LISTENERS ---
+    private class SliderInfluenceAction implements javax.swing.event.ChangeListener {
+        @Override
+        public void stateChanged(javax.swing.event.ChangeEvent e) {
+            valeurInfluence.setText(sliderInfluence.getValue() + "/10");
+        }
+    }
+
+    private class SliderVeraciteAction implements javax.swing.event.ChangeListener {
+        private JLabel label;
+        public SliderVeraciteAction(JLabel label) {
+            this.label = label;
+        }
+        @Override
+        public void stateChanged(javax.swing.event.ChangeEvent e) {
+            JSlider source = (JSlider) e.getSource();
+            label.setText(source.getValue() + "%");
+        }
+    }
+
+    private class SliderVirulenceAction implements javax.swing.event.ChangeListener {
+        private JLabel label;
+        public SliderVirulenceAction(JLabel label) {
+            this.label = label;
+        }
+        @Override
+        public void stateChanged(javax.swing.event.ChangeEvent e) {
+            JSlider source = (JSlider) e.getSource();
+            label.setText(source.getValue() + "%");
+        }
+    }
+
+    private class BtnInformationAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            ouvrirModalePropagation();
+        }
+    }
+
+    /**
+     * Action du bouton "Lancer la Rumeur" :
+     * Récupère les valeurs et notifie MainGUI via le listener.
+     */
+    private class BtnLancerAction implements ActionListener {
+        private JDialog modale;
+        private JTextField champTheme;
+        private JSlider sliderVirulence;
+        private JSlider sliderVeracite;
+
+        public BtnLancerAction(JDialog modale, JTextField champTheme,
+                               JSlider sliderVirulence, JSlider sliderVeracite) {
+            this.modale = modale;
+            this.champTheme = champTheme;
+            this.sliderVirulence = sliderVirulence;
+            this.sliderVeracite = sliderVeracite;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // On récupère les valeurs saisies
+            theme = champTheme.getText();
+            virulence = sliderVirulence.getValue() / 100.0f;
+            veracite = sliderVeracite.getValue() / 100.0f;
+
+            // On notifie MainGUI que la rumeur est lancée
+            if (informationListener != null) {
+                informationListener.actionPerformed(e);
+            }
+
+            modale.dispose();
+        }
+    }
+
+    //Valeurs récupérées depuis la modale
+    private String theme = "";
+    private float virulence = 0.5f;
+    private float veracite = 0.5f;
+
+    //ACCESSEURS
+    public int getResistance() { return sliderResistance.getValue(); }
+    public int getInfluence() { return sliderInfluence.getValue(); }
+    public String getEvenementSelectionne() { return (String) comboEvenement.getSelectedItem(); }
+    public String getTheme() { return theme; }
+    public float getVirulence() { return virulence; }
+    public float getVeracite() { return veracite; }
+
+    //LISTENERS
     public void addEvenementListener(ActionListener listener) {
         comboEvenement.addActionListener(listener);
     }
 
     public void addInformationListener(ActionListener listener) {
-        btnInformation.addActionListener(listener);
+        this.informationListener = listener;
     }
 }
