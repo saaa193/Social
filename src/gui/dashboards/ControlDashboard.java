@@ -49,8 +49,6 @@ public class ControlDashboard extends JPanel {
         this.add(droite, BorderLayout.EAST);
     }
 
-    // Au lieu de rendre les labels publics, on expose des méthodes "set".
-    // Cela permet au Controller de mettre à jour l'IHM sans connaître les détails techniques.
 
     public void setLblHorloge(String texte){
         lblHorloge.setText(texte);
@@ -65,8 +63,7 @@ public class ControlDashboard extends JPanel {
         btnStartStop.setText(texte);
     }
 
-    // --- GESTION DES ÉVÉNEMENTS ---
-    // Pattern de délégation : on transmet les listeners au Controller.
+    //GESTION DES ÉVÉNEMENTS
     public void addStartStopListener(ActionListener listener) {
         btnStartStop.addActionListener(listener);
     }

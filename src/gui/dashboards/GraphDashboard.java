@@ -22,7 +22,7 @@ import engine.habitant.besoin.Besoins;
 /**
  * GraphDashboard : Visualisation statistique de la population.
  * Utilise deux graphiques JFreeChart (comme vu en cours) :
- * 1. PieChart  → répartition des états (Bonheur, Détresse, etc.)
+ * 1. PieChart → répartition des états (Bonheur, Détresse, etc.)
  * 2. BarChart horizontal → moyennes des besoins vitaux de la population
  */
 public class GraphDashboard extends JPanel {
@@ -32,7 +32,6 @@ public class GraphDashboard extends JPanel {
     private DefaultPieDataset datasetEtats;
 
     // Dataset du bar chart horizontal (moyennes des besoins)
-    // DefaultCategoryDataset = le même que le prof dans ChartManager
     private DefaultCategoryDataset datasetMoyennes;
 
     public GraphDashboard() {
@@ -44,9 +43,7 @@ public class GraphDashboard extends JPanel {
         ));
         setBackground(new Color(245, 245, 245));
 
-        // -----------------------------------------------
         // 1. CAMEMBERT — répartition des états
-        // -----------------------------------------------
         datasetEtats = new DefaultPieDataset();
         datasetEtats.setValue("Décès",    0);
         datasetEtats.setValue("Sommeil",  0);
@@ -73,11 +70,7 @@ public class GraphDashboard extends JPanel {
         piePanel.setBackground(new Color(245, 245, 245));
         add(piePanel, BorderLayout.NORTH);
 
-        // -----------------------------------------------
         // 2. BAR CHART HORIZONTAL — moyennes des besoins
-        // Exactement comme le prof dans ChartManager.getTypeCountBar()
-        // mais avec PlotOrientation.HORIZONTAL
-        // -----------------------------------------------
         datasetMoyennes = new DefaultCategoryDataset();
         datasetMoyennes.setValue(0, "Moyenne", "Faim");
         datasetMoyennes.setValue(0, "Moyenne", "Fatigue");
@@ -85,14 +78,14 @@ public class GraphDashboard extends JPanel {
         datasetMoyennes.setValue(0, "Moyenne", "Santé");
         datasetMoyennes.setValue(0, "Moyenne", "Moral");
 
-        // PlotOrientation.HORIZONTAL = barres horizontales, comme le prof
+        // PlotOrientation.HORIZONTAL = barres horizontales
         JFreeChart barChart = ChartFactory.createBarChart(
                 "Moyennes des besoins",  // titre
                 "Besoin",                // axe catégories
                 "Valeur (0-100)",        // axe valeurs
                 datasetMoyennes,
-                PlotOrientation.HORIZONTAL, // ← comme le prof
-                false,  // pas de légende (inutile ici)
+                PlotOrientation.HORIZONTAL,
+                false,
                 true,
                 false
         );
@@ -100,13 +93,12 @@ public class GraphDashboard extends JPanel {
         barChart.setBackgroundPaint(new Color(245, 245, 245));
         barChart.setBorderVisible(false);
 
-        // Code couleur par besoin
         org.jfree.chart.plot.CategoryPlot barPlot =
                 (org.jfree.chart.plot.CategoryPlot) barChart.getPlot();
         org.jfree.chart.renderer.category.BarRenderer renderer =
                 (org.jfree.chart.renderer.category.BarRenderer) barPlot.getRenderer();
 
-        renderer.setSeriesPaint(0, new Color(100, 100, 255)); // bleu neutre
+        renderer.setSeriesPaint(0, new Color(100, 100, 255));
 
         // Axe des valeurs limité à 0-100
         barPlot.getRangeAxis().setRange(0, 100);
@@ -126,10 +118,10 @@ public class GraphDashboard extends JPanel {
     public void updateStats(List<Habitant> habitants) {
         if (habitants == null || habitants.isEmpty()) return;
 
-        // --- Comptage pour le camembert ---
+        //Comptage pour le camembert
         int deces = 0, sommeil = 0, detresse = 0, neutre = 0, bonheur = 0;
 
-        // --- Totaux pour le bar chart ---
+        //Totaux pour le bar chart
         int totalFaim = 0, totalFatigue = 0,
                 totalSocial = 0, totalSante = 0, totalMoral = 0;
 

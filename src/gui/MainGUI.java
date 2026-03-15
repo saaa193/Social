@@ -20,10 +20,7 @@ import engine.process.GameBuilder;
 import engine.process.GestionnaireEvenements;
 import engine.process.MobileInterface;
 
-import gui.dashboards.ControlDashboard;
-import gui.dashboards.InspectorDashboard;
-import gui.dashboards.MacroDashboard;
-import gui.dashboards.GraphDashboard;
+import gui.dashboards.*;
 
 /**
  * MainGUI : La classe principale qui orchestre tout le programme.
@@ -34,7 +31,7 @@ public class MainGUI extends JFrame implements Runnable {
 
     private static final long serialVersionUID = 1L;
 
-    // --- Composants de structure (Modèle et Moteur) ---
+    // Composants de structure (Modèle et Moteur)
     private Map map;
     private MobileInterface manager;
     private GameDisplay dashboard;
@@ -46,11 +43,13 @@ public class MainGUI extends JFrame implements Runnable {
     // Variable d'état : Permet de basculer entre vue "Moyenne" et vue "Habitant"
     private Habitant habitantSelectionne = null;
 
-    // --- Composants de l'interface (Vue) ---
+    // Composants de l'interface (Vue)
     private ControlDashboard control;
     private InspectorDashboard inspector;
     private MacroDashboard macro;
     private GraphDashboard graph;
+
+    private ReseauDashboard reseau;
 
     public MainGUI(String title) {
         super(title);
@@ -71,12 +70,15 @@ public class MainGUI extends JFrame implements Runnable {
         control.addAccelererListener(new SpeedAction());
         contentPane.add(BorderLayout.NORTH, control);
 
-        // 2. Panneau latéral droit : Graphiques et Inspecteur
-        JPanel rightPanel = new JPanel(new BorderLayout(0, 15));
-        rightPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // 2. Panneau latéral droit : Graphiques, Inspecteur et Réseau
+        JPanel rightPanel = new JPanel(new BorderLayout(0, 5));
+        rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         graph = new GraphDashboard();
         rightPanel.add(graph, BorderLayout.NORTH);
+
+        reseau = new ReseauDashboard();
+        rightPanel.add(reseau, BorderLayout.SOUTH);
 
         inspector = new InspectorDashboard();
         rightPanel.add(inspector, BorderLayout.CENTER);
@@ -103,12 +105,14 @@ public class MainGUI extends JFrame implements Runnable {
         contentPane.add(dashboard, BorderLayout.CENTER);
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        pack(); // Ajuste la fenêtre au contenu
-        setLocationRelativeTo(null); // Centre la fenêtre
+        pack();
+        setLocationRelativeTo(null);
         setVisible(true);
         setResizable(false);
 
         macro.addEvenementListener(new EvenementAction());
+
+        macro.addInformationListener(new InformationAction());
     }
 
     /**
@@ -135,6 +139,17 @@ public class MainGUI extends JFrame implements Runnable {
             // C. Mise à jour des Dashboards
             graph.updateStats(manager.getHabitants());
 
+            // Mise à jour du réseau
+            reseau.updateReseau(manager.getHabitants());
+
+            // Mise à jour des filtres d'affichage
+            // Mise à jour des filtres d'affichage
+            dashboard.getPaintStrategy().setFiltres(
+                    reseau.afficherFamille(),
+                    reseau.afficherTravail(),
+                    reseau.afficherAmis()
+            );
+
             // Gestion intelligente de l'inspecteur : Moyenne ou Individu
             if (habitantSelectionne == null) {
                 inspector.updateAverages(manager.getHabitants());
@@ -146,8 +161,7 @@ public class MainGUI extends JFrame implements Runnable {
         }
     }
 
-    // --- Pattern "Listener" pour gérer les clics ---
-
+    //Pattern "Listener" pour gérer les clics
     private class StartStopAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -158,7 +172,7 @@ public class MainGUI extends JFrame implements Runnable {
             } else {
                 stop = false;
                 control.setBtnStartStopText("⏸");
-                Thread gameThread = new Thread(instance); // Nouveau thread pour la boucle
+                Thread gameThread = new Thread(instance);
                 gameThread.start();
             }
         }
@@ -217,5 +231,19 @@ public class MainGUI extends JFrame implements Runnable {
         @Override public void mouseReleased(MouseEvent e) {}
         @Override public void mouseEntered(MouseEvent e) {}
         @Override public void mouseExited(MouseEvent e) {}
+    }
+
+    private class InformationAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // On lance la propagation dans le moteur
+            engine.process.MobileElementManager mem =
+                    (engine.process.MobileElementManager) manager;
+            mem.lancerInformation(
+                    macro.getTheme(),
+                    macro.getVirulence(),
+                    macro.getVeracite()
+            );
+        }
     }
 }

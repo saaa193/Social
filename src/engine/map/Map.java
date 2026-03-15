@@ -54,7 +54,7 @@ public class Map {
         return blocks[line][column];
     }
 
-    // --- LOGIQUE DE GESTION DES BORDURES ---
+    // LOGIQUE DE GESTION DES BORDURES
     // Ces méthodes sont essentielles pour la "collision detection" :
     // elles empêchent les habitants de sortir de la grille.
 

@@ -21,9 +21,9 @@ public class InformationTransmission {
     private ContagionVisitor contagionVisitor = new ContagionVisitor();
 
     public InformationTransmission(String theme, float virulence, float veracite) {
-        this.theme    = theme;
+        this.theme = theme;
         this.virulence = virulence;
-        this.veracite  = veracite;
+        this.veracite = veracite;
     }
 
     /**
@@ -62,9 +62,5 @@ public class InformationTransmission {
         }
     }
 
-    //Getters
-    public String getTheme()    { return theme; }
-    public float getVirulence() { return virulence; }
-    public float getVeracite()  { return veracite; }
 
 }

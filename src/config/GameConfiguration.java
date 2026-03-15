@@ -9,8 +9,8 @@ public class GameConfiguration {
     public static final int BLOCK_SIZE = 12;
 
     // Paramètres de taille des panneaux de l'interface (UI) pour réserver l'espace
-    public static final int MENU_RIGHT_WIDTH = 250;    // Espace pour le panneau de droite (stats)
-    public static final int MENU_BOTTOM_HEIGHT = 120;  // Espace pour le panneau du bas (opérations)
+    public static final int MENU_RIGHT_WIDTH = 270;    // Espace pour le panneau de droite (stats)
+    public static final int MENU_BOTTOM_HEIGHT = 60;  // Espace pour le panneau du bas (opérations)
     public static final int TOP_BAR_HEIGHT = 50;       // Espace pour la barre de contrôle en haut
 
     // Calcul automatique de la grille : on soustrait les menus pour que la carte tienne pile poil

@@ -1,7 +1,5 @@
 package gui.dashboards;
 
-import config.GameConfiguration;
-
 import javax.swing.*;
 import java.awt.*;
 

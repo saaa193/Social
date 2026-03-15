@@ -30,7 +30,7 @@ public class Besoins {
             if (Math.random() < tauxSocial)  this.social  -= 1;
         }
 
-        // moral et santé — inchangés
+        // moral et santé
         if (this.faim < 30 || this.social < 30 || this.fatigue < 20) {
             if (Math.random() < 0.15) this.moral -= 1;
         } else if (this.faim > 70 && this.social > 70 && this.fatigue > 50) {
@@ -42,14 +42,14 @@ public class Besoins {
         }
     }
 
-    // --- GETTERS ---
+    //GETTERS
     public int getFaim()    { return faim; }
     public int getMoral()   { return moral; }
     public int getFatigue() { return fatigue; }
     public int getSante()   { return sante; }
     public int getSocial()  { return social; }
 
-    // --- SETTERS avec clamping 0-100 ---
+    //SETTERS avec clamping 0-100
     public void setFaim(int faim)       { this.faim    = Math.max(0, Math.min(100, faim)); }
     public void setMoral(int moral)     { this.moral   = Math.max(0, Math.min(100, moral)); }
     public void setFatigue(int fatigue) { this.fatigue = Math.max(0, Math.min(100, fatigue)); }

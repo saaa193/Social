@@ -2,6 +2,7 @@ package engine.habitant;
 
 import config.GameConfiguration;
 import engine.evenement.EventVisitor;
+import engine.habitant.deplacement.StrategieDeplacement;
 import engine.habitant.etat.EtatHabitant;
 import engine.habitant.lien.Amical;
 import engine.habitant.lien.Liens;
@@ -37,6 +38,9 @@ public class Habitant extends MobileElement {
     // Réseau social
     private List<Liens> relations = new ArrayList<Liens>();
 
+    // Ajouter cet attribut avec les autres attributs en haut de Habitant
+    private StrategieDeplacement strategieDeplacement;
+
     public Habitant(Block position, Map map, String prenom, String sexe, int age) {
         super(position, map);
         this.prenom = prenom;
@@ -46,6 +50,7 @@ public class Habitant extends MobileElement {
         this.psychologie = new Psychologie();
 
         this.besoins = new Besoins(this.psychologie.determinerStrategieNutrition());
+
         // Légère variance initiale pour diversifier la population
         this.besoins.setFaim(60 + (int) (Math.random() * 40));  // entre 60 et 100
         this.besoins.setFatigue(50 + (int) (Math.random() * 50));  // entre 50 et 100
@@ -66,6 +71,9 @@ public class Habitant extends MobileElement {
 
         this.tauxRecuperation = GameConfiguration.BASE_RECUPERATION
                 - (psychologie.getNevrosisme() / 100.0) * GameConfiguration.OCEAN_IMPACT * 2;
+
+        // Calcul de la stratégie de déplacement selon OCEAN
+        this.strategieDeplacement = psychologie.determinerStrategieDeplacement();
     }
 
     /**
@@ -222,33 +230,21 @@ public class Habitant extends MobileElement {
         return prenom + " (" + sexe + ", " + age + " ans) - Moral: " + getMoral();
     }
 
-    // =========================================================
-    // 2. IMPLEMENTATION DU PATTERN TEMPLATE METHOD (MobileElement)
-    // =========================================================
 
+    // 2. IMPLEMENTATION DU PATTERN TEMPLATE METHOD (MobileElement)
     @Override
     protected void seDeplacer() {
         // NUIT → tout le monde dort, personne ne bouge
         if (estLaNuit()) return;
 
         // FATIGUE → trop épuisé pour bouger
-        if (besoins.getFatigue() < 35) return; // ← était < 20
+        if (besoins.getFatigue() < 35) return;
 
         // DÉPRIMÉ → bouge au ralenti
         if (getMoral() < 30 && Math.random() > 0.33) return;
 
-        // Mouvement normal
-        int direction = (int) (Math.random() * 4);
-        Block pos = getPosition();
-        int l = pos.getLine();
-        int col = pos.getColumn();
-
-        if (direction == 0 && !map.isOnTop(pos)) l--;
-        else if (direction == 1 && !map.isOnBottom(pos)) l++;
-        else if (direction == 2 && !map.isOnLeftBorder(pos)) col--;
-        else if (direction == 3 && !map.isOnRightBorder(pos)) col++;
-
-        setPosition(map.getBlock(l, col));
+        // Délègue le déplacement à la stratégie OCEAN
+        strategieDeplacement.deplacer(this, map);
     }
 
     @Override
@@ -257,8 +253,15 @@ public class Habitant extends MobileElement {
 
         EtatHabitant etat = psychologie.determinerEtat(besoins);
         etat.appliquer(this);
-        psychologie.evoluer(etat);
+        psychologie.evoluer(etat, besoins);
+
+        // Les liens sociaux influencent aussi l'évolution du profil OCEAN
+        psychologie.evoluerSelonReseau(relations);
+
         besoins.setStrategieNutrition(psychologie.determinerStrategieNutrition());
+
+        // La stratégie de déplacement évolue aussi avec le profil OCEAN
+        this.strategieDeplacement = psychologie.determinerStrategieDeplacement();
 
         int impact = etat.accept(new ContagionVisitor());
         if (impact != 0) {

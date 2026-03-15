@@ -3,12 +3,11 @@ package engine;
 import engine.map.Block;
 import engine.map.Map;
 
-// MobileElement.java
 public abstract class MobileElement {
 
     private Block position;
     protected Map map;
-    private boolean nuit; // ← attribut d'état du cycle jour/nuit
+    private boolean nuit;
 
     public MobileElement(Block position, Map map) {
         this.position = position;
@@ -16,12 +15,11 @@ public abstract class MobileElement {
     }
 
     public final void executerTour(boolean estLaNuit) {
-        this.nuit = estLaNuit; // ← on mémorise AVANT d'appeler seDeplacer
+        this.nuit = estLaNuit;
         seDeplacer();
         agir(estLaNuit);
     }
 
-    // Accesseur protégé pour que Habitant puisse lire l'état
     protected boolean estLaNuit() { return nuit; }
 
     public Block getPosition() { return position; }
