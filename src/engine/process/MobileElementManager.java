@@ -19,6 +19,9 @@ public class MobileElementManager implements MobileInterface {
     private List<Habitant> habitants = new ArrayList<Habitant>();
     private Horloge horloge = new Horloge();
 
+    private boolean mauvaisTemps = false;
+    private int heureAuChangementMeteo = 0;
+
     // L'information active en cours de propagation (null = aucune)
     private InformationTransmission informationEnCours = null;
 
@@ -34,6 +37,7 @@ public class MobileElementManager implements MobileInterface {
     public void nextRound() {
         int heureActuelle = horloge.getHeureObject().getHeures();
         boolean estLaNuit = (heureActuelle >= 23 || heureActuelle < 7);
+        boolean estLeWeekend = horloge.estWeekend();
         horloge.incrementer(10);
 
         for (Habitant h : habitants) {
@@ -46,6 +50,59 @@ public class MobileElementManager implements MobileInterface {
 
         if (informationEnCours != null) {
             informationEnCours.propagerDansReseau(habitants);
+        }
+
+        // Effets psychologiques du weekend
+        if (estLeWeekend && !estLaNuit) {
+            for (Habitant h : habitants) {
+                if (h.getBesoins().getSante() > 0) {
+
+                    // Extravertis profitent du weekend socialement
+                    if (h.getExtraversion() > 60) {
+                        h.getBesoins().setSocial(h.getBesoins().getSocial() + 2);
+                        h.getBesoins().setMoral(h.getBesoins().getMoral() + 1);
+                    }
+
+                    // Introvertis récupèrent mieux seuls
+                    if (h.getExtraversion() < 35) {
+                        h.getBesoins().setFatigue(h.getBesoins().getFatigue() + 2);
+                        h.getBesoins().setMoral(h.getBesoins().getMoral() + 1);
+                    }
+
+                    // Névrosés stressent quand même le weekend
+                    if (h.getNevrosisme() > 65) {
+                        h.getBesoins().setMoral(h.getBesoins().getMoral() - 1);
+                    }
+                }
+            }
+        }
+
+        // Changement de météo automatique 1 fois par jour à 8h
+        if (horloge.getHeureObject().getHeures() == 8 && heureAuChangementMeteo != 8) {
+            mauvaisTemps = Math.random() < 0.35; // 35% de chance de mauvais temps
+            heureAuChangementMeteo = 8;
+
+            // Effets psychologiques immédiats selon la météo
+            for (Habitant h : habitants) {
+                if (h.getBesoins().getSante() > 0) {
+
+                    if (mauvaisTemps) {
+                        // Névrosés très affectés par le mauvais temps
+                        if (h.getNevrosisme() > 60) {
+                            h.getBesoins().setMoral(h.getBesoins().getMoral() - 3);
+                            h.getBesoins().setFatigue(h.getBesoins().getFatigue() - 2);
+                        }
+                    } else {
+                        // Ouverts profitent du beau temps
+                        if (h.getOuverture() > 60) {
+                            h.getBesoins().setMoral(h.getBesoins().getMoral() + 3);
+                            h.getBesoins().setSocial(h.getBesoins().getSocial() + 2);
+                        }
+                    }
+                }
+            }
+        } else if (horloge.getHeureObject().getHeures() != 8) {
+            heureAuChangementMeteo = 0; // reset pour le lendemain
         }
     }
 
@@ -147,5 +204,9 @@ public class MobileElementManager implements MobileInterface {
 
     public void addHabitant(Habitant h){
         habitants.add(h);
+    }
+
+    public boolean isMauvaisTemps() {
+        return mauvaisTemps;
     }
 }

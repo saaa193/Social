@@ -18,6 +18,7 @@ import engine.map.Block;
 import engine.map.Map;
 import engine.process.GameBuilder;
 import engine.process.GestionnaireEvenements;
+import engine.process.MobileElementManager;
 import engine.process.MobileInterface;
 
 import gui.dashboards.*;
@@ -158,6 +159,9 @@ public class MainGUI extends JFrame implements Runnable {
                 inspector.setInfos(habitantSelectionne.getPrenom(), habitantSelectionne.getSexe(), "" + habitantSelectionne.getAge());
                 inspector.setJauges(b.getFaim(), b.getFatigue(), b.getSocial(), b.getSante(), b.getMoral());
             }
+            // Mise à jour de la météo
+            MobileElementManager mem = (MobileElementManager) manager;
+            control.setMeteo(mem.isMauvaisTemps());
         }
     }
 

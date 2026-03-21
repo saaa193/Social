@@ -71,4 +71,13 @@ public class ControlDashboard extends JPanel {
     public void addAccelererListener(ActionListener listener) {
         btnVitesse.addActionListener(listener);
     }
+
+    public void setMeteo(boolean mauvaisTemps) {
+        if (mauvaisTemps) {
+            lblMeteo.setText("🌧 Pluie");
+        } else {
+            lblMeteo.setText("☀ Soleil");
+        }
+    }
+
 }
