@@ -48,4 +48,15 @@ public class Horloge {
     public String toString() {
         return date.toString() + " - " + heure.toString();
     }
+
+    /**
+     * Retourne le jour abrégé + numéro pour le graphique récapitulatif.
+     * Ex : "Lu 12", "Ma 13", "Me 14"...
+     * Permet d'éviter les doublons (deux lundis différents).
+     */
+    public String getDateCourte() {
+        String nomJour = date.toString().split(" ")[0];
+        String numeroJour = date.toString().split(" ")[1].split("/")[0];
+        return nomJour.substring(0, 2) + " " + numeroJour;
+    }
 }

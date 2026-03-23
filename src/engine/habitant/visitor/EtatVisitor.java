@@ -1,9 +1,6 @@
 package engine.habitant.visitor;
 
-import engine.habitant.etat.EtatAnxieux;
-import engine.habitant.etat.EtatEpanoui;
-import engine.habitant.etat.EtatIsole;
-import engine.habitant.etat.EtatStable;
+import engine.habitant.etat.*;
 
 /**
  * Interface Visitor pour les états psychologiques.
@@ -19,5 +16,11 @@ public interface EtatVisitor<T> {
     T visit(EtatIsole etat);
 
     T visit(EtatStable etat);
+
+    T visit(EtatDepressif etat);
+
+    T visit(EtatBurnout etat);
+
+    T visit(EtatEuphorique etat);
 
 }

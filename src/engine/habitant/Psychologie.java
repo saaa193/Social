@@ -2,11 +2,7 @@ package engine.habitant;
 
 import engine.habitant.besoin.Besoins;
 import engine.habitant.deplacement.*;
-import engine.habitant.etat.EtatAnxieux;
-import engine.habitant.etat.EtatEpanoui;
-import engine.habitant.etat.EtatHabitant;
-import engine.habitant.etat.EtatIsole;
-import engine.habitant.etat.EtatStable;
+import engine.habitant.etat.*;
 import engine.habitant.nutrition.NutritionConsciente;
 import engine.habitant.nutrition.NutritionNevrosee;
 import engine.habitant.nutrition.NutritionSociale;
@@ -36,24 +32,42 @@ public class Psychologie {
          this.nevrosisme   = (int)(Math.random() * 101);
      }
 
-     /**
-      * Détermine l'état psychologique dominant de l'habitant.
-      * Retourne un objet EtatHabitant polymorphique.
-      * L'appelant fait juste etat.appliquer(habitant) sans savoir quel état c'est.
-      */
+    /**
+     * Détermine l'état psychologique dominant de l'habitant.
+     * Retourne un objet EtatHabitant polymorphique.
+     * L'appelant fait juste etat.appliquer(habitant) sans savoir quel état c'est.
+     * Les nouveaux états sont vérifiés en premier car plus graves.
+     */
+    public EtatHabitant determinerEtat(Besoins besoins) {
 
-     public EtatHabitant determinerEtat(Besoins besoins) {
-         if (nevrosisme > 70 && besoins.getMoral() < 50) {
-             return new EtatAnxieux();
-         }
-         if (extraversion > 70 && besoins.getSocial() < 30) {
-             return new EtatIsole();
-         }
-         if (besoins.getMoral() > 70 && besoins.getSocial() > 60) {
-             return new EtatEpanoui();
-         }
-         return new EtatStable();
+        // Burnout : trop consciencieux, épuisement total
+        if (conscience > 80 && besoins.getFatigue() < 10) {
+            return new EtatBurnout();
         }
+
+        // Dépressif : moral effondré + névrosisme élevé
+        if (besoins.getMoral() < 20 && nevrosisme > 60) {
+            return new EtatDepressif();
+        }
+
+        // Euphorique : extraverti très heureux socialement
+        if (extraversion > 80 && besoins.getSocial() > 80) {
+            return new EtatEuphorique();
+        }
+
+        // États existants
+        if (nevrosisme > 70 && besoins.getMoral() < 50) {
+            return new EtatAnxieux();
+        }
+        if (extraversion > 70 && besoins.getSocial() < 30) {
+            return new EtatIsole();
+        }
+        if (besoins.getMoral() > 70 && besoins.getSocial() > 60) {
+            return new EtatEpanoui();
+        }
+
+        return new EtatStable();
+    }
 
      /**
       * Calcule la compatibilité OCEAN entre deux profils psychologiques.
@@ -133,7 +147,47 @@ public class Psychologie {
             ouverture = Math.max(0, ouverture - 1);
             conscience = Math.max(0, conscience - 1);
 
+        } else if (etat instanceof EtatDepressif) {
+        // La dépression dégrade fortement les traits OCEAN
+        // Plus le moral est bas, plus la dégradation est rapide
+        int malus = 2;
+        if (besoins.getMoral() < 10) {
+            malus = 3;
         }
+        // Le névrosisme grimpe — la dépression fragilise
+        nevrosisme = Math.min(100, nevrosisme + malus);
+        // L'extraversion chute — on se replie sur soi
+        extraversion = Math.max(0, extraversion - malus);
+        // L'agréabilité diminue — on se ferme aux autres
+        agreabilite = Math.max(0, agreabilite - 1);
+        // L'ouverture diminue — plus de curiosité
+        ouverture = Math.max(0, ouverture - 1);
+
+    } else if (etat instanceof EtatBurnout) {
+        // Le burnout érode la conscience — paradoxalement
+        // Trop de conscience a causé le burnout
+        int malus = 2;
+        if (besoins.getFatigue() < 5) {
+            malus = 3;
+        }
+        // La conscience chute — l'habitant abandonne sa rigueur
+        conscience = Math.max(0, conscience - malus);
+        // Le névrosisme monte — l'épuisement fragilise
+        nevrosisme = Math.min(100, nevrosisme + 1);
+        // L'extraversion chute — plus d'énergie sociale
+        extraversion = Math.max(0, extraversion - 1);
+
+    } else if (etat instanceof EtatEuphorique) {
+        // L'euphorie renforce les traits positifs
+        // L'extraversion grimpe — encore plus sociable
+        extraversion = Math.min(100, extraversion + 2);
+        // L'agréabilité monte — on est bienveillant
+        agreabilite = Math.min(100, agreabilite + 1);
+        // L'ouverture monte — on est curieux de tout
+        ouverture = Math.min(100, ouverture + 1);
+        // Le névrosisme baisse — on est serein
+        nevrosisme = Math.max(0, nevrosisme - 1);
+    }
         // EtatStable → rien ne change
     }
 
@@ -211,6 +265,62 @@ public class Psychologie {
                 extraversion = Math.min(100, extraversion + (int)(influence * 1));
             }
         }
+    }
+
+    /**
+     * Augmente l'extraversion d'un point (influence du leader).
+     */
+    public void augmenterExtraversion(int valeur) {
+        this.extraversion = Math.min(100, this.extraversion + valeur);
+    }
+
+    /**
+     * Augmente l'agréabilité d'un point (influence du leader).
+     */
+    public void augmenterAgreabilite(int valeur) {
+        this.agreabilite = Math.min(100, this.agreabilite + valeur);
+    }
+
+    /**
+     * Augmente le névrosisme d'un point (contagion du stress).
+     */
+    public void augmenterNevrosisme(int valeur) {
+        this.nevrosisme = Math.min(100, this.nevrosisme + valeur);
+    }
+
+    /**
+     * Diminue la conscience (burnout professionnel).
+     */
+    public void diminuerConscience(int valeur) {
+        this.conscience = Math.max(0, this.conscience - valeur);
+    }
+
+    /**
+     * Diminue l'ouverture (séquelle traumatique).
+     */
+    public void diminuerOuverture(int valeur) {
+        this.ouverture = Math.max(0, this.ouverture - valeur);
+    }
+
+    /**
+     * Diminue l'agréabilité (séquelle traumatique).
+     */
+    public void diminuerAgreabilite(int valeur) {
+        this.agreabilite = Math.max(0, this.agreabilite - valeur);
+    }
+
+    /**
+     * Augmente l'ouverture (beau temps, expériences positives).
+     */
+    public void augmenterOuverture(int valeur) {
+        this.ouverture = Math.min(100, this.ouverture + valeur);
+    }
+
+    /**
+     * Diminue le névrosisme (événement positif, thérapie).
+     */
+    public void diminuerNevrosisme(int valeur) {
+        this.nevrosisme = Math.max(0, this.nevrosisme - valeur);
     }
 
 }

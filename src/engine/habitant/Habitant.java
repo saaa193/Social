@@ -3,6 +3,9 @@ package engine.habitant;
 import config.GameConfiguration;
 import engine.evenement.EventVisitor;
 import engine.habitant.deplacement.StrategieDeplacement;
+import engine.habitant.etat.EtatAnxieux;
+import engine.habitant.etat.EtatBurnout;
+import engine.habitant.etat.EtatDepressif;
 import engine.habitant.etat.EtatHabitant;
 import engine.habitant.lien.Amical;
 import engine.habitant.lien.Liens;
@@ -40,6 +43,10 @@ public class Habitant extends MobileElement {
 
     // Ajouter cet attribut avec les autres attributs en haut de Habitant
     private StrategieDeplacement strategieDeplacement;
+
+    // Compteur de tours dans un état négatif → déclenche un traumatisme
+    private int toursEtatNegatif = 0;
+    private Traumatisme traumatisme = new Traumatisme();
 
     public Habitant(Block position, Map map, String prenom, String sexe, int age) {
         super(position, map);
@@ -267,12 +274,51 @@ public class Habitant extends MobileElement {
         if (impact != 0) {
             for (Liens l : relations) {
                 Habitant proche = l.getPartenaire();
+
+                // Impact de base modulé par la force du lien
                 int impactModule = (int)(impact * (l.getForce() / 100.0));
+
+                // Si impact négatif → la vulnérabilité l'amplifie
+                if (impactModule < 0) {
+                    if (proche.getPsychologie().estVulnerable()) {
+                        // Un vulnérable absorbe 50% de plus
+                        impactModule = (int)(impactModule * 1.5);
+                    }
+                    // Un résilient absorbe 50% de moins
+                    if (proche.getPsychologie().estResiliant()) {
+                        impactModule = (int)(impactModule * 0.5);
+                    }
+                }
+
+                // Si impact positif → le résilient en profite plus
+                if (impactModule > 0 && proche.getPsychologie().estResiliant()) {
+                    impactModule = (int)(impactModule * 1.2);
+                }
+
                 proche.getBesoins().setMoral(proche.getBesoins().getMoral() + impactModule);
             }
+        }
+
+        // Gestion des traumatismes — séquelles permanentes si état négatif prolongé
+        if (etat instanceof EtatDepressif || etat instanceof EtatAnxieux || etat instanceof EtatBurnout) {
+            toursEtatNegatif++;
+            // Après 5 tours consécutifs → traumatisme
+            if (toursEtatNegatif >= 5) {
+                traumatisme.appliquer(this);
+                toursEtatNegatif = 0; // reset du compteur
+            }
+        } else {
+            // État positif ou stable → le compteur redescend
+            toursEtatNegatif = 0;
         }
 
         nettoyerLiensMorts();
     }
 
+    /**
+     * Retourne la carte de la simulation.
+     */
+    public Map getMap() {
+        return map;
+    }
 }

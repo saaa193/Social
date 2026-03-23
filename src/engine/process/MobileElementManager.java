@@ -22,8 +22,16 @@ public class MobileElementManager implements MobileInterface {
     private boolean mauvaisTemps = false;
     private int heureAuChangementMeteo = 0;
 
+    private GestionnaireGroupes gestionnaireGroupes = new GestionnaireGroupes();
+
     // L'information active en cours de propagation (null = aucune)
     private InformationTransmission informationEnCours = null;
+
+    // Historique des stats pour le graphique récapitulatif
+    private List<String> historiqueJours = new ArrayList<String>();
+    private List<Double> historiqueNevrosisme = new ArrayList<Double>();
+    private List<Double> historiqueAgreabilite = new ArrayList<Double>();
+    private List<Double> historiqueMoral = new ArrayList<Double>();
 
     public MobileElementManager(Map map) {
         this.map = map;
@@ -103,6 +111,15 @@ public class MobileElementManager implements MobileInterface {
             }
         } else if (horloge.getHeureObject().getHeures() != 8) {
             heureAuChangementMeteo = 0; // reset pour le lendemain
+        }
+
+        // Mise à jour des groupes sociaux et influence du leader
+        gestionnaireGroupes.actualiserGroupes(habitants);
+        gestionnaireGroupes.appliquerInfluences();
+
+        // Enregistrement des stats à minuit pour le graphique récapitulatif
+        if (horloge.getHeureObject().getHeures() == 0) {
+            enregistrerStatsJour();
         }
     }
 
@@ -209,4 +226,49 @@ public class MobileElementManager implements MobileInterface {
     public boolean isMauvaisTemps() {
         return mauvaisTemps;
     }
+
+    /**
+     * Retourne le gestionnaire de groupes pour l'affichage dans les dashboards.
+     */
+    public GestionnaireGroupes getGestionnaireGroupes() {
+        return gestionnaireGroupes;
+    }
+
+    /**
+     * Enregistre les moyennes psychologiques du jour écoulé.
+     * Appelée à minuit à chaque changement de jour.
+     * Utilisée pour le graphique récapitulatif hebdomadaire.
+     */
+    private void enregistrerStatsJour() {
+        if (habitants.isEmpty()) return;
+
+        // Calcul des moyennes OCEAN de la population
+        double totalNevrosisme = 0;
+        double totalAgreabilite = 0;
+        double totalMoral = 0;
+
+        for (Habitant h : habitants) {
+            if (h.getBesoins().getSante() > 0) {
+                totalNevrosisme += h.getNevrosisme();
+                totalAgreabilite += h.getAgreabilite();
+                totalMoral += h.getMoral();
+            }
+        }
+
+        int taille = habitants.size();
+
+        // Stockage dans les listes historiques
+        historiqueJours.add(horloge.getDateCourte());
+        historiqueNevrosisme.add(totalNevrosisme / taille);
+        historiqueAgreabilite.add(totalAgreabilite / taille);
+        historiqueMoral.add(totalMoral / taille);
+    }
+
+    /**
+     * Retourne l'historique pour le graphique récapitulatif.
+     */
+    public List<String> getHistoriqueJours() { return historiqueJours; }
+    public List<Double> getHistoriqueNevrosisme() { return historiqueNevrosisme; }
+    public List<Double> getHistoriqueAgreabilite() { return historiqueAgreabilite; }
+    public List<Double> getHistoriqueMoral() { return historiqueMoral; }
 }

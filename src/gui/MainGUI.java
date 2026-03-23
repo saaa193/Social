@@ -114,6 +114,8 @@ public class MainGUI extends JFrame implements Runnable {
         macro.addEvenementListener(new EvenementAction());
 
         macro.addInformationListener(new InformationAction());
+
+        macro.addRecapitulatifListener(new RecapitulatifAction());
     }
 
     /**
@@ -240,14 +242,25 @@ public class MainGUI extends JFrame implements Runnable {
     private class InformationAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            // On lance la propagation dans le moteur
-            engine.process.MobileElementManager mem =
-                    (engine.process.MobileElementManager) manager;
+            MobileElementManager mem = (MobileElementManager) manager;
             mem.lancerInformation(
                     macro.getTheme(),
                     macro.getVirulence(),
                     macro.getVeracite()
             );
+            // Affiche le flash info en haut de l'écran
+            control.afficherFlashInfo(macro.getTheme());
+        }
+    }
+
+    /**
+     * Ouvre le dashboard récapitulatif psychologique.
+     */
+    private class RecapitulatifAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            MobileElementManager mem = (MobileElementManager) manager;
+            new RecapitulatifDashboard(instance, mem);
         }
     }
 }
