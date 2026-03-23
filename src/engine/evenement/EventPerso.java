@@ -3,15 +3,22 @@ package engine.evenement;
 import engine.habitant.Habitant;
 
 /**
- * Événement personnel : anniversaire, bonne nouvelle...
- * Remonte le moral et le social de l'habitant concerné.
+ * Événement personnel : promotion, bonne nouvelle, expo musée...
+ * Remonte le moral ET modifie durablement les traits OCEAN.
+ * Ancré dans le Big Five : les réussites renforcent la conscience et l'ouverture.
  */
 public class EventPerso implements EventVisitor {
 
     @Override
     public void visit(Habitant habitant) {
+        // Effet immédiat sur les besoins
         habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 10);
         habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 5);
+        // Effet durable sur OCEAN
+        // Une bonne nouvelle renforce la conscience et l'ouverture
+        habitant.getPsychologie().augmenterOuverture(2);
+        habitant.getPsychologie().augmenterAgreabilite(1);
+        // Le névrosisme baisse — on se sent mieux dans sa peau
+        habitant.getPsychologie().diminuerNevrosisme(2);
     }
-
 }

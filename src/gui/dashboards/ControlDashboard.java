@@ -2,7 +2,9 @@ package gui.dashboards;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.Timer;
 
 /**
  * ControlDashboard : Le tableau de bord principal.
@@ -19,6 +21,8 @@ public class ControlDashboard extends JPanel {
 
     private JButton btnStartStop = new JButton("▶");
     private JButton btnVitesse = new JButton("Vitesse: x1");
+
+    private JLabel lblFlashInfo = new JLabel("");
 
     public ControlDashboard() {
         // Mise en page BorderLayout : idéal pour une barre d'outils
@@ -38,6 +42,10 @@ public class ControlDashboard extends JPanel {
         centre.add(lblPeriode);
         centre.add(new JLabel(" | "));
         centre.add(lblMeteo);
+
+        lblFlashInfo.setForeground(Color.RED);
+        lblFlashInfo.setVisible(false);
+        centre.add(lblFlashInfo);
 
         this.add(centre, BorderLayout.CENTER);
 
@@ -77,6 +85,28 @@ public class ControlDashboard extends JPanel {
             lblMeteo.setText("🌧 Pluie");
         } else {
             lblMeteo.setText("☀ Soleil");
+        }
+    }
+
+    /**
+     * Affiche une bannière FLASH INFO temporaire.
+     * Disparaît automatiquement après 3 secondes.
+     */
+    public void afficherFlashInfo(String theme) {
+        lblFlashInfo.setText("🔴 FLASH INFO : " + theme);
+        lblFlashInfo.setVisible(true);
+        Timer timer = new Timer(5000, new ResetFlashInfoAction());
+        timer.setRepeats(false);
+        timer.start();
+    }
+
+    /**
+     * Cache la bannière FLASH INFO après 3 secondes.
+     */
+    private class ResetFlashInfoAction implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            lblFlashInfo.setVisible(false);
         }
     }
 

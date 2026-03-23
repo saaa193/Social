@@ -23,6 +23,7 @@ public class MacroDashboard extends JPanel {
     private JLabel valeurInfluence  = new JLabel("5/10");
 
     // Combo événement + bouton information
+    private JButton btnRecapitulatif = new JButton("📊 Récapitulatif");
     private JComboBox<String> comboEvenement = new JComboBox<String>();
     private JButton btnInformation = new JButton("(•) Propager une Information");
 
@@ -62,7 +63,8 @@ public class MacroDashboard extends JPanel {
         //Zone droite : combo + bouton
         JPanel zoneDroite = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
         zoneDroite.setBackground(Color.LIGHT_GRAY);
-
+        btnRecapitulatif.setBackground(new Color(50, 100, 200));
+        btnRecapitulatif.setForeground(Color.WHITE);
         comboEvenement.addItem("Declencher un Evenement");
         comboEvenement.addItem("Alerte Meteo");
         comboEvenement.addItem("Fete de Quartier");
@@ -74,6 +76,7 @@ public class MacroDashboard extends JPanel {
         btnInformation.setForeground(Color.WHITE);
         btnInformation.addActionListener(new BtnInformationAction());
         zoneDroite.add(btnInformation);
+        zoneDroite.add(btnRecapitulatif);
 
         this.add(zoneDroite, BorderLayout.EAST);
     }
@@ -263,5 +266,12 @@ public class MacroDashboard extends JPanel {
 
     public void addInformationListener(ActionListener listener) {
         this.informationListener = listener;
+    }
+
+    /**
+     * Connecte le bouton Récapitulatif à MainGUI.
+     */
+    public void addRecapitulatifListener(ActionListener listener) {
+        btnRecapitulatif.addActionListener(listener);
     }
 }
