@@ -3,13 +3,17 @@ package engine.habitant.nutrition;
 import engine.habitant.besoin.Besoins;
 
 /**
- * Stratégie de nutrition pour les habitants consciencieux.
- * Mange régulièrement et de façon disciplinée.
+ * Université CY Cergy Paris - L2 Informatique
+ * Genie Logiciel - Projet SOCIAL
+ *
+ * @author HANANE Sanaa & PIRABAKARAN Parthipan
+ *
+ * Nutrition consciencieuse : l'habitant mange régulièrement et de façon disciplinée.
  */
 public class NutritionConsciente implements StrategieNutrition {
-    public void appliquer(Besoins besoins) {
-        if (Math.random() < 0.70) {
-            besoins.setFaim(besoins.getFaim() + 3);
-        }
-    }
+	public void appliquer(Besoins besoins) {
+		if (Math.random() < 0.70) {
+			besoins.setFaim(besoins.getFaim() + 3);
+		}
+	}
 }

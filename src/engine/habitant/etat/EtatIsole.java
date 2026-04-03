@@ -4,19 +4,24 @@ import engine.habitant.Habitant;
 import engine.habitant.visitor.EtatVisitor;
 
 /**
- * État Isolé : extraverti sans réseau social.
- * Plus l'habitant est extraverti, plus l'isolement lui fait mal.
+ * Université CY Cergy Paris - L2 Informatique
+ * Genie Logiciel - Projet SOCIAL
+ *
+ * @author HANANE Sanaa & PIRABAKARAN Parthipan
+ *
+ * État isolé : l'habitant extraverti sans réseau social perd du moral
+ * proportionnellement à son extraversion.
  */
 
 public class EtatIsole implements EtatHabitant {
 
-    @Override
-    public void appliquer(Habitant habitant) {
-        int malus = 1 + (habitant.getExtraversion() / 50);
-        habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - malus);
-    }
+	@Override
+	public void appliquer(Habitant habitant) {
+		int malus = 1 + (habitant.getExtraversion() / 50);
+		habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - malus);
+	}
 
-    public <T> T accept(EtatVisitor<T> visitor) {
-        return visitor.visit(this);
-    }
+	public <T> T accept(EtatVisitor<T> visitor) {
+		return visitor.visit(this);
+	}
 }
