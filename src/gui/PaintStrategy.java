@@ -12,111 +12,116 @@ import engine.map.Map;
 import engine.habitant.Habitant;
 
 /**
+ * Université CY Cergy Paris - L2 Informatique
+ * Genie Logiciel - Projet SOCIAL
+ *
+ * @author HANANE Sanaa & PIRABAKARAN Parthipan
+ * <p>
  * PaintStrategy : La classe responsable du rendu visuel (Le "Renderer").
  * Elle implémente le Pattern Strategy pour déléguer le dessin des éléments
  * (Map et Habitant) sans polluer leurs classes respectives.
  */
 public class PaintStrategy {
 
-    // Filtres d'affichage des liens — contrôlés par ReseauDashboard
-    private boolean afficherFamille = true;
-    private boolean afficherTravail = true;
-    private boolean afficherAmis    = true;
+	// Filtres d'affichage des liens — contrôlés par ReseauDashboard
+	private boolean afficherFamille = true;
+	private boolean afficherTravail = true;
+	private boolean afficherAmis = true;
 
-    /**
-     * Met à jour les filtres d'affichage des liens.
-     * Appelée depuis MainGUI à chaque tour.
-     */
-    public void setFiltres(boolean famille, boolean travail, boolean amis) {
-        this.afficherFamille = famille;
-        this.afficherTravail = travail;
-        this.afficherAmis    = amis;
-    }
+	/**
+	 * Met à jour les filtres d'affichage des liens.
+	 * Appelée depuis MainGUI à chaque tour.
+	 */
+	public void setFiltres(boolean famille, boolean travail, boolean amis) {
+		this.afficherFamille = famille;
+		this.afficherTravail = travail;
+		this.afficherAmis = amis;
+	}
 
 
-    /**
-     * Dessine la grille de la carte.
-     */
-    public void paint(Map map, Graphics graphics) {
-        int blockSize = GameConfiguration.BLOCK_SIZE;
-        Block[][] blocks = map.getBlocks();
+	/**
+	 * Dessine la grille de la carte.
+	 */
+	public void paint(Map map, Graphics graphics) {
+		int blockSize = GameConfiguration.BLOCK_SIZE;
+		Block[][] blocks = map.getBlocks();
 
-        for (int lineIndex = 0; lineIndex < map.getLineCount(); lineIndex++) {
-            for (int columnIndex = 0; columnIndex < map.getColumnCount(); columnIndex++) {
-                Block block = blocks[lineIndex][columnIndex];
+		for (int lineIndex = 0; lineIndex < map.getLineCount(); lineIndex++) {
+			for (int columnIndex = 0; columnIndex < map.getColumnCount(); columnIndex++) {
+				Block block = blocks[lineIndex][columnIndex];
 
-                // On applique la couleur blanche sur TOUS les blocs
-                graphics.setColor(Color.WHITE);
-                graphics.fillRect(block.getColumn() * blockSize, block.getLine() * blockSize, blockSize, blockSize);
-            }
-        }
-    }
+				// On applique la couleur blanche sur TOUS les blocs
+				graphics.setColor(Color.WHITE);
+				graphics.fillRect(block.getColumn() * blockSize, block.getLine() * blockSize, blockSize, blockSize);
+			}
+		}
+	}
 
-    /**
-     * Dessine un habitant et ses relations sociales.
-     * Le rendu est dynamique : la couleur dépend de l'état biologique/moral.
-     */
-    public void paint(Habitant habitant, Graphics graphics) {
-        Block position = habitant.getPosition();
-        int blockSize = GameConfiguration.BLOCK_SIZE;
+	/**
+	 * Dessine un habitant et ses relations sociales.
+	 * Le rendu est dynamique : la couleur dépend de l'état biologique/moral.
+	 */
+	public void paint(Habitant habitant, Graphics graphics) {
+		Block position = habitant.getPosition();
+		int blockSize = GameConfiguration.BLOCK_SIZE;
 
-        // Centre du bloc pour dessiner les lignes de relation
-        int x1 = position.getColumn() * blockSize + blockSize / 2;
-        int y1 = position.getLine() * blockSize + blockSize / 2;
+		// Centre du bloc pour dessiner les lignes de relation
+		int x1 = position.getColumn() * blockSize + blockSize / 2;
+		int y1 = position.getLine() * blockSize + blockSize / 2;
 
-        // 1. DESSIN DES LIENS SOCIAUX
-        if (habitant.getRelation() != null) {
-            for (Liens lien : habitant.getRelation()) {
-                Habitant ami = lien.getPartenaire();
+		// 1. DESSIN DES LIENS SOCIAUX
+		if (habitant.getRelation() != null) {
+			for (Liens lien : habitant.getRelation()) {
+				Habitant ami = lien.getPartenaire();
 
-                // On vérifie si ce type de lien doit être affiché
-                if (lien instanceof Familial && !afficherFamille) continue;
-                if (lien instanceof Professionnel && !afficherTravail) continue;
-                if (!(lien instanceof Familial) && !(lien instanceof Professionnel) && !afficherAmis) continue;
+				// On vérifie si ce type de lien doit être affiché
+				if (lien instanceof Familial && !afficherFamille) continue;
+				if (lien instanceof Professionnel && !afficherTravail) continue;
+				if (!(lien instanceof Familial) && !(lien instanceof Professionnel) && !afficherAmis) continue;
 
-                // Code couleur par type de relation
-                if (lien instanceof Familial) {
-                    graphics.setColor(Color.PINK);
-                } else if (lien instanceof Professionnel) {
-                    graphics.setColor(Color.BLUE);
-                } else {
-                    graphics.setColor(Color.GREEN);
-                }
+				// Code couleur par type de relation
+				if (lien instanceof Familial) {
+					graphics.setColor(Color.PINK);
+				} else if (lien instanceof Professionnel) {
+					graphics.setColor(Color.BLUE);
+				} else {
+					graphics.setColor(Color.GREEN);
+				}
 
-                Block posAmi = ami.getPosition();
-                int x2 = posAmi.getColumn() * blockSize + blockSize / 2;
-                int y2 = posAmi.getLine() * blockSize + blockSize / 2;
+				Block posAmi = ami.getPosition();
+				int x2 = posAmi.getColumn() * blockSize + blockSize / 2;
+				int y2 = posAmi.getLine() * blockSize + blockSize / 2;
 
-                graphics.drawLine(x1, y1, x2, y2);
-            }
-        }
+				graphics.drawLine(x1, y1, x2, y2);
+			}
+		}
 
-        // 2. DESSIN DE L'HABITANT (Le point de couleur selon son état)
-        int moral = habitant.getMoral();
-        int fatigue = habitant.getBesoins().getFatigue();
-        int sante = habitant.getBesoins().getSante();
+		// 2. DESSIN DE L'HABITANT (Le point de couleur selon son état)
+		int moral = habitant.getMoral();
+		int fatigue = habitant.getBesoins().getFatigue();
+		int sante = habitant.getBesoins().getSante();
 
-        // Système de couleurs dynamiques (Visualisation des besoins)
-        if (sante <= 0) {
-            graphics.setColor(Color.black); // Décès
-        } else if (fatigue < 20) {
-            graphics.setColor(Color.GRAY); // Sommeil
-        } else if (moral < 30) {
-            graphics.setColor(Color.RED); // Détresse
-        } else if (moral < 70) {
-            graphics.setColor(Color.ORANGE); // Neutre
-        } else {
-            graphics.setColor(new Color(128, 0, 128)); // Bonheur (Violet)
-        }
+		// Système de couleurs dynamiques (Visualisation des besoins)
+		if (sante <= 0) {
+			graphics.setColor(Color.black); // Décès
+		} else if (fatigue < 20) {
+			graphics.setColor(Color.GRAY); // Sommeil
+		} else if (moral < 30) {
+			graphics.setColor(Color.RED); // Détresse
+		} else if (moral < 70) {
+			graphics.setColor(Color.ORANGE); // Neutre
+		} else {
+			graphics.setColor(new Color(128, 0, 128)); // Bonheur (Violet)
+		}
 
-        int y = position.getLine();
-        int x = position.getColumn();
+		int y = position.getLine();
+		int x = position.getColumn();
 
-        // Dessin du cercle (Habitant)
-        graphics.fillOval(x * blockSize, y * blockSize, blockSize, blockSize);
+		// Dessin du cercle (Habitant)
+		graphics.fillOval(x * blockSize, y * blockSize, blockSize, blockSize);
 
-        // Ajout d'une bordure noire pour un meilleur contraste
-        graphics.setColor(Color.BLACK);
-        graphics.drawOval(x * blockSize, y * blockSize, blockSize, blockSize);
-    }
+		// Ajout d'une bordure noire pour un meilleur contraste
+		graphics.setColor(Color.BLACK);
+		graphics.drawOval(x * blockSize, y * blockSize, blockSize, blockSize);
+	}
 }

@@ -4,15 +4,17 @@ import engine.habitant.Habitant;
 import engine.habitant.visitor.EtatVisitor;
 
 /**
- * Interface commune à tous les états psychologiques d'un Habitant.
+ * Université CY Cergy Paris - L2 Informatique
+ * Genie Logiciel - Projet SOCIAL
  *
- * Principe : chaque état sait s'appliquer sur un habitant
- * sans que Habitant.java ait besoin de savoir quel état c'est.
+ * @author HANANE Sanaa & PIRABAKARAN Parthipan
+ *
+ * Interface commune à tous les états psychologiques d'un habitant.
  */
-
 public interface EtatHabitant {
 
-    void appliquer(Habitant habitant);
-    <T> T accept(EtatVisitor<T> visitor);
+	void appliquer(Habitant habitant);
+
+	<T> T accept(EtatVisitor<T> visitor);
 
 }

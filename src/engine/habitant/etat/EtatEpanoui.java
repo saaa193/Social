@@ -4,18 +4,21 @@ import engine.habitant.Habitant;
 import engine.habitant.visitor.EtatVisitor;
 
 /**
- * État Épanoui : moral élevé, réseau social actif.
- * L'habitant regagne un peu de social à chaque tour.
+ * Université CY Cergy Paris - L2 Informatique
+ * Genie Logiciel - Projet SOCIAL
+ *
+ * @author HANANE Sanaa & PIRABAKARAN Parthipan
+ *
+ * État épanoui : l'habitant est heureux et regagne du social à chaque tour.
  */
-
 public class EtatEpanoui implements EtatHabitant {
 
-    @Override
-    public void appliquer(Habitant habitant) {
-        habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 2);
-    }
+	@Override
+	public void appliquer(Habitant habitant) {
+		habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 2);
+	}
 
-    public <T> T accept(EtatVisitor<T> visitor) {
-        return visitor.visit(this);
-    }
+	public <T> T accept(EtatVisitor<T> visitor) {
+		return visitor.visit(this);
+	}
 }
