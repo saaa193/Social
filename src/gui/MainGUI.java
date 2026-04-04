@@ -13,7 +13,6 @@ import javax.swing.JPanel;
 
 import config.GameConfiguration;
 import engine.habitant.Habitant;
-import engine.habitant.besoin.Besoins;
 import engine.map.Block;
 import engine.map.Map;
 import engine.process.GameBuilder;
@@ -46,16 +45,14 @@ public class MainGUI extends JFrame implements Runnable {
 	private MainGUI instance = this;
 	private int speed = GameConfiguration.GAME_SPEED;
 
-	// Variable d'état : Permet de basculer entre vue "Moyenne" et vue "Habitant"
-	private Habitant habitantSelectionne = null;
-
 	// Composants de l'interface (Vue)
 	private ControlDashboard control;
-	private InspectorDashboard inspector;
 	private MacroDashboard macro;
 	private GraphDashboard graph;
 
 	private ReseauDashboard reseau;
+
+	private EvenementDashboard evenementDashboard;
 
 	public MainGUI(String title) {
 		super(title);
@@ -77,17 +74,20 @@ public class MainGUI extends JFrame implements Runnable {
 		contentPane.add(BorderLayout.NORTH, control);
 
 		// 2. Panneau latéral droit : Graphiques, Inspecteur et Réseau
+		evenementDashboard = new EvenementDashboard();
+
 		JPanel rightPanel = new JPanel(new BorderLayout(0, 5));
 		rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
 		graph = new GraphDashboard();
-		rightPanel.add(graph, BorderLayout.NORTH);
-
 		reseau = new ReseauDashboard();
-		rightPanel.add(reseau, BorderLayout.SOUTH);
 
-		inspector = new InspectorDashboard();
-		rightPanel.add(inspector, BorderLayout.CENTER);
+		JPanel graphEtReseau = new JPanel(new BorderLayout(0, 5));
+		graphEtReseau.add(graph, BorderLayout.NORTH);
+		graphEtReseau.add(reseau, BorderLayout.SOUTH);
+
+		rightPanel.add(evenementDashboard, BorderLayout.NORTH);
+		rightPanel.add(graphEtReseau, BorderLayout.CENTER);
 
 		contentPane.add(rightPanel, BorderLayout.EAST);
 
@@ -131,45 +131,34 @@ public class MainGUI extends JFrame implements Runnable {
 	public void run() {
 		while (!stop) {
 			try {
-				Thread.sleep(speed); // Contrôle de la vitesse de simulation
+				Thread.sleep(speed);
 			} catch (InterruptedException e) {
 				System.out.println(e.getMessage());
 			}
-
-			// A. Mise à jour logique
 			manager.nextRound();
-			dashboard.repaint(); // Demande à Swing de redessiner
-
-			// B. Mise à jour de l'affichage (Date/Période)
-			control.setLblHorloge(manager.getHorloge().getHeureActuelle());
-			control.setPeriodeText(manager.getHorloge().estWeekend() ? "WEEKEND" : "SEMAINE");
-
-			// C. Mise à jour des Dashboards
-			graph.updateStats(manager.getHabitants());
-
-			// Mise à jour du réseau
-			reseau.updateReseau(manager.getHabitants());
-
-			// Mise à jour des filtres d'affichage
-			// Mise à jour des filtres d'affichage
-			dashboard.getPaintStrategy().setFiltres(
-					reseau.afficherFamille(),
-					reseau.afficherTravail(),
-					reseau.afficherAmis()
-			);
-
-			// Gestion intelligente de l'inspecteur : Moyenne ou Individu
-			if (habitantSelectionne == null) {
-				inspector.updateAverages(manager.getHabitants());
-			} else {
-				Besoins b = habitantSelectionne.getBesoins();
-				inspector.setInfos(habitantSelectionne.getPrenom(), habitantSelectionne.getSexe(), "" + habitantSelectionne.getAge());
-				inspector.setJauges(b.getFaim(), b.getFatigue(), b.getSocial(), b.getSante(), b.getMoral());
-			}
-			// Mise à jour de la météo
-			MobileElementManager mem = (MobileElementManager) manager;
-			control.setMeteo(mem.isMauvaisTemps());
+			mettreAJourAffichage();
 		}
+	}
+
+	/**
+	 * Met a jour tous les composants graphiques apres chaque tour.
+	 * Calquee sur updateValues() du prof dans ChronometerGUI.
+	 */
+	private void mettreAJourAffichage() {
+		dashboard.repaint();
+		control.setLblHorloge(manager.getHorloge().getHeureActuelle());
+		control.setPeriodeText(manager.getHorloge().estWeekend() ? "WEEKEND" : "SEMAINE");
+		graph.updateStats(manager.getHabitants());
+		reseau.updateReseau(manager.getHabitants());
+		dashboard.getPaintStrategy().setFiltres(
+				reseau.afficherFamille(),
+				reseau.afficherTravail(),
+				reseau.afficherAmis()
+		);
+		MobileElementManager mem = (MobileElementManager) manager;
+		control.setMeteo(mem.isMauvaisTemps());
+		evenementDashboard.nextTour();
+		mem.setParametres(macro.getResistance(), macro.getInfluence());
 	}
 
 	//Pattern "Listener" pour gérer les clics
@@ -213,8 +202,10 @@ public class MainGUI extends JFrame implements Runnable {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String choix = macro.getEvenementSelectionne();
-			if (choix != null && !choix.equals("⚡ Déclencher un Événement")) {
-				GestionnaireEvenements.declencherEvenement(choix, manager.getHabitants());
+			if (choix != null && !choix.equals("Declencher un Evenement")) {
+				MobileElementManager mem = (MobileElementManager) manager;
+				int nbAffectes = GestionnaireEvenements.declencherEvenement(choix, manager.getHabitants(), mem.getForceInfluence());
+				evenementDashboard.afficherEvenement(choix, nbAffectes);
 			}
 		}
 	}
@@ -229,9 +220,6 @@ public class MainGUI extends JFrame implements Runnable {
 			if (habitant != null) {
 				// Ouvre la fenêtre modale d'inspection
 				new InspectionCitoyenModal(instance, habitant);
-			} else {
-				// Aucun habitant cliqué → on remet la vue moyenne
-				habitantSelectionne = null;
 			}
 		}
 

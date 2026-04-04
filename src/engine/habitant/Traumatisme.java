@@ -16,26 +16,26 @@ package engine.habitant;
 public class Traumatisme {
 
 	/**
-	 * Applique les séquelles permanentes sur le profil OCEAN de l'habitant.
-	 * Un résilient subit des séquelles réduites de moitié.
+	 * Applique les sequelles permanentes sur le profil OCEAN de l'habitant.
+	 * Le malus est module par la resistance collective de la population.
+	 * Un resiliant subit des sequelles reduites de moitie.
+	 *
+	 * @param habitant   l'habitant qui subit le traumatisme
+	 * @param resistance la resistance collective (0 a 100)
 	 */
-	public void appliquer(Habitant habitant) {
-
-		// Séquelles de base
-		int malus = 10;
-
-		// Un résilient résiste mieux au traumatisme
-		if (habitant.getPsychologie().estResiliant()) {
-			malus = 5;
+	public void appliquer(Habitant habitant, int resistance) {
+		// La resistance reduit le malus de base — entre 3 et 10
+		int malus = 10 - (resistance / 15);
+		if (malus < 3) {
+			malus = 3;
 		}
 
-		// Le névrosisme augmente définitivement
+		if (habitant.getPsychologie().estResiliant()) {
+			malus = malus / 2;
+		}
+
 		habitant.getPsychologie().augmenterNevrosisme(malus);
-
-		// L'agréabilité diminue — l'habitant se ferme aux autres
 		habitant.getPsychologie().diminuerAgreabilite(malus / 2);
-
-		// L'ouverture diminue — l'habitant se méfie du monde
 		habitant.getPsychologie().diminuerOuverture(malus / 2);
 	}
 }

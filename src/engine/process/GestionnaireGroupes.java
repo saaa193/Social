@@ -88,15 +88,16 @@ public class GestionnaireGroupes {
 
 	/**
 	 * Applique l'influence du leader sur chaque groupe.
-	 * Appelée à chaque tour après actualiserGroupes().
+	 * Appelee a chaque tour apres actualiserGroupes().
+	 *
+	 * @param forceInfluence la force d'influence du leader (0 a 10)
 	 */
-	public void appliquerInfluences() {
+	public void appliquerInfluences(int forceInfluence) {
 		for (Groupe g : groupes) {
-			g.appliquerInfluenceLeader();
+			g.appliquerInfluenceLeader(forceInfluence);
 		}
 	}
 
-	// ACCESSEURS
 	public List<Groupe> getGroupes() {
 		return groupes;
 	}

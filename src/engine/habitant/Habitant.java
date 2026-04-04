@@ -66,6 +66,20 @@ public class Habitant extends MobileElement {
 	// L'extraverti explore, l'anxieux reste près de chez lui
 	private Block destination;
 
+	// Resistance collective — mise a jour depuis MacroDashboard via MobileElementManager
+	private int resistanceCollective = 50;
+
+	/**
+	 * Construit un habitant avec son identite et le place sur la carte.
+	 * Initialise le profil OCEAN aleatoirement et calcule les taux
+	 * de degradation personnels depuis les traits de personnalite.
+	 *
+	 * @param position la case initiale de l'habitant sur la carte
+	 * @param map      la carte de la simulation
+	 * @param prenom   le prenom de l'habitant
+	 * @param sexe     le sexe de l'habitant
+	 * @param age      l'age de l'habitant
+	 */
 	public Habitant(Block position, Map map, String prenom, String sexe, int age) {
 		super(position, map);
 		this.prenom = prenom;
@@ -161,6 +175,10 @@ public class Habitant extends MobileElement {
 
 	/**
 	 * Gestion d'une rencontre professionnelle.
+	 * Si deja connu → renforce le lien.
+	 * Si inconnu → cree un lien selon compatibilite OCEAN.
+	 *
+	 * @param autre l'habitant rencontre professionnellement
 	 */
 	public void ajouterLienProfessionnel(Habitant autre) {
 		boolean dejaConnu = false;
@@ -192,7 +210,6 @@ public class Habitant extends MobileElement {
 		return psychologie.calculerCompatibiliteAvec(autre.getPsychologie());
 	}
 
-	// --- ACCESSEURS ---
 	public List<Liens> getRelation()     { return relations; }
 	public String getPrenom()            { return prenom; }
 	public String getSexe()              { return sexe; }
@@ -207,18 +224,27 @@ public class Habitant extends MobileElement {
 	public int getNevrosisme()           { return psychologie.getNevrosisme(); }
 	public Map getMap()                  { return map; }
 
-	// Accesseurs domicile et destination
 	public Block getDomicile()           { return domicile; }
-	public Block getDestination()        { return destination; }
-	public void setDestination(Block destination) { this.destination = destination; }
+
+	/**
+	 * Met a jour la resistance collective de la population.
+	 * Appelee depuis MobileElementManager a chaque tour.
+	 *
+	 * @param resistance la valeur du slider (0 a 100)
+	 */
+	public void setResistanceCollective(int resistance) {
+		this.resistanceCollective = resistance;
+	}
 
 	@Override
 	public String toString() {
 		return prenom + " (" + sexe + ", " + age + " ans) - Moral: " + getMoral();
 	}
 
-	// --- TEMPLATE METHOD (héritage de MobileElement) ---
-
+	/**
+	 * Deplacement de l'habitant selon son etat et son profil OCEAN.
+	 * Delegue au Strategy Pattern pour le comportement specifique.
+	 */
 	@Override
 	protected void seDeplacer() {
 		// Mort → ne bouge pas
@@ -248,6 +274,12 @@ public class Habitant extends MobileElement {
 		strategieDeplacement.deplacer(this, map);
 	}
 
+	/**
+	 * Actions de l'habitant a chaque tour : mise a jour des besoins,
+	 * evolution psychologique, contagion emotionnelle et traumatisme.
+	 *
+	 * @param estLaNuit vrai si la simulation est en periode nocturne
+	 */
 	@Override
 	protected void agir(boolean estLaNuit) {
 		besoins.vivre(estLaNuit, tauxFaim, tauxFatigue, tauxSocial, tauxRecuperation);
@@ -285,7 +317,7 @@ public class Habitant extends MobileElement {
 		if (etat instanceof EtatDepressif || etat instanceof EtatAnxieux || etat instanceof EtatBurnout) {
 			toursEtatNegatif++;
 			if (toursEtatNegatif >= 5) {
-				traumatisme.appliquer(this);
+				traumatisme.appliquer(this, resistanceCollective);
 				toursEtatNegatif = 0;
 			}
 		} else {

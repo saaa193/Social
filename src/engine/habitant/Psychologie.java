@@ -39,6 +39,24 @@ public class Psychologie {
 	}
 
 	/**
+	 * Constructeur avec parametres OCEAN explicites.
+	 * Utilise pour les tests unitaires et les scenarios predéfinis.
+	 *
+	 * @param ouverture    trait Ouverture (0 a 100)
+	 * @param conscience   trait Conscience (0 a 100)
+	 * @param extraversion trait Extraversion (0 a 100)
+	 * @param agreabilite  trait Agreabilite (0 a 100)
+	 * @param nevrosisme   trait Nevrosisme (0 a 100)
+	 */
+	public Psychologie(int ouverture, int conscience, int extraversion, int agreabilite, int nevrosisme) {
+		this.ouverture = ouverture;
+		this.conscience = conscience;
+		this.extraversion = extraversion;
+		this.agreabilite = agreabilite;
+		this.nevrosisme = nevrosisme;
+	}
+
+	/**
 	 * Détermine l'état psychologique dominant de l'habitant.
 	 * Retourne un objet EtatHabitant polymorphique.
 	 * L'appelant fait juste etat.appliquer(habitant) sans savoir quel état c'est.
@@ -86,23 +104,37 @@ public class Psychologie {
 		return Math.max(10, Math.min(80, force));
 	}
 
-	//Getters
+	/**
+	 * Retourne le trait Ouverture.
+	 */
 	public int getOuverture() {
 		return ouverture;
 	}
 
+	/**
+	 * Retourne le trait Conscience.
+	 */
 	public int getConscience() {
 		return conscience;
 	}
 
+	/**
+	 * Retourne le trait Extraversion.
+	 */
 	public int getExtraversion() {
 		return extraversion;
 	}
 
+	/**
+	 * Retourne le trait Agreabilite.
+	 */
 	public int getAgreabilite() {
 		return agreabilite;
 	}
 
+	/**
+	 * Retourne le trait Nevrosisme.
+	 */
 	public int getNevrosisme() {
 		return nevrosisme;
 	}
@@ -129,7 +161,6 @@ public class Psychologie {
 	public void evoluer(EtatHabitant etat, Besoins besoins) {
 
 		if (etat instanceof EtatEpanoui) {
-			// MODIFICATION CLAUDE : Rendement décroissant
 			int bonus = 1;
 			if (agreabilite > 60) {
 				bonus = 2;
@@ -206,7 +237,6 @@ public class Psychologie {
 			extraversion = Math.max(0, extraversion - 1);
 
 		} else if (etat instanceof EtatEuphorique) {
-			// MODIFICATION CLAUDE : L'euphorie ne booste que si les traits ne sont pas déjà au max
 			if (extraversion < 85 && Math.random() < 0.50) {
 				extraversion = Math.min(100, extraversion + 1);
 			}
