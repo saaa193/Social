@@ -10,39 +10,39 @@ import engine.map.Map;
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
- * Déplacement anxieux : l'habitant névrosé fuit les autres
- * et se dirige vers les bords de la carte.
+ * Déplacement anxieux : l'habitant reste proche de son domicile.
+ * Il bouge peu et revient toujours vers sa position de départ.
  */
 public class DeplacementAnxieux implements StrategieDeplacement {
 
 	@Override
 	public void deplacer(Habitant habitant, Map map) {
+		// 70% du temps il reste sur place
+		if (Math.random() > 0.30) return;
+
+		// Sinon petit déplacement aléatoire mais limité
 		Block pos = habitant.getPosition();
-		int ligne = pos.getLine();
+		Block domicile = habitant.getDomicile();
+		int ligne   = pos.getLine();
 		int colonne = pos.getColumn();
 
-		// L'anxieux essaie de s'éloigner du centre de la carte
-		// Il cherche un coin isolé
-		int centreL = map.getLineCount() / 2;
-		int centreC = map.getColumnCount() / 2;
+		// Si trop loin du domicile (> 5 cases) → retour domicile
+		int distLigne   = Math.abs(ligne - domicile.getLine());
+		int distColonne = Math.abs(colonne - domicile.getColumn());
 
-		// On calcule la direction qui s'éloigne du centre
-		int directionLigne = (ligne < centreL) ? -1 : 1;
-		int directionColonne = (colonne < centreC) ? -1 : 1;
-
-		// On choisit aléatoirement si on bouge en ligne ou en colonne
-		if (Math.random() < 0.5) {
-			// Mouvement vertical — fuit vers le bord
-			int nouvelleLigne = ligne + directionLigne;
-			if (nouvelleLigne >= 0 && nouvelleLigne < map.getLineCount()) {
-				ligne = nouvelleLigne;
-			}
+		if (distLigne > 5 || distColonne > 5) {
+			// Retour vers le domicile
+			if (ligne < domicile.getLine()) ligne++;
+			else if (ligne > domicile.getLine()) ligne--;
+			if (colonne < domicile.getColumn()) colonne++;
+			else if (colonne > domicile.getColumn()) colonne--;
 		} else {
-			// Mouvement horizontal — fuit vers le bord
-			int nouvelleColonne = colonne + directionColonne;
-			if (nouvelleColonne >= 0 && nouvelleColonne < map.getColumnCount()) {
-				colonne = nouvelleColonne;
-			}
+			// Petit mouvement aléatoire
+			int direction = (int)(Math.random() * 4);
+			if (direction == 0 && ligne > 0) ligne--;
+			else if (direction == 1 && ligne < map.getLineCount() - 1) ligne++;
+			else if (direction == 2 && colonne > 0) colonne--;
+			else if (direction == 3 && colonne < map.getColumnCount() - 1) colonne++;
 		}
 
 		habitant.setPosition(map.getBlock(ligne, colonne));

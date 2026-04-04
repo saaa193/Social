@@ -17,9 +17,10 @@ public class DeplacementIntroverti implements StrategieDeplacement {
 
 	@Override
 	public void deplacer(Habitant habitant, Map map) {
-		// L'introverti ne bouge que 30% du temps
-		if (Math.random() > 0.30) {
-			return; // Il reste sur place la plupart du temps
+		// L'introverti bouge 60% du temps (au lieu de 30%)
+		// Il bouge, mais lentement et sans chercher les autres
+		if (Math.random() > 0.55) {
+			return;
 		}
 
 		// Quand il bouge, c'est un petit déplacement aléatoire

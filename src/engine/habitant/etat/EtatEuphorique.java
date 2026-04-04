@@ -16,12 +16,23 @@ public class EtatEuphorique implements EtatHabitant {
 
 	@Override
 	public void appliquer(Habitant habitant) {
-		// Boost social important
-		habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 3);
-		// Boost moral
-		habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 2);
-		// L'extraversion augmente légèrement
-		habitant.getPsychologie().augmenterExtraversion(1);
+		// L'euphorie booste, mais avec un rendement décroissant
+		// Si le social est déjà haut, le bonus est plus faible
+		int social = habitant.getBesoins().getSocial();
+		int moral = habitant.getBesoins().getMoral();
+
+		if (social < 80) {
+			habitant.getBesoins().setSocial(social + 2);
+		} else {
+			// Déjà très sociable → petit boost seulement
+			habitant.getBesoins().setSocial(social + 1);
+		}
+
+		if (moral < 85) {
+			habitant.getBesoins().setMoral(moral + 1);
+		}
+		// Au-dessus de 85 → l'euphorie ne booste plus le moral
+		// Ça empêche le moral de rester collé à 100
 	}
 
 	public <T> T accept(EtatVisitor<T> visitor) {

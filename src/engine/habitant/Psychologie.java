@@ -129,16 +129,24 @@ public class Psychologie {
 	public void evoluer(EtatHabitant etat, Besoins besoins) {
 
 		if (etat instanceof EtatEpanoui) {
-			// Quand on est épanoui, on s'améliore
-			// L'agréabilité aide à progresser plus vite
+			// MODIFICATION CLAUDE : Rendement décroissant
 			int bonus = 1;
 			if (agreabilite > 60) {
 				bonus = 2;
 			}
-			agreabilite = Math.min(100, agreabilite + bonus);
-			nevrosisme = Math.max(0, nevrosisme - bonus);
-			conscience = Math.min(100, conscience + 1);
-			ouverture = Math.min(100, ouverture + 1);
+
+			if (agreabilite < 80 && Math.random() < 0.50) {
+				agreabilite = Math.min(100, agreabilite + bonus);
+			}
+			if (nevrosisme > 20 && Math.random() < 0.50) {
+				nevrosisme = Math.max(0, nevrosisme - 1);
+			}
+			if (conscience < 85 && Math.random() < 0.40) {
+				conscience = Math.min(100, conscience + 1);
+			}
+			if (ouverture < 85 && Math.random() < 0.40) {
+				ouverture = Math.min(100, ouverture + 1);
+			}
 
 		} else if (etat instanceof EtatAnxieux) {
 			// Plus le moral est bas, plus on se dégrade vite
@@ -198,16 +206,21 @@ public class Psychologie {
 			extraversion = Math.max(0, extraversion - 1);
 
 		} else if (etat instanceof EtatEuphorique) {
-			// L'euphorie renforce les traits positifs
-			// L'extraversion grimpe — encore plus sociable
-			extraversion = Math.min(100, extraversion + 2);
-			// L'agréabilité monte — on est bienveillant
-			agreabilite = Math.min(100, agreabilite + 1);
-			// L'ouverture monte — on est curieux de tout
-			ouverture = Math.min(100, ouverture + 1);
-			// Le névrosisme baisse — on est serein
-			nevrosisme = Math.max(0, nevrosisme - 1);
+			// MODIFICATION CLAUDE : L'euphorie ne booste que si les traits ne sont pas déjà au max
+			if (extraversion < 85 && Math.random() < 0.50) {
+				extraversion = Math.min(100, extraversion + 1);
+			}
+			if (agreabilite < 80 && Math.random() < 0.40) {
+				agreabilite = Math.min(100, agreabilite + 1);
+			}
+			if (ouverture < 85 && Math.random() < 0.40) {
+				ouverture = Math.min(100, ouverture + 1);
+			}
+			if (nevrosisme > 15 && Math.random() < 0.40) {
+				nevrosisme = Math.max(0, nevrosisme - 1);
+			}
 		}
+
 		// EtatStable → rien ne change
 	}
 

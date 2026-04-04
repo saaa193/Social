@@ -26,6 +26,8 @@ import java.util.List;
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
  * Représente un habitant de la simulation avec ses besoins et son profil OCEAN.
+ * Hérite de MobileElement — pattern Template Method du prof :
+ * executerTour() est fixé, seDeplacer() et agir() sont délégués.
  */
 public class Habitant extends MobileElement {
 
@@ -49,12 +51,20 @@ public class Habitant extends MobileElement {
 	// Réseau social
 	private List<Liens> relations = new ArrayList<Liens>();
 
-	// Ajouter cet attribut avec les autres attributs en haut de Habitant
+	// Pattern Strategy : comportement de déplacement injecté selon OCEAN
 	private StrategieDeplacement strategieDeplacement;
 
 	// Compteur de tours dans un état négatif → déclenche un traumatisme
 	private int toursEtatNegatif = 0;
 	private Traumatisme traumatisme = new Traumatisme();
+
+	// Position de domicile — fixe toute la simulation
+	// Chaque habitant a son propre point d'ancrage spatial
+	private Block domicile;
+
+	// Destination courante — change périodiquement selon le profil OCEAN
+	// L'extraverti explore, l'anxieux reste près de chez lui
+	private Block destination;
 
 	public Habitant(Block position, Map map, String prenom, String sexe, int age) {
 		super(position, map);
@@ -62,15 +72,19 @@ public class Habitant extends MobileElement {
 		this.sexe = sexe;
 		this.age = age;
 
-		this.psychologie = new Psychologie();
+		// Le domicile est fixé une fois pour toutes à la position initiale
+		this.domicile = position;
+		// La destination de départ est le domicile
+		this.destination = position;
 
+		this.psychologie = new Psychologie();
 		this.besoins = new Besoins(this.psychologie.determinerStrategieNutrition());
 
 		// Légère variance initiale pour diversifier la population
-		this.besoins.setFaim(60 + (int) (Math.random() * 40));  // entre 60 et 100
-		this.besoins.setFatigue(50 + (int) (Math.random() * 50));  // entre 50 et 100
-		this.besoins.setSocial(40 + (int) (Math.random() * 60));  // entre 40 et 100
-		this.besoins.setMoral(40 + (int) (Math.random() * 40));  // entre 40 et 80
+		this.besoins.setFaim(60 + (int) (Math.random() * 40));
+		this.besoins.setFatigue(50 + (int) (Math.random() * 50));
+		this.besoins.setSocial(40 + (int) (Math.random() * 60));
+		this.besoins.setMoral(40 + (int) (Math.random() * 40));
 
 		// Calcul des taux personnels depuis OCEAN
 		this.tauxFaim = GameConfiguration.BASE_FAIM
@@ -87,49 +101,41 @@ public class Habitant extends MobileElement {
 		this.tauxRecuperation = GameConfiguration.BASE_RECUPERATION
 				- (psychologie.getNevrosisme() / 100.0) * GameConfiguration.OCEAN_IMPACT * 2;
 
-		// Calcul de la stratégie de déplacement selon OCEAN
+		// Stratégie de déplacement initiale selon OCEAN
 		this.strategieDeplacement = psychologie.determinerStrategieDeplacement();
 	}
 
 	/**
-	 * Pattern Visitor : L'habitant "accepte" de subir un événement (météo, social, etc.)
-	 * L'événement appliquera alors ses propres règles sur l'habitant.
+	 * Pattern Visitor : L'habitant "accepte" de subir un événement.
+	 * L'événement applique ses propres règles — double dispatch.
 	 */
 	public void acceptEvent(EventVisitor visiteurEvenement) {
 		visiteurEvenement.visit(this);
 	}
-
 
 	/**
 	 * Supprime tous les liens dont la force est tombée à 0.
 	 */
 	private void nettoyerLiensMorts() {
 		List<Liens> aSupprimer = new ArrayList<Liens>();
-
-		// 1. On collecte les liens morts
 		for (Liens l : relations) {
-			if (l.estMort()) {
-				aSupprimer.add(l);
-			}
+			if (l.estMort()) aSupprimer.add(l);
 		}
-
-		// 2. On les supprime
 		for (Liens l : aSupprimer) {
 			relations.remove(l);
 		}
 	}
 
 	/**
-	 * Gestion d'une rencontre avec un autre habitant.
-	 * 1. Si déjà connu → evoluerForce + appliquerBonusMental
-	 * 2. Si inconnu → calcul compatibilité OCEAN → nouveau lien
+	 * Gestion d'une rencontre amicale.
+	 * Si déjà connu → renforce le lien.
+	 * Si inconnu → crée un lien selon compatibilité OCEAN.
 	 */
 	public void ajouterLienAmical(Habitant autre) {
 		boolean dejaConnu = false;
 
 		for (Liens l : relations) {
 			if (l.getPartenaire() == autre) {
-				// Lien existant : on le fait évoluer ET on applique le bonus
 				l.evoluerForce(this);
 				l.appliquerBonusMental(this);
 				dejaConnu = true;
@@ -138,24 +144,23 @@ public class Habitant extends MobileElement {
 		}
 
 		if (!dejaConnu) {
-			int limiteAmis = (psychologie.getExtraversion() / 10) + 1;
+			// La limite compte TOUS les liens (pas juste amicaux)
+			// Plafonnée à 8 maximum, même pour les super-extravertis
+			int limiteAmis = Math.min(8, (psychologie.getExtraversion() / 15) + 2);
 
 			if (this.relations.size() < limiteAmis) {
-				// Calcul de la force initiale via compatibilité OCEAN
 				int forceInitiale = calculerCompatibilite(autre);
 				Liens nouveauLien = new Amical(autre, forceInitiale);
 				relations.add(nouveauLien);
 				nouveauLien.appliquerBonusMental(this);
 			} else {
-				// Cercle social plein : petit gain social quand même
-				this.besoins.setSocial(this.besoins.getSocial() + 5);
+				this.besoins.setSocial(this.besoins.getSocial() + 3);
 			}
 		}
 	}
 
 	/**
-	 * Gestion d'une rencontre professionnelle avec un autre habitant.
-	 * Deux habitants consciencieux créent un lien professionnel.
+	 * Gestion d'une rencontre professionnelle.
 	 */
 	public void ajouterLienProfessionnel(Habitant autre) {
 		boolean dejaConnu = false;
@@ -170,7 +175,7 @@ public class Habitant extends MobileElement {
 		}
 
 		if (!dejaConnu) {
-			int limiteCollegues = (psychologie.getConscience() / 10) + 1;
+			int limiteCollegues = Math.min(5, (psychologie.getConscience() / 20) + 1);
 
 			if (this.relations.size() < limiteCollegues) {
 				int forceInitiale = calculerCompatibilite(autre);
@@ -183,82 +188,63 @@ public class Habitant extends MobileElement {
 		}
 	}
 
-	/**
-	 * Délègue le calcul de compatibilité à Psychologie.
-	 */
 	private int calculerCompatibilite(Habitant autre) {
 		return psychologie.calculerCompatibiliteAvec(autre.getPsychologie());
 	}
 
 	// --- ACCESSEURS ---
-	public List<Liens> getRelation() {
-		return relations;
-	}
+	public List<Liens> getRelation()     { return relations; }
+	public String getPrenom()            { return prenom; }
+	public String getSexe()              { return sexe; }
+	public int getAge()                  { return age; }
+	public int getMoral()                { return besoins.getMoral(); }
+	public Besoins getBesoins()          { return besoins; }
+	public Psychologie getPsychologie()  { return psychologie; }
+	public int getExtraversion()         { return psychologie.getExtraversion(); }
+	public int getOuverture()            { return psychologie.getOuverture(); }
+	public int getConscience()           { return psychologie.getConscience(); }
+	public int getAgreabilite()          { return psychologie.getAgreabilite(); }
+	public int getNevrosisme()           { return psychologie.getNevrosisme(); }
+	public Map getMap()                  { return map; }
 
-	public String getPrenom() {
-		return prenom;
-	}
-
-	public String getSexe() {
-		return sexe;
-	}
-
-	public int getAge() {
-		return age;
-	}
-
-	public int getMoral() {
-		return besoins.getMoral();
-	}
-
-	public Besoins getBesoins() {
-		return besoins;
-	}
-
-	public Psychologie getPsychologie() {
-		return psychologie;
-	}
-
-	public int getExtraversion() {
-		return psychologie.getExtraversion();
-	}
-
-	public int getOuverture() {
-		return psychologie.getOuverture();
-	}
-
-	public int getConscience() {
-		return psychologie.getConscience();
-	}
-
-	public int getAgreabilite() {
-		return psychologie.getAgreabilite();
-	}
-
-	public int getNevrosisme() {
-		return psychologie.getNevrosisme();
-	}
-
+	// Accesseurs domicile et destination
+	public Block getDomicile()           { return domicile; }
+	public Block getDestination()        { return destination; }
+	public void setDestination(Block destination) { this.destination = destination; }
 
 	@Override
 	public String toString() {
 		return prenom + " (" + sexe + ", " + age + " ans) - Moral: " + getMoral();
 	}
 
+	// --- TEMPLATE METHOD (héritage de MobileElement) ---
 
-	// 2. IMPLEMENTATION DU PATTERN TEMPLATE METHOD (MobileElement)
 	@Override
 	protected void seDeplacer() {
-		// NUIT → tout le monde dort, personne ne bouge
-		if (estLaNuit()) return;
+		// Mort → ne bouge pas
+		if (besoins.getSante() <= 0) return;
 
-		// FATIGUE → trop épuisé pour bouger
-		if (besoins.getFatigue() < 35) return;
+		// Nuit → la majorité dort, mais les noctambules bougent
+		if (estLaNuit()) {
+			boolean noctambule = psychologie.getExtraversion() > 70
+					|| psychologie.getConscience() < 30;
+			if (!noctambule) return;
+			if (Math.random() > 0.50) return;
+		}
 
-		// DÉPRIMÉ → bouge au ralenti
-		if (getMoral() < 30 && Math.random() > 0.33) return;
+		// Épuisement total → seul un effondrement complet bloque
+		if (besoins.getFatigue() < 10) return;
 
-		// Délègue le déplacement à la stratégie OCEAN
+		// Fatigue modérée → ralentissement progressif (pas un mur)
+		if (besoins.getFatigue() < 40) {
+			double chanceDeBouger = besoins.getFatigue() / 40.0;
+			if (Math.random() > chanceDeBouger) return;
+		}
+
+		// Déprimé → ralenti mais pas immobile
+		if (getMoral() < 20 && Math.random() > 0.50) return;
+
+		// Délègue au Strategy Pattern OCEAN
 		strategieDeplacement.deplacer(this, map);
 	}
 
@@ -269,64 +255,43 @@ public class Habitant extends MobileElement {
 		EtatHabitant etat = psychologie.determinerEtat(besoins);
 		etat.appliquer(this);
 		psychologie.evoluer(etat, besoins);
-
-		// Les liens sociaux influencent aussi l'évolution du profil OCEAN
 		psychologie.evoluerSelonReseau(relations);
-
 		besoins.setStrategieNutrition(psychologie.determinerStrategieNutrition());
 
-		// La stratégie de déplacement évolue aussi avec le profil OCEAN
+		// La stratégie de déplacement évolue avec le profil OCEAN
 		this.strategieDeplacement = psychologie.determinerStrategieDeplacement();
 
+		// Contagion émotionnelle via les liens sociaux
 		int impact = etat.accept(new ContagionVisitor());
 		if (impact != 0) {
 			for (Liens l : relations) {
 				Habitant proche = l.getPartenaire();
-
-				// Impact de base modulé par la force du lien
 				int impactModule = (int) (impact * (l.getForce() / 100.0));
 
-				// Si impact négatif → la vulnérabilité l'amplifie
 				if (impactModule < 0) {
-					if (proche.getPsychologie().estVulnerable()) {
-						// Un vulnérable absorbe 50% de plus
+					if (proche.getPsychologie().estVulnerable())
 						impactModule = (int) (impactModule * 1.5);
-					}
-					// Un résilient absorbe 50% de moins
-					if (proche.getPsychologie().estResiliant()) {
+					if (proche.getPsychologie().estResiliant())
 						impactModule = (int) (impactModule * 0.5);
-					}
 				}
-
-				// Si impact positif → le résilient en profite plus
-				if (impactModule > 0 && proche.getPsychologie().estResiliant()) {
+				if (impactModule > 0 && proche.getPsychologie().estResiliant())
 					impactModule = (int) (impactModule * 1.2);
-				}
 
 				proche.getBesoins().setMoral(proche.getBesoins().getMoral() + impactModule);
 			}
 		}
 
-		// Gestion des traumatismes — séquelles permanentes si état négatif prolongé
+		// Traumatisme si état négatif prolongé
 		if (etat instanceof EtatDepressif || etat instanceof EtatAnxieux || etat instanceof EtatBurnout) {
 			toursEtatNegatif++;
-			// Après 5 tours consécutifs → traumatisme
 			if (toursEtatNegatif >= 5) {
 				traumatisme.appliquer(this);
-				toursEtatNegatif = 0; // reset du compteur
+				toursEtatNegatif = 0;
 			}
 		} else {
-			// État positif ou stable → le compteur redescend
 			toursEtatNegatif = 0;
 		}
 
 		nettoyerLiensMorts();
-	}
-
-	/**
-	 * Retourne la carte de la simulation.
-	 */
-	public Map getMap() {
-		return map;
 	}
 }
