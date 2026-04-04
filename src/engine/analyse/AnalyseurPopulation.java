@@ -25,6 +25,7 @@ public class AnalyseurPopulation {
         // On enregistre les indicateurs disponibles
         indicateurs.add(new CohesionSociale());
         indicateurs.add(new InequaliteMoral());
+        indicateurs.add(new PolarisationPopulation());
     }
 
     /**
