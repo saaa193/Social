@@ -1,6 +1,7 @@
 package engine.evenement;
 
 import engine.habitant.Habitant;
+import java.util.List;
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -9,8 +10,10 @@ import engine.habitant.Habitant;
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
  * Événement météo : affecte la fatigue, le moral et les traits OCEAN.
+ * Implémente EvenementSimulation : encapsule son propre critère OCEAN.
+ * Implémente EventVisitor : applique l'effet via le double-dispatch.
  */
-public class EventMeteo implements EventVisitor {
+public class EventMeteo implements EvenementSimulation, EventVisitor {
 
 	private boolean mauvaisTemps;
 
@@ -19,17 +22,26 @@ public class EventMeteo implements EventVisitor {
 	}
 
 	@Override
+	public boolean estConcerne(Habitant h) {
+		if (mauvaisTemps) {
+			return h.getNevrosisme() > 50;
+		}
+		return true;
+	}
+
+	@Override
+	public void appliquer(Habitant h) {
+		h.acceptEvent(this);
+	}
+
+	@Override
 	public void visit(Habitant habitant) {
 		if (mauvaisTemps) {
-			// Effet immédiat sur les besoins
 			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 2);
 			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - 3);
-			// Effet durable sur OCEAN — le névrosisme augmente
 			habitant.getPsychologie().augmenterNevrosisme(3);
 		} else {
-			// Beau temps → moral remonte
 			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 2);
-			// Effet durable — l'ouverture augmente
 			habitant.getPsychologie().augmenterOuverture(2);
 		}
 	}

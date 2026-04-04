@@ -8,22 +8,29 @@ import engine.habitant.Habitant;
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
- * Événement social : booste le social et modifie les traits OCEAN.
+ * Événement social : fête de quartier, rassemblement.
+ * Critère OCEAN : extraversion > 40.
  */
-public class EventSocial implements EventVisitor {
+public class EventSocial implements EvenementSimulation, EventVisitor {
+
+	@Override
+	public boolean estConcerne(Habitant h) {
+		return h.getExtraversion() > 40;
+	}
+
+	@Override
+	public void appliquer(Habitant h) {
+		h.acceptEvent(this);
+	}
 
 	@Override
 	public void visit(Habitant habitant) {
 		if (habitant.getNevrosisme() > 60) {
-			// Les névrosés profitent peu des événements sociaux
 			habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 3);
-			// Leur agréabilité monte légèrement quand même
 			habitant.getPsychologie().augmenterAgreabilite(1);
 		} else {
-			// Les autres profitent pleinement
 			habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 8);
 			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 3);
-			// Effet durable — agréabilité et extraversion augmentent
 			habitant.getPsychologie().augmenterAgreabilite(2);
 			habitant.getPsychologie().augmenterExtraversion(2);
 		}

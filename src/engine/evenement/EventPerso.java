@@ -8,20 +8,27 @@ import engine.habitant.Habitant;
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
- * Événement personnel : remonte le moral et modifie les traits OCEAN.
+ * Événement personnel : offres d'emploi, bonne nouvelle.
+ * Critère OCEAN : conscience > 50.
  */
-public class EventPerso implements EventVisitor {
+public class EventPerso implements EvenementSimulation, EventVisitor {
+
+	@Override
+	public boolean estConcerne(Habitant h) {
+		return h.getConscience() > 50;
+	}
+
+	@Override
+	public void appliquer(Habitant h) {
+		h.acceptEvent(this);
+	}
 
 	@Override
 	public void visit(Habitant habitant) {
-		// Effet immédiat sur les besoins
 		habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 10);
 		habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 5);
-		// Effet durable sur OCEAN
-		// Une bonne nouvelle renforce la conscience et l'ouverture
 		habitant.getPsychologie().augmenterOuverture(2);
 		habitant.getPsychologie().augmenterAgreabilite(1);
-		// Le névrosisme baisse — on se sent mieux dans sa peau
 		habitant.getPsychologie().diminuerNevrosisme(2);
 	}
 }
