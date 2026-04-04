@@ -1,5 +1,7 @@
 package gui.dashboards;
 
+import engine.analyse.AnalyseurPopulation;
+import engine.analyse.IndicateurMacro;
 import engine.process.MobileElementManager;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -18,83 +20,47 @@ import java.util.List;
  * Genie Logiciel - Projet SOCIAL
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
- * <p>
- * RecapitulatifDashboard : Fenêtre modale affichant le graphique
- * d'évolution psychologique de la population jour par jour.
- * Affiche 3 courbes : Moral, Névrosisme et Agréabilité.
- * Ancré dans le Big Five : montre comment la psychologie collective
- * évolue au fil du temps selon les interactions et événements.
+ *
+ * RecapitulatifDashboard : Fenêtre modale affichant deux analyses :
+ * 1. L'évolution psychologique jour par jour (courbes)
+ * 2. Les indicateurs macroscopiques actuels (barres)
+ *    calculés via AnalyseurPopulation — pattern Strategy.
  */
 public class RecapitulatifDashboard extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 
 	public RecapitulatifDashboard(JFrame parent, MobileElementManager manager) {
-		super(parent, "Récapitulatif Psychologique", true);
+		super(parent, "Récapitulatif de la Simulation", true);
 		construire(manager);
 		pack();
 		setLocationRelativeTo(parent);
 		setVisible(true);
 	}
 
-	/**
-	 * Construit le graphique à partir de l'historique du manager.
-	 */
 	private void construire(MobileElementManager manager) {
 		setLayout(new BorderLayout());
 		getContentPane().setBackground(Color.WHITE);
 
-		List<String> jours = manager.getHistoriqueJours();
-		List<Double> nevrosisme = manager.getHistoriqueNevrosisme();
-		List<Double> agreabilite = manager.getHistoriqueAgreabilite();
-		List<Double> moral = manager.getHistoriqueMoral();
+		// Panel principal avec deux graphiques empilés
+		JPanel panelPrincipal = new JPanel();
+		panelPrincipal.setLayout(new BoxLayout(panelPrincipal, BoxLayout.Y_AXIS));
+		panelPrincipal.setBackground(Color.WHITE);
 
-		// Construction du dataset JFreeChart
-		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		// --- GRAPHIQUE 1 : Évolution psychologique ---
+		panelPrincipal.add(construireGraphiquePsycho(manager));
 
-		for (int i = 0; i < jours.size(); i++) {
-			String jour = jours.get(i);
-			dataset.addValue(moral.get(i), "Moral", jour);
-			dataset.addValue(nevrosisme.get(i), "Névrosisme", jour);
-			dataset.addValue(agreabilite.get(i), "Agréabilité", jour);
-		}
+		// --- GRAPHIQUE 2 : Indicateurs macroscopiques ---
+		panelPrincipal.add(construireGraphiqueIndicateurs(manager));
 
-		// Création du graphique en courbes
-		JFreeChart chart = ChartFactory.createLineChart(
-				"Évolution Psychologique de la Population",
-				"Jour",
-				"Valeur moyenne (0-100)",
-				dataset,
-				PlotOrientation.VERTICAL,
-				true,
-				true,
-				false
-		);
-
-		// Couleurs des courbes
-		org.jfree.chart.plot.CategoryPlot plot =
-				(org.jfree.chart.plot.CategoryPlot) chart.getPlot();
-		org.jfree.chart.renderer.category.LineAndShapeRenderer renderer =
-				new org.jfree.chart.renderer.category.LineAndShapeRenderer();
-
-		// Moral → violet
-		renderer.setSeriesPaint(0, new Color(128, 0, 128));
-		// Névrosisme → rouge
-		renderer.setSeriesPaint(1, Color.RED);
-		// Agréabilité → vert
-		renderer.setSeriesPaint(2, new Color(0, 150, 0));
-
-		plot.setRenderer(renderer);
-		chart.setBackgroundPaint(Color.WHITE);
-
-		// Ajout du graphique dans la fenêtre
-		ChartPanel chartPanel = new ChartPanel(chart);
-		chartPanel.setPreferredSize(new Dimension(700, 400));
-		add(chartPanel, BorderLayout.CENTER);
+		add(panelPrincipal, BorderLayout.CENTER);
 
 		// Message si pas encore de données
-		if (jours.isEmpty()) {
-			JLabel msg = new JLabel("Aucune donnée — lancez la simulation au moins un jour.", JLabel.CENTER);
+		if (manager.getHistoriqueJours().isEmpty()) {
+			JLabel msg = new JLabel(
+					"Aucune donnée — lancez la simulation au moins un jour.",
+					JLabel.CENTER
+			);
 			msg.setForeground(Color.GRAY);
 			add(msg, BorderLayout.NORTH);
 		}
@@ -107,12 +73,84 @@ public class RecapitulatifDashboard extends JDialog {
 		bas.add(btnFermer);
 		add(bas, BorderLayout.SOUTH);
 
-		setMinimumSize(new Dimension(750, 500));
+		setMinimumSize(new Dimension(750, 800));
 	}
 
 	/**
-	 * Ferme la fenêtre modale.
+	 * Construit le graphique d'évolution psychologique.
+	 * Identique à l'original — aucun changement.
 	 */
+	private ChartPanel construireGraphiquePsycho(MobileElementManager manager) {
+		List<String> jours      = manager.getHistoriqueJours();
+		List<Double> nevrosisme = manager.getHistoriqueNevrosisme();
+		List<Double> agreabilite = manager.getHistoriqueAgreabilite();
+		List<Double> moral      = manager.getHistoriqueMoral();
+
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		for (int i = 0; i < jours.size(); i++) {
+			String jour = jours.get(i);
+			dataset.addValue(moral.get(i),       "Moral",       jour);
+			dataset.addValue(nevrosisme.get(i),  "Névrosisme",  jour);
+			dataset.addValue(agreabilite.get(i), "Agréabilité", jour);
+		}
+
+		JFreeChart chart = ChartFactory.createLineChart(
+				"Évolution Psychologique de la Population",
+				"Jour", "Valeur moyenne (0-100)",
+				dataset, PlotOrientation.VERTICAL, true, true, false
+		);
+
+		org.jfree.chart.plot.CategoryPlot plot =
+				(org.jfree.chart.plot.CategoryPlot) chart.getPlot();
+		org.jfree.chart.renderer.category.LineAndShapeRenderer renderer =
+				new org.jfree.chart.renderer.category.LineAndShapeRenderer();
+		renderer.setSeriesPaint(0, new Color(128, 0, 128));
+		renderer.setSeriesPaint(1, Color.RED);
+		renderer.setSeriesPaint(2, new Color(0, 150, 0));
+		plot.setRenderer(renderer);
+		chart.setBackgroundPaint(Color.WHITE);
+
+		ChartPanel panel = new ChartPanel(chart);
+		panel.setPreferredSize(new Dimension(700, 350));
+		return panel;
+	}
+
+	/**
+	 * Construit le graphique des indicateurs macroscopiques.
+	 * Utilise AnalyseurPopulation — pattern Strategy :
+	 * chaque indicateur calcule sa propre valeur.
+	 */
+	private ChartPanel construireGraphiqueIndicateurs(MobileElementManager manager) {
+		AnalyseurPopulation analyseur = new AnalyseurPopulation();
+		List<IndicateurMacro> indicateurs = analyseur.getIndicateurs();
+		List<Double> resultats = analyseur.calculerTous(manager.getHabitants());
+
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		for (int i = 0; i < indicateurs.size(); i++) {
+			// Valeur entre 0 et 100 pour l'affichage
+			double valeur = resultats.get(i) * 100.0;
+			dataset.addValue(valeur, "Valeur", indicateurs.get(i).getNom());
+		}
+
+		JFreeChart chart = ChartFactory.createBarChart(
+				"Indicateurs Macroscopiques",
+				"Indicateur", "Valeur (0-100)",
+				dataset, PlotOrientation.HORIZONTAL, false, true, false
+		);
+
+		org.jfree.chart.plot.CategoryPlot plot =
+				(org.jfree.chart.plot.CategoryPlot) chart.getPlot();
+		org.jfree.chart.renderer.category.BarRenderer renderer =
+				(org.jfree.chart.renderer.category.BarRenderer) plot.getRenderer();
+		renderer.setSeriesPaint(0, new Color(50, 100, 200));
+		plot.getRangeAxis().setRange(0, 100);
+		chart.setBackgroundPaint(Color.WHITE);
+
+		ChartPanel panel = new ChartPanel(chart);
+		panel.setPreferredSize(new Dimension(700, 200));
+		return panel;
+	}
+
 	private class FermerAction implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {

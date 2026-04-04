@@ -225,6 +225,8 @@ public class Habitant extends MobileElement {
 	public Map getMap()                  { return map; }
 
 	public Block getDomicile()           { return domicile; }
+	public Block getDestination()                    { return destination; }
+	public void setDestination(Block destination)    { this.destination = destination; }
 
 	/**
 	 * Met a jour la resistance collective de la population.
