@@ -35,6 +35,10 @@ public class MacroDashboard extends JPanel {
 	// Listener pour connecter le bouton rumeur à MainGUI
 	private ActionListener informationListener = null;
 
+	private String theme = "";
+	private float virulence = 0.5f;
+	private float veracite = 0.5f;
+
 	public MacroDashboard() {
 		this.setPreferredSize(new Dimension(0, GameConfiguration.MENU_BOTTOM_HEIGHT));
 		this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -171,7 +175,6 @@ public class MacroDashboard extends JPanel {
 		modale.setVisible(true);
 	}
 
-	// CLASSES INTERNES
 	private class SliderResistanceAction implements javax.swing.event.ChangeListener {
 		@Override
 		public void stateChanged(javax.swing.event.ChangeEvent e) {
@@ -255,41 +258,58 @@ public class MacroDashboard extends JPanel {
 		}
 	}
 
-	//Valeurs récupérées depuis la modale
-	private String theme = "";
-	private float virulence = 0.5f;
-	private float veracite = 0.5f;
-
-	//ACCESSEURS
+	/**
+	 * Retourne la valeur du slider Resistance (0 a 100).
+	 */
 	public int getResistance() {
 		return sliderResistance.getValue();
 	}
 
+	/**
+	 * Retourne la valeur du slider Force d'influence (0 a 10).
+	 */
 	public int getInfluence() {
 		return sliderInfluence.getValue();
 	}
 
+	/**
+	 * Retourne l'evenement selectionne dans le combo.
+	 */
 	public String getEvenementSelectionne() {
 		return (String) comboEvenement.getSelectedItem();
 	}
 
+	/**
+	 * Retourne le theme de l'information a propager.
+	 */
 	public String getTheme() {
 		return theme;
 	}
 
+	/**
+	 * Retourne la virulence de l'information (0.0 a 1.0).
+	 */
 	public float getVirulence() {
 		return virulence;
 	}
 
+	/**
+	 * Retourne la veracite de l'information (0.0 a 1.0).
+	 */
 	public float getVeracite() {
 		return veracite;
 	}
 
-	//LISTENERS
+	/**
+	 * Connecte le combo evenement a MainGUI.
+	 */
 	public void addEvenementListener(ActionListener listener) {
 		comboEvenement.addActionListener(listener);
 	}
 
+	/**
+	 * Connecte le bouton Information a MainGUI.
+	 */
 	public void addInformationListener(ActionListener listener) {
 		this.informationListener = listener;
 	}

@@ -6,6 +6,7 @@ import engine.map.Horloge;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -22,10 +23,8 @@ public class MobileElementManager implements MobileInterface {
 	private List<Habitant> habitants = new ArrayList<Habitant>();
 	private Horloge horloge = new Horloge();
 
-	private boolean mauvaisTemps = false;
-	private int heureAuChangementMeteo = 0;
-
 	private GestionnaireGroupes gestionnaireGroupes = new GestionnaireGroupes();
+	private GestionnaireEnvironnement gestionnaireEnvironnement = new GestionnaireEnvironnement();
 
 	// L'information active en cours de propagation (null = aucune)
 	private InformationTransmission informationEnCours = null;
@@ -35,6 +34,9 @@ public class MobileElementManager implements MobileInterface {
 	private List<Double> historiqueNevrosisme = new ArrayList<Double>();
 	private List<Double> historiqueAgreabilite = new ArrayList<Double>();
 	private List<Double> historiqueMoral = new ArrayList<Double>();
+
+	private int forceInfluence = 5;
+	private int resistanceCollective = 50;
 
 	public MobileElementManager(Map map) {
 		this.map = map;
@@ -59,12 +61,12 @@ public class MobileElementManager implements MobileInterface {
 			informationEnCours.propagerDansReseau(habitants);
 		}
 
-		if (estLeWeekend && !estLaNuit) gererWeekend();
-
-		gererMeteo();
+		gestionnaireEnvironnement.appliquerEffets(habitants, estLeWeekend, estLaNuit, horloge);
 
 		gestionnaireGroupes.actualiserGroupes(habitants);
-		gestionnaireGroupes.appliquerInfluences();
+		gestionnaireGroupes.appliquerInfluences(forceInfluence);
+		appliquerResistance();
+
 
 		if (horloge.getHeureObject().getHeures() == 0) {
 			enregistrerStatsJour();
@@ -83,54 +85,22 @@ public class MobileElementManager implements MobileInterface {
 	}
 
 	/**
-	 * Applique les effets psychologiques du weekend sur les habitants.
+	 * Applique l'effet de la resistance collective sur le moral de la population.
+	 * Resistance < 50 : moral baisse — population fragile.
+	 * Resistance > 50 : moral monte — population resiliente.
+	 * Effet visible immediatement sur le camembert.
 	 */
-	private void gererWeekend() {
+	private void appliquerResistance() {
 		for (Habitant h : habitants) {
 			if (h.getBesoins().getSante() > 0) {
-				if (h.getExtraversion() > 60) {
-					h.getBesoins().setSocial(h.getBesoins().getSocial() + 2);
-					h.getBesoins().setMoral(h.getBesoins().getMoral() + 1);
-				}
-				if (h.getExtraversion() < 35) {
-					h.getBesoins().setFatigue(h.getBesoins().getFatigue() + 2);
-					h.getBesoins().setMoral(h.getBesoins().getMoral() + 1);
-				}
-				if (h.getNevrosisme() > 65) {
-					h.getBesoins().setMoral(h.getBesoins().getMoral() - 1);
+				if (resistanceCollective < 50) {
+					h.getBesoins().setMoral(h.getBesoins().getMoral() - 2);
+				} else if (resistanceCollective > 50) {
+					h.getBesoins().setMoral(h.getBesoins().getMoral() + 2);
 				}
 			}
 		}
 	}
-
-	/**
-	 * Gère le changement de météo automatique et ses effets sur les habitants.
-	 */
-	private void gererMeteo() {
-		if (horloge.getHeureObject().getHeures() == 8 && heureAuChangementMeteo != 8) {
-			mauvaisTemps = Math.random() < 0.35;
-			heureAuChangementMeteo = 8;
-
-			for (Habitant h : habitants) {
-				if (h.getBesoins().getSante() > 0) {
-					if (mauvaisTemps) {
-						if (h.getNevrosisme() > 60) {
-							h.getBesoins().setMoral(h.getBesoins().getMoral() - 3);
-							h.getBesoins().setFatigue(h.getBesoins().getFatigue() - 2);
-						}
-					} else {
-						if (h.getOuverture() > 60) {
-							h.getBesoins().setMoral(h.getBesoins().getMoral() + 3);
-							h.getBesoins().setSocial(h.getBesoins().getSocial() + 2);
-						}
-					}
-				}
-			}
-		} else if (horloge.getHeureObject().getHeures() != 8) {
-			heureAuChangementMeteo = 0;
-		}
-	}
-
 
 	/**
 	 * Détection des rencontres entre habitants.
@@ -139,7 +109,7 @@ public class MobileElementManager implements MobileInterface {
 	private void verifierRencontres() {
 		// Limite de rencontres par habitant par tour
 		// Empêche l'explosion de liens quand beaucoup sont au même endroit
-		java.util.Map<Habitant, Integer> rencontresCeTour = new java.util.HashMap<Habitant, Integer>();
+		HashMap<Habitant, Integer> rencontresCeTour = new HashMap<Habitant, Integer>();
 
 		for (int i = 0; i < habitants.size(); i++) {
 			for (int j = i + 1; j < habitants.size(); j++) {
@@ -189,14 +159,29 @@ public class MobileElementManager implements MobileInterface {
 		}
 	}
 
-
 	/**
-	 * Déclenche la propagation d'une nouvelle information.
-	 * Appelée depuis MacroDashboard quand l'utilisateur clique
-	 * sur "Propager une Information".
+	 * Declenche la propagation d'une information et applique
+	 * un impact immediat visible sur toute la population.
+	 * Veracite elevee → moral monte. Rumeur → moral baisse.
+	 *
+	 * @param theme     le theme de l'information
+	 * @param virulence la vitesse de propagation (0.0 a 1.0)
+	 * @param veracite  la veracite de l'information (0.0 a 1.0)
 	 */
 	public void lancerInformation(String theme, float virulence, float veracite) {
 		this.informationEnCours = new InformationTransmission(theme, virulence, veracite);
+
+		int impact = (int) ((veracite - 0.5f) * 40);
+		for (Habitant h : habitants) {
+			if (h.getBesoins().getSante() > 0) {
+				h.getBesoins().setMoral(h.getBesoins().getMoral() + impact);
+				if (veracite < 0.4f) {
+					h.getPsychologie().augmenterNevrosisme(5);
+				} else if (veracite > 0.6f) {
+					h.getPsychologie().augmenterOuverture(3);
+				}
+			}
+		}
 	}
 
 	/**
@@ -206,7 +191,6 @@ public class MobileElementManager implements MobileInterface {
 		this.informationEnCours = null;
 	}
 
-	//ACCESSEURS
 	@Override
 	public Horloge getHorloge() {
 		return horloge;
@@ -231,8 +215,20 @@ public class MobileElementManager implements MobileInterface {
 		habitants.add(h);
 	}
 
+	/**
+	 * Retourne vrai si la meteo actuelle est mauvaise.
+	 * Delegue a GestionnaireEnvironnement.
+	 */
 	public boolean isMauvaisTemps() {
-		return mauvaisTemps;
+		return gestionnaireEnvironnement.isMauvaisTemps();
+	}
+
+	/**
+	 * Retourne la force d'influence courante du slider.
+	 * Utilisee par MainGUI pour declencher les evenements.
+	 */
+	public int getForceInfluence() {
+		return forceInfluence;
 	}
 
 	/**
@@ -289,5 +285,21 @@ public class MobileElementManager implements MobileInterface {
 
 	public List<Double> getHistoriqueMoral() {
 		return historiqueMoral;
+	}
+
+	/**
+	 * Met a jour les parametres de simulation depuis les sliders.
+	 * Propage la resistance a chaque habitant.
+	 * Appelee depuis MainGUI a chaque tour.
+	 *
+	 * @param resistance     valeur du slider Resistance (0 a 100)
+	 * @param forceInfluence valeur du slider Force d'influence (0 a 10)
+	 */
+	public void setParametres(int resistance, int forceInfluence) {
+		this.resistanceCollective = resistance;
+		this.forceInfluence = forceInfluence;
+		for (Habitant h : habitants) {
+			h.setResistanceCollective(resistance);
+		}
 	}
 }

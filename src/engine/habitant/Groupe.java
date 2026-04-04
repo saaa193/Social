@@ -55,18 +55,20 @@ public class Groupe {
 	}
 
 	/**
-	 * Le leader influence légèrement les traits OCEAN des membres.
-	 * Les membres restent autour du leader, pas sur sa case.
-	 * Appelée à chaque tour depuis GestionnaireGroupes.
+	 * Le leader influence les traits OCEAN des membres selon la force d'influence.
+	 * Appelee a chaque tour depuis GestionnaireGroupes.
+	 *
+	 * @param forceInfluence la force d'influence du leader (0 a 10)
 	 */
-	public void appliquerInfluenceLeader() {
+	public void appliquerInfluenceLeader(int forceInfluence) {
 		if (leader == null || membres.size() < 2) return;
 
 		for (Habitant membre : membres) {
 			if (membre == leader) continue;
 
-			// Influence psychologique OCEAN — 1 fois sur 10
-			if (Math.random() < 0.10) {
+			// Influence psychologique OCEAN — modulee par le slider
+			double probabilite = forceInfluence / 10.0 * 0.20;
+			if (Math.random() < probabilite) {
 				if (leader.getExtraversion() > 70) {
 					membre.getPsychologie().augmenterExtraversion(1);
 				}
@@ -78,11 +80,10 @@ public class Groupe {
 				}
 			}
 
-			// Déplacement autour du leader — pas sur sa case
+			// Deplacement autour du leader — inchange
 			int ligne = leader.getPosition().getLine();
 			int colonne = leader.getPosition().getColumn();
 
-			// On choisit aléatoirement une case adjacente au leader
 			int direction = (int) (Math.random() * 4);
 
 			if (direction == 0 && !membre.getMap().isOnTop(leader.getPosition())) {
@@ -99,7 +100,6 @@ public class Groupe {
 		}
 	}
 
-	// ACCESSEURS
 	public List<Habitant> getMembres() {
 		return membres;
 	}
