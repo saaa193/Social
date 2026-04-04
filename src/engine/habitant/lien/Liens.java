@@ -9,6 +9,8 @@ import engine.habitant.Habitant;
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
  * Classe abstraite représentant un lien social entre deux habitants.
+ * Le contrat abstrait getTypeLien() permet d'identifier le type sans
+ * utiliser instanceof — respect du principe Ouvert/Fermé (OCP).
  */
 public abstract class Liens {
 
@@ -17,7 +19,7 @@ public abstract class Liens {
 
 	public Liens(Habitant partenaire, int force) {
 		this.partenaire = partenaire;
-		this.setForce(force); // setter pour sécuriser dès la création
+		this.setForce(force);
 	}
 
 	public Habitant getPartenaire() {
@@ -37,10 +39,16 @@ public abstract class Liens {
 
 	/**
 	 * Fait évoluer la force du lien selon l'état des habitants.
-	 *
 	 * @return true = lien vivant | false = lien mort à supprimer
 	 */
 	public abstract boolean evoluerForce(Habitant proprietaire);
+
+	/**
+	 * Retourne le type du lien sous forme de String.
+	 * Remplace l'usage de instanceof dans Statistique.
+	 * Chaque sous-classe déclare son propre type — contrat OCP respecté.
+	 */
+	public abstract String getTypeLien();
 
 	// Utilitaire pour le nettoyage dans Habitant
 	public boolean estMort() {
