@@ -27,7 +27,7 @@ public class GameDisplay extends JPanel {
 	private MobileInterface manager;
 
 	// Pattern Strategy : la logique de dessin est déléguée à cet objet
-	private PaintStrategy paintStrategy = new PaintStrategy();
+	PaintStrategy paintStrategy = new PaintStrategyDefaut();
 
 	public GameDisplay(Map map, MobileInterface manager) {
 		this.map = map;
