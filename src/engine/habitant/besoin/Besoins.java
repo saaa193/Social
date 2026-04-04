@@ -24,29 +24,65 @@ public class Besoins {
 	}
 
 	public void vivre(boolean estLaNuit, double tauxFaim,
-					  double tauxFatigue, double tauxSocial,
-					  double tauxRecuperation) {
+	                  double tauxFatigue, double tauxSocial,
+	                  double tauxRecuperation) {
 
 		if (estLaNuit) {
-			if (Math.random() < tauxRecuperation) this.fatigue += 2;
-			if (Math.random() < 0.35) this.faim += 1;
+			// Récupération nocturne — plus généreuse et garantie
+			if (Math.random() < tauxRecuperation) this.fatigue += 3;
+			// Récupération minimale garantie (même les insomniaques dorment un peu)
+			this.fatigue += 1;
+			// On mange moins la nuit mais on ne meurt pas de faim en dormant
+			if (Math.random() < 0.40) this.faim += 1;
 
 		} else {
+			// Nutrition (Strategy Pattern) — appliquée AVANT la dégradation
 			strategieNutrition.appliquer(this);
-			if (Math.random() < tauxFaim) this.faim -= 1;
+
+			if (Math.random() < tauxFaim)    this.faim    -= 1;
 			if (Math.random() < tauxFatigue) this.fatigue -= 1;
-			if (Math.random() < tauxSocial) this.social -= 1;
+			if (Math.random() < tauxSocial)  this.social  -= 1;
 		}
 
-		// moral et santé
-		if (this.faim < 30 || this.social < 30 || this.fatigue < 20) {
-			if (Math.random() < 0.15) this.moral -= 1;
-		} else if (this.faim > 70 && this.social > 70 && this.fatigue > 50) {
-			if (Math.random() < 0.08) this.moral += 1;
+		// ==========================================================
+		// === USURE NATURELLE (Principe d'Entropie du système)   ===
+		// ==========================================================
+		// Même quand tout va bien, les besoins descendent lentement
+		// C'est ce qui empêche les habitants de rester à 100% indéfiniment
+		if (Math.random() < 0.05) this.faim    -= 1;  // ~5% de chance par tour
+		if (Math.random() < 0.04) this.fatigue -= 1;  // ~4% de chance par tour
+		if (Math.random() < 0.03) this.social  -= 1;  // ~3% de chance par tour
+
+
+		// === MORAL : plus nuancé, avec un vrai mécanisme de remontée ===
+
+		// Compteur de facteurs négatifs (au lieu d'un OR brutal)
+		int facteursCritiques = 0;
+		if (this.faim    < 30) facteursCritiques++;
+		if (this.social  < 30) facteursCritiques++;
+		if (this.fatigue < 20) facteursCritiques++;
+
+		if (facteursCritiques >= 2) {
+			// Situation grave : 2+ besoins en danger → moral baisse
+			if (Math.random() < 0.12) this.moral -= 1;
+		} else if (facteursCritiques == 1) {
+			// Un seul besoin en danger → moral stagne (pas de baisse)
+			// C'est réaliste : avoir faim ne rend pas dépressif tout seul
+		} else {
+			// Tout va bien → le moral REMONTE naturellement
+			if (Math.random() < 0.10) this.moral += 1;
 		}
 
-		if (this.faim <= 0 || this.moral <= 0) {
-			if (Math.random() < 0.25) this.sante -= 1;
+		// Bonus moral si vraiment tout va très bien
+		if (this.faim > 70 && this.social > 70 && this.fatigue > 50) {
+			if (Math.random() < 0.06) this.moral += 1;
+		}
+
+		// === SANTE : la mort ne survient que dans les cas extrêmes ===
+		if (this.faim <= 0 && this.moral <= 0) {
+			// Les DEUX doivent être à zéro pour risquer de mourir
+			// Avant c'était un OR : faim=0 OU moral=0 → trop facile de mourir
+			if (Math.random() < 0.15) this.sante -= 1;
 		}
 	}
 

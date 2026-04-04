@@ -137,6 +137,10 @@ public class MobileElementManager implements MobileInterface {
 	 * Les interactions dépendent maintenant du profil psychologique OCEAN.
 	 */
 	private void verifierRencontres() {
+		// Limite de rencontres par habitant par tour
+		// Empêche l'explosion de liens quand beaucoup sont au même endroit
+		java.util.Map<Habitant, Integer> rencontresCeTour = new java.util.HashMap<Habitant, Integer>();
+
 		for (int i = 0; i < habitants.size(); i++) {
 			for (int j = i + 1; j < habitants.size(); j++) {
 
@@ -146,40 +150,36 @@ public class MobileElementManager implements MobileInterface {
 				if (h1.getPosition().equals(h2.getPosition())) {
 					if (h1.getBesoins().getSante() > 0 && h2.getBesoins().getSante() > 0) {
 
-						// CAS 1 : Les deux sont agréables → lien amical
+						// Vérifier si l'un des deux a déjà eu trop de rencontres ce tour
+						int r1 = rencontresCeTour.getOrDefault(h1, 0);
+						int r2 = rencontresCeTour.getOrDefault(h2, 0);
+
+						if (r1 >= 2 || r2 >= 2) continue; // Max 2 rencontres par tour
+
+						rencontresCeTour.put(h1, r1 + 1);
+						rencontresCeTour.put(h2, r2 + 1);
+
+						// Le reste de ta logique de rencontre (CAS 1, 2, 3) reste identique
 						if (h1.getAgreabilite() > 50 && h2.getAgreabilite() > 50) {
 							h1.ajouterLienAmical(h2);
 							h2.ajouterLienAmical(h1);
-
-							// CAS 2 : Les deux sont consciencieux → lien professionnel
 						} else if (h1.getConscience() > 60 && h2.getConscience() > 60) {
 							h1.ajouterLienProfessionnel(h2);
 							h2.ajouterLienProfessionnel(h1);
-
-							// CAS 3 : NOUVEAU — impact psychologique selon la vulnérabilité
 						} else {
-							// On vérifie si h1 est vulnérable face à h2 anxieux
+							// CAS 3 inchangé — vulnérabilité, résilience, etc.
 							if (h1.getPsychologie().estVulnerable() && h2.getNevrosisme() > 60) {
-								// h1 absorbe l'anxiété de h2 → perd du moral
 								h1.getBesoins().setMoral(h1.getBesoins().getMoral() - 3);
 							}
-
-							// On vérifie si h2 est vulnérable face à h1 anxieux
 							if (h2.getPsychologie().estVulnerable() && h1.getNevrosisme() > 60) {
-								// h2 absorbe l'anxiété de h1 → perd du moral
 								h2.getBesoins().setMoral(h2.getBesoins().getMoral() - 3);
 							}
-
-							// Un résilient n'est pas affecté → gain de moral au contraire
 							if (h1.getPsychologie().estResiliant()) {
 								h1.getBesoins().setMoral(h1.getBesoins().getMoral() + 2);
 							}
-
 							if (h2.getPsychologie().estResiliant()) {
 								h2.getBesoins().setMoral(h2.getBesoins().getMoral() + 2);
 							}
-
-							// Interaction basique quand même
 							h1.getBesoins().setSocial(h1.getBesoins().getSocial() + 2);
 							h2.getBesoins().setSocial(h2.getBesoins().getSocial() + 2);
 						}

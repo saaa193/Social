@@ -21,8 +21,8 @@ public class ContagionVisitor implements EtatVisitor<Integer> {
 
 	@Override
 	public Integer visit(EtatAnxieux etat) {
-		// Un anxieux propage son stress autour de lui
-		return -8;
+		// Réduit de -8 à -3 — le stress se transmet, mais doucement
+		return -3;
 	}
 
 	@Override
@@ -39,14 +39,15 @@ public class ContagionVisitor implements EtatVisitor<Integer> {
 
 	@Override
 	public Integer visit(EtatDepressif etat) {
-		// Un dépressif propage un malaise profond
-		return -12;
+		// Contagion modérée — un dépressif propage un malaise,
+		// pas une onde de choc nucléaire
+		return -4;
 	}
 
 	@Override
 	public Integer visit(EtatBurnout etat) {
-		// Un burnout propage de l'épuisement
-		return -6;
+		// Réduit de -6 à -2 — le burnout est surtout personnel
+		return -2;
 	}
 
 	@Override
