@@ -26,13 +26,13 @@ public class EventSocial implements EvenementSimulation, EventVisitor {
 	@Override
 	public void visit(Habitant habitant) {
 		if (habitant.getNevrosisme() > 60) {
-			habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 3);
-			habitant.getPsychologie().augmenterAgreabilite(1);
-		} else {
-			habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 8);
-			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 3);
+			habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 10);
 			habitant.getPsychologie().augmenterAgreabilite(2);
-			habitant.getPsychologie().augmenterExtraversion(2);
+		} else {
+			habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 20);
+			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 15);
+			habitant.getPsychologie().augmenterAgreabilite(3);
+			habitant.getPsychologie().augmenterExtraversion(3);
 		}
 	}
 }

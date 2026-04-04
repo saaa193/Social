@@ -25,10 +25,10 @@ public class EventPerso implements EvenementSimulation, EventVisitor {
 
 	@Override
 	public void visit(Habitant habitant) {
-		habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 10);
-		habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 5);
-		habitant.getPsychologie().augmenterOuverture(2);
-		habitant.getPsychologie().augmenterAgreabilite(1);
-		habitant.getPsychologie().diminuerNevrosisme(2);
+		habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 20);
+		habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 10);
+		habitant.getPsychologie().augmenterOuverture(3);
+		habitant.getPsychologie().augmenterAgreabilite(2);
+		habitant.getPsychologie().diminuerNevrosisme(5);
 	}
 }

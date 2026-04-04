@@ -26,9 +26,9 @@ public class EventCulturel implements EvenementSimulation, EventVisitor {
 
     @Override
     public void visit(Habitant habitant) {
-        habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 8);
-        habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 3);
-        habitant.getPsychologie().augmenterOuverture(3);
-        habitant.getPsychologie().diminuerNevrosisme(1);
+        habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 18);
+        habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 8);
+        habitant.getPsychologie().augmenterOuverture(5);
+        habitant.getPsychologie().diminuerNevrosisme(3);
     }
 }
