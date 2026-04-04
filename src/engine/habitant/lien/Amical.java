@@ -3,18 +3,19 @@ package engine.habitant.lien;
 import engine.habitant.Habitant;
 
 /**
- * Université CY Cergy Paris - L2 Informatique
- * Genie Logiciel - Projet SOCIAL
- *
- * @author HANANE Sanaa & PIRABAKARAN Parthipan
- *
- * Lien amical entre deux habitants : booste le moral et le social.
- * Le lien peut mourir si le moral des deux habitants est trop bas.
+ * Lien amical entre deux habitants.
+ * Booste le social en priorité, le moral en secondaire.
+ * Peut mourir si le moral des deux habitants s'effondre.
  */
 public class Amical extends Liens {
 
 	public Amical(Habitant partenaire, int force) {
 		super(partenaire, force);
+	}
+
+	@Override
+	public String getTypeLien() {
+		return "Amical";
 	}
 
 	@Override
@@ -35,8 +36,6 @@ public class Amical extends Liens {
 		} else if (proprietaire.getMoral() < 30 || partenaire.getMoral() < 30) {
 			setForce(getForce() - 3);
 		}
-
-		// On retourne true si le lien est toujours en vie, false sinon
 		return !estMort();
 	}
 }
