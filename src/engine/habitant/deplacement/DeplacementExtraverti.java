@@ -10,46 +10,28 @@ import engine.map.Map;
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
- * Déplacement extraverti : l'habitant se déplace vers une destination
- * personnelle qui change aléatoirement. Il explore la carte mais
- * revient régulièrement vers son domicile.
+ * Déplacement extraverti : chaque habitant a sa propre destination
+ * personnelle qui change périodiquement. Évite l'entassement au centre.
  * Calqué sur Strategy du prof — comportement variable injecté.
  */
 public class DeplacementExtraverti implements StrategieDeplacement {
 
-	private int toursAvantChangement = 0;
+	// Désynchronisation : chaque habitant démarre à un moment différent
+	private int toursAvantChangement = (int)(Math.random() * 15);
 
 	@Override
 	public void deplacer(Habitant habitant, Map map) {
-		Block pos = habitant.getPosition();
-		int ligne = pos.getLine();
-		int colonne = pos.getColumn();
-
-		// Zone cible — plus dispersée pour éviter l'entassement
-		// L'extraverti cherche une zone sociale, pas un point précis
-		int centreL = map.getLineCount() / 2 + (int)(Math.random() * 200) - 100;
-		int centreC = map.getColumnCount() / 2 + (int)(Math.random() * 200) - 100;
-
-		int directionLigne = 0;
-		if (ligne < centreL) directionLigne = 1;
-		else if (ligne > centreL) directionLigne = -1;
-
-		int directionColonne = 0;
-		if (colonne < centreC) directionColonne = 1;
-		else if (colonne > centreC) directionColonne = -1;
-
-		if (Math.random() < 0.5 && directionLigne != 0) {
-			ligne = ligne + directionLigne;
-		} else if (directionColonne != 0) {
-			colonne = colonne + directionColonne;
+		// Tous les 15 tours, choisit une nouvelle destination personnelle
+		toursAvantChangement--;
+		if (toursAvantChangement <= 0) {
+			int nouvelleLigne   = (int)(Math.random() * map.getLineCount());
+			int nouvelleColonne = (int)(Math.random() * map.getColumnCount());
+			habitant.setDestination(map.getBlock(nouvelleLigne, nouvelleColonne));
+			toursAvantChangement = 15;
 		}
 
-		if (ligne < 0) ligne = 0;
-		if (ligne >= map.getLineCount()) ligne = map.getLineCount() - 1;
-		if (colonne < 0) colonne = 0;
-		if (colonne >= map.getColumnCount()) colonne = map.getColumnCount() - 1;
-
-		habitant.setPosition(map.getBlock(ligne, colonne));
+		// Avance d'un pas vers SA destination personnelle
+		avancerVers(habitant, habitant.getDestination(), map);
 	}
 
 	private void avancerVers(Habitant habitant, Block cible, Map map) {
@@ -57,15 +39,24 @@ public class DeplacementExtraverti implements StrategieDeplacement {
 		int ligne   = pos.getLine();
 		int colonne = pos.getColumn();
 
-		// On avance d'un pas dans la bonne direction
-		if (ligne < cible.getLine() && ligne + 1 < map.getLineCount()) {
-			ligne++;
-		} else if (ligne > cible.getLine() && ligne - 1 >= 0) {
-			ligne--;
-		} else if (colonne < cible.getColumn() && colonne + 1 < map.getColumnCount()) {
-			colonne++;
-		} else if (colonne > cible.getColumn() && colonne - 1 >= 0) {
-			colonne--;
+		// 20% du temps on fait un pas aléatoire pour éviter les groupes
+		if (Math.random() < 0.20) {
+			int direction = (int)(Math.random() * 4);
+			if (direction == 0 && ligne > 0) ligne--;
+			else if (direction == 1 && ligne < map.getLineCount() - 1) ligne++;
+			else if (direction == 2 && colonne > 0) colonne--;
+			else if (direction == 3 && colonne < map.getColumnCount() - 1) colonne++;
+		} else {
+			// Sinon avance vers la destination personnelle
+			if (ligne < cible.getLine() && ligne + 1 < map.getLineCount()) {
+				ligne++;
+			} else if (ligne > cible.getLine() && ligne - 1 >= 0) {
+				ligne--;
+			} else if (colonne < cible.getColumn() && colonne + 1 < map.getColumnCount()) {
+				colonne++;
+			} else if (colonne > cible.getColumn() && colonne - 1 >= 0) {
+				colonne--;
+			}
 		}
 
 		habitant.setPosition(map.getBlock(ligne, colonne));
