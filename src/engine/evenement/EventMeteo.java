@@ -37,11 +37,12 @@ public class EventMeteo implements EvenementSimulation, EventVisitor {
 	@Override
 	public void visit(Habitant habitant) {
 		if (mauvaisTemps) {
-			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 2);
-			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - 3);
-			habitant.getPsychologie().augmenterNevrosisme(3);
+			// Impact plus fort et visible immédiatement
+			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 15);
+			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - 20);
+			habitant.getPsychologie().augmenterNevrosisme(5);
 		} else {
-			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 2);
+			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 10);
 			habitant.getPsychologie().augmenterOuverture(2);
 		}
 	}
