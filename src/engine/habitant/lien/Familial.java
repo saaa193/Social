@@ -20,14 +20,11 @@ public class Familial extends Liens {
 	@Override
 	public void appliquerBonusMental(Habitant proprietaire) {
 		double ratio = this.force / 100.0;
-
-		int bonusMoral = (int) (25 * ratio);
-		int bonusSocial = (int) (15 * ratio);
-
+		int bonusMoral = (int) (2 * ratio);
+		int bonusSocial = (int) (3 * ratio);
 		proprietaire.getBesoins().setMoral(proprietaire.getBesoins().getMoral() + bonusMoral);
 		proprietaire.getBesoins().setSocial(proprietaire.getBesoins().getSocial() + bonusSocial);
 	}
-
 	@Override
 	public boolean evoluerForce(Habitant proprietaire) {
 		if (proprietaire.getMoral() > 50 && partenaire.getMoral() > 50) {

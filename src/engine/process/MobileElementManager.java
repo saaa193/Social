@@ -25,6 +25,7 @@ public class MobileElementManager implements MobileInterface {
 
 	private GestionnaireGroupes gestionnaireGroupes = new GestionnaireGroupes();
 	private GestionnaireEnvironnement gestionnaireEnvironnement = new GestionnaireEnvironnement();
+	private CalculateurInteraction calculateur = new CalculateurInteraction();
 
 	private InformationTransmission informationEnCours = null;
 
@@ -90,10 +91,10 @@ public class MobileElementManager implements MobileInterface {
 	private void appliquerResistance() {
 		for (Habitant h : habitants) {
 			if (h.getBesoins().getSante() > 0) {
-				if (resistanceCollective < 50) {
-					h.getBesoins().setMoral(h.getBesoins().getMoral() - 2);
-				} else if (resistanceCollective > 50) {
-					h.getBesoins().setMoral(h.getBesoins().getMoral() + 2);
+				if (resistanceCollective < 30) {
+					h.getBesoins().setMoral(h.getBesoins().getMoral() - 1);
+				} else if (resistanceCollective > 70) {
+					h.getBesoins().setMoral(h.getBesoins().getMoral() + 1);
 				}
 			}
 		}
@@ -115,8 +116,16 @@ public class MobileElementManager implements MobileInterface {
 						int r2 = rencontresCeTour.getOrDefault(h2, 0);
 						if (r1 >= 2 || r2 >= 2) continue;
 
+						// Algorithme psychologique — probabilite modulee par les profils OCEAN
+						double probabilite = calculateur.calculerProbabilite(h1, h2);
+						if (Math.random() > probabilite) continue;
+
 						rencontresCeTour.put(h1, r1 + 1);
 						rencontresCeTour.put(h2, r2 + 1);
+
+						// Historique de confiance accumule
+						h1.incrementerRencontres();
+						h2.incrementerRencontres();
 
 						if (h1.getAgreabilite() > 50 && h2.getAgreabilite() > 50) {
 							h1.ajouterLienAmical(h2);
