@@ -17,7 +17,10 @@ public class EtatIsole implements EtatHabitant {
 
 	@Override
 	public void appliquer(Habitant habitant) {
-		int malus = 1 + (habitant.getExtraversion() / 50);
+		int malus = 1 + (habitant.getExtraversion() - 70) / 10;
+		if (malus < 1) {
+			malus = 1;
+		}
 		habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - malus);
 	}
 

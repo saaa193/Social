@@ -71,8 +71,8 @@ public class GestionnaireEnvironnement {
 			} else if (heure >= 12 && heure < 14) {
 				// MIDI : pause déjeuner
 				// Tout le monde cherche du contact social
-				h.getBesoins().setSocial(h.getBesoins().getSocial() + 2);
-				h.getBesoins().setFaim(h.getBesoins().getFaim() + 3);
+				h.getBesoins().setSocial(h.getBesoins().getSocial() + 1);
+				h.getBesoins().setFaim(h.getBesoins().getFaim() + 2);
 
 			} else if (heure >= 14 && heure < 18) {
 				// APRÈS-MIDI : fatigue naturelle qui monte
@@ -84,12 +84,10 @@ public class GestionnaireEnvironnement {
 				// SOIR : comportement selon extraversion
 				if (h.getExtraversion() > 60) {
 					// Extraverti → sort, cherche du social
-					h.getBesoins().setSocial(h.getBesoins().getSocial() + 3);
-					h.getBesoins().setMoral(h.getBesoins().getMoral() + 1);
+					h.getBesoins().setSocial(h.getBesoins().getSocial() + 1);
 				} else {
 					// Introverti → rentre chez lui, récupère
 					h.getBesoins().setFatigue(h.getBesoins().getFatigue() + 2);
-					h.getBesoins().setMoral(h.getBesoins().getMoral() + 1);
 				}
 			}
 		}
