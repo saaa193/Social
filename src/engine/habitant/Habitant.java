@@ -71,6 +71,10 @@ public class Habitant extends MobileElement {
 	// Resistance collective — mise a jour depuis MacroDashboard via MobileElementManager
 	private int resistanceCollective = 50;
 
+	// Visitor partagé — pas d'état, pas besoin de recréer à chaque tour
+	private static final ContagionVisitor contagionVisitor = new ContagionVisitor();
+
+
 	/**
 	 * Construit un habitant avec son identite et le place sur la carte.
 	 * Initialise le profil OCEAN aleatoirement et calcule les taux
@@ -290,7 +294,7 @@ public class Habitant extends MobileElement {
 		this.strategieDeplacement = psychologie.determinerStrategieDeplacement();
 
 		// Contagion émotionnelle via les liens sociaux
-		int impact = etat.accept(new ContagionVisitor());
+		int impact = etat.accept(contagionVisitor);
 		if (impact != 0) {
 			for (Liens l : relations) {
 				Habitant proche = l.getPartenaire();

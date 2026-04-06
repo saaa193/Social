@@ -8,6 +8,8 @@ import engine.habitant.Habitant;
 import engine.habitant.lien.Familial;
 import engine.habitant.lien.Liens;
 import engine.habitant.lien.Professionnel;
+import engine.habitant.etat.EtatHabitant;
+import engine.habitant.visitor.CouleurVisitor;
 import engine.map.Block;
 import engine.map.Map;
 
@@ -61,7 +63,7 @@ public class PaintStrategyDefaut implements PaintStrategy {
         int x1 = position.getColumn() * blockSize + blockSize / 2;
         int y1 = position.getLine() * blockSize + blockSize / 2;
 
-        // Dessin des liens sociaux
+        // Dessin des liens sociaux — inchangé
         if (habitant.getRelation() != null) {
             for (Liens lien : habitant.getRelation()) {
                 Habitant ami = lien.getPartenaire();
@@ -86,21 +88,18 @@ public class PaintStrategyDefaut implements PaintStrategy {
             }
         }
 
-        // Dessin de l'habitant selon son état
-        int moral = habitant.getMoral();
-        int fatigue = habitant.getBesoins().getFatigue();
+        // Dessin de l'habitant — couleur via CouleurVisitor
+        // Avant : jauges brutes → Après : état psychologique réel
         int sante = habitant.getBesoins().getSante();
 
         if (sante <= 0) {
+            // Décès — cas spécial, pas d'état psychologique
             graphics.setColor(Color.BLACK);
-        } else if (fatigue < 20) {
-            graphics.setColor(Color.GRAY);
-        } else if (moral < 30) {
-            graphics.setColor(Color.RED);
-        } else if (moral < 70) {
-            graphics.setColor(Color.ORANGE);
         } else {
-            graphics.setColor(new Color(128, 0, 128));
+            // On délègue la couleur au CouleurVisitor — double dispatch
+            EtatHabitant etat = habitant.getPsychologie().determinerEtat(habitant.getBesoins());
+            Color couleur = etat.accept(new CouleurVisitor());
+            graphics.setColor(couleur);
         }
 
         int y = position.getLine();
