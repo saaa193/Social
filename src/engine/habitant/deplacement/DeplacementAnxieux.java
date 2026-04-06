@@ -4,6 +4,7 @@ import config.GameConfiguration;
 import engine.habitant.Habitant;
 import engine.map.Block;
 import engine.map.Map;
+import config.RandomProvider;
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -18,7 +19,7 @@ public class DeplacementAnxieux implements StrategieDeplacement {
 
 	@Override
 	public void deplacer(Habitant habitant, Map map) {
-		if (Math.random() > GameConfiguration.PROBA_ANXIEUX_BOUGE) return;
+		if (RandomProvider.getInstance().nextDouble() > GameConfiguration.PROBA_ANXIEUX_BOUGE) return;
 
 		Block pos = habitant.getPosition();
 		Block domicile = habitant.getDomicile();
@@ -35,7 +36,7 @@ public class DeplacementAnxieux implements StrategieDeplacement {
 			if (colonne < domicile.getColumn()) colonne++;
 			else if (colonne > domicile.getColumn()) colonne--;
 		} else {
-			int direction = (int)(Math.random() * 4);
+			int direction = RandomProvider.getInstance().nextInt(4);
 			if (direction == 0 && ligne > 0) ligne--;
 			else if (direction == 1 && ligne < map.getLineCount() - 1) ligne++;
 			else if (direction == 2 && colonne > 0) colonne--;

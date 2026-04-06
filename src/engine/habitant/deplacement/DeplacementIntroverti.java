@@ -4,6 +4,8 @@ import config.GameConfiguration;
 import engine.habitant.Habitant;
 import engine.map.Block;
 import engine.map.Map;
+import config.RandomProvider;
+
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -18,13 +20,13 @@ public class DeplacementIntroverti implements StrategieDeplacement {
 
 	@Override
 	public void deplacer(Habitant habitant, Map map) {
-		if (Math.random() > GameConfiguration.PROBA_INTROVERTI_BOUGE) return;
+		if (RandomProvider.getInstance().nextDouble() > GameConfiguration.PROBA_INTROVERTI_BOUGE) return;
 
 		Block pos = habitant.getPosition();
 		int ligne   = pos.getLine();
 		int colonne = pos.getColumn();
 
-		int direction = (int)(Math.random() * 4);
+		int direction = RandomProvider.getInstance().nextInt(4);
 
 		if (direction == 0 && !map.isOnTop(pos)) ligne--;
 		else if (direction == 1 && !map.isOnBottom(pos)) ligne++;

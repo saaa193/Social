@@ -2,6 +2,8 @@ package engine.habitant.besoin;
 
 import config.GameConfiguration;
 import engine.habitant.nutrition.StrategieNutrition;
+import config.RandomProvider;
+
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -30,21 +32,20 @@ public class Besoins {
 	                  double tauxRecuperation) {
 
 		if (estLaNuit) {
-			if (Math.random() < tauxRecuperation) this.fatigue += 3;
-			this.fatigue += 1;
-			if (Math.random() < GameConfiguration.PROBA_FAIM_NUIT) this.faim += 1;
+			if (RandomProvider.getInstance().nextDouble() < tauxRecuperation) this.fatigue += 3;
+			if (RandomProvider.getInstance().nextDouble() < GameConfiguration.PROBA_FAIM_NUIT) this.faim += 1;
 
 		} else {
 			strategieNutrition.appliquer(this);
-			if (Math.random() < tauxFaim)    this.faim    -= 1;
-			if (Math.random() < tauxFatigue) this.fatigue -= 1;
-			if (Math.random() < tauxSocial)  this.social  -= 1;
+			if (RandomProvider.getInstance().nextDouble() < tauxFaim)    this.faim    -= 1;
+			if (RandomProvider.getInstance().nextDouble() < tauxFatigue) this.fatigue -= 1;
+			if (RandomProvider.getInstance().nextDouble() < tauxSocial)  this.social  -= 1;
 		}
 
 		// Usure naturelle — entropie du système
-		if (Math.random() < GameConfiguration.USURE_FAIM)    this.faim    -= 1;
-		if (Math.random() < GameConfiguration.USURE_FATIGUE) this.fatigue -= 1;
-		if (Math.random() < GameConfiguration.USURE_SOCIAL)  this.social  -= 1;
+		if (RandomProvider.getInstance().nextDouble() < GameConfiguration.USURE_FAIM)    this.faim    -= 1;
+		if (RandomProvider.getInstance().nextDouble() < GameConfiguration.USURE_FATIGUE) this.fatigue -= 1;
+		if (RandomProvider.getInstance().nextDouble() < GameConfiguration.USURE_SOCIAL)  this.social  -= 1;
 
 		// Moral
 		int facteursCritiques = 0;
@@ -53,20 +54,20 @@ public class Besoins {
 		if (this.fatigue < GameConfiguration.SEUIL_FATIGUE_CRITIQUE) facteursCritiques++;
 
 		if (facteursCritiques >= 2) {
-			if (Math.random() < GameConfiguration.PROBA_MORAL_BAISSE) this.moral -= 1;
+			if (RandomProvider.getInstance().nextDouble() < GameConfiguration.PROBA_MORAL_BAISSE)  this.moral -= 1;
 		} else if (facteursCritiques == 0) {
-			if (Math.random() < GameConfiguration.PROBA_MORAL_REMONTE) this.moral += 1;
+			if (RandomProvider.getInstance().nextDouble() < GameConfiguration.PROBA_MORAL_REMONTE) this.moral += 1;
 		}
 
 		if (this.faim    > GameConfiguration.SEUIL_FAIM_BON
 				&& this.social  > GameConfiguration.SEUIL_SOCIAL_BON
 				&& this.fatigue > GameConfiguration.SEUIL_FATIGUE_BON) {
-			if (Math.random() < GameConfiguration.PROBA_MORAL_BONUS) this.moral += 1;
+			if (RandomProvider.getInstance().nextDouble() < GameConfiguration.PROBA_MORAL_BONUS)   this.moral += 1;
 		}
 
 		// Santé
 		if (this.faim <= 0 && this.moral <= 0) {
-			if (Math.random() < GameConfiguration.PROBA_SANTE_BAISSE) this.sante -= 1;
+			if (RandomProvider.getInstance().nextDouble() < GameConfiguration.PROBA_SANTE_BAISSE)  this.sante -= 1;
 		}
 	}
 
