@@ -1,5 +1,6 @@
 package engine.process;
 
+import config.RandomProvider;
 import engine.map.Map;
 import engine.habitant.Habitant;
 import engine.map.Horloge;
@@ -57,6 +58,8 @@ public class MobileElementManager implements MobileInterface {
 
 		// 2. Rencontres entre habitants au même endroit
 		if (!estLaNuit) verifierRencontres();
+
+		if (!estLaNuit) disperserEntassements();
 
 		// 3. Propagation d'information si active
 		if (informationEnCours != null) {
@@ -166,6 +169,42 @@ public class MobileElementManager implements MobileInterface {
 			}
 		}
 	}
+
+
+	/**
+	 * Disperse les habitants trop entassés au même endroit.
+	 * Si plus de 3 habitants sont sur le même bloc, les surplus
+	 * sont déplacés aléatoirement d'un pas.
+	 */
+	private void disperserEntassements() {
+		// Compte les habitants par position
+		java.util.HashMap<String, List<Habitant>> parPosition =
+				new java.util.HashMap<String, List<Habitant>>();
+
+		for (Habitant h : habitants) {
+			if (h.getBesoins().getSante() <= 0) continue;
+			String cle = h.getPosition().getLine() + "," + h.getPosition().getColumn();
+			if (!parPosition.containsKey(cle)) {
+				parPosition.put(cle, new ArrayList<Habitant>());
+			}
+			parPosition.get(cle).add(h);
+		}
+
+		// Disperse les blocs avec plus de 3 habitants
+		for (List<Habitant> groupe : parPosition.values()) {
+			if (groupe.size() <= 3) continue;
+
+			// Les 3 premiers restent, les autres sont dispersés
+			for (int i = 3; i < groupe.size(); i++) {
+				Habitant h = groupe.get(i);
+				// Nouvelle destination aléatoire pour forcer la dispersion
+				int nouvelleLigne   = RandomProvider.getInstance().nextInt(map.getLineCount());
+				int nouvelleColonne = RandomProvider.getInstance().nextInt(map.getColumnCount());
+				h.setDestination(map.getBlock(nouvelleLigne, nouvelleColonne));
+			}
+		}
+	}
+
 
 	public void arreterInformation() {
 		this.informationEnCours = null;
