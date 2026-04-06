@@ -68,6 +68,8 @@ public class TestPsychologie {
 	public void testEtatStable() {
 		// Profil neutre — aucun seuil dépassé → EtatStable
 		Psychologie psychologie = new Psychologie(50, 50, 50, 50, 50);
+		besoins.setMoral(50);
+		besoins.setSocial(50);
 		EtatHabitant etat = psychologie.determinerEtat(besoins);
 		assertTrue(etat instanceof EtatStable);
 	}

@@ -15,8 +15,7 @@ public class ContagionVisitor implements EtatVisitor<Integer> {
 
 	@Override
 	public Integer visit(EtatEpanoui etat) {
-		// Un habitant épanoui booste le moral de ses proches
-		return +5;
+		return +2;
 	}
 
 	@Override
@@ -52,8 +51,7 @@ public class ContagionVisitor implements EtatVisitor<Integer> {
 
 	@Override
 	public Integer visit(EtatEuphorique etat) {
-		// Un euphorique booste fortement son entourage
-		return +10;
+		return +3;
 	}
 
 }

@@ -15,7 +15,11 @@ public class EtatEpanoui implements EtatHabitant {
 
 	@Override
 	public void appliquer(Habitant habitant) {
-		habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 2);
+		int bonus = 1 + (habitant.getAgreabilite() - 60) / 20;
+		if (bonus < 1) {
+			bonus = 1;
+		}
+		habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + bonus);
 	}
 
 	public <T> T accept(EtatVisitor<T> visitor) {
