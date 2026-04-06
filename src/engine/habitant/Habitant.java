@@ -5,7 +5,10 @@ import config.RandomProvider;
 
 import engine.evenement.EventVisitor;
 import engine.habitant.deplacement.StrategieDeplacement;
-import engine.habitant.etat.*;
+import engine.habitant.etat.EtatAnxieux;
+import engine.habitant.etat.EtatBurnout;
+import engine.habitant.etat.EtatDepressif;
+import engine.habitant.etat.EtatHabitant;
 import engine.habitant.lien.Amical;
 import engine.habitant.lien.Liens;
 import engine.MobileElement;
@@ -57,10 +60,6 @@ public class Habitant extends MobileElement {
 	private int toursEtatNegatif = 0;
 	private Traumatisme traumatisme = new Traumatisme();
 
-	// Etat precedent — pour les transitions progressives
-	private EtatHabitant etatPrecedent = new EtatStable();
-	private int toursEtatActuel = 0;
-
 	// Position de domicile — fixe toute la simulation
 	// Chaque habitant a son propre point d'ancrage spatial
 	private Block domicile;
@@ -72,8 +71,13 @@ public class Habitant extends MobileElement {
 	// Resistance collective — mise a jour depuis MacroDashboard via MobileElementManager
 	private int resistanceCollective = 50;
 
-	// Nombre de rencontres sociales — alimente CalculateurInteraction
-	private int nbRencontres = 0;
+	// Visitor partagé — pas d'état, pas besoin de recréer à chaque tour
+	private static final ContagionVisitor contagionVisitor = new ContagionVisitor();
+
+	// Compteur personnel pour le changement de destination
+	private int toursAvantChangementDestination =
+			RandomProvider.getInstance().nextInt(GameConfiguration.TOURS_AVANT_CHANGEMENT);
+
 
 	/**
 	 * Construit un habitant avec son identite et le place sur la carte.
@@ -131,33 +135,6 @@ public class Habitant extends MobileElement {
 	 */
 	public void acceptEvent(EventVisitor visiteurEvenement) {
 		visiteurEvenement.visit(this);
-	}
-
-	private EtatHabitant filtrerTransition(EtatHabitant etatCandidat) {
-		if (etatCandidat.getClass() == etatPrecedent.getClass()) {
-			toursEtatActuel++;
-		} else {
-			toursEtatActuel = 1;
-		}
-
-		// Depressif necessite d'abord 3 tours en Anxieux
-		if (etatCandidat instanceof EtatDepressif) {
-			if (!(etatPrecedent instanceof EtatAnxieux) || toursEtatActuel < 3) {
-				etatPrecedent = new EtatAnxieux();
-				return new EtatAnxieux();
-			}
-		}
-
-		// Euphorique necessite d'abord 3 tours en Epanoui
-		if (etatCandidat instanceof EtatEuphorique) {
-			if (!(etatPrecedent instanceof EtatEpanoui) || toursEtatActuel < 3) {
-				etatPrecedent = new EtatEpanoui();
-				return new EtatEpanoui();
-			}
-		}
-
-		etatPrecedent = etatCandidat;
-		return etatCandidat;
 	}
 
 	/**
@@ -255,6 +232,10 @@ public class Habitant extends MobileElement {
 	public int getConscience()           { return psychologie.getConscience(); }
 	public int getAgreabilite()          { return psychologie.getAgreabilite(); }
 	public int getNevrosisme()           { return psychologie.getNevrosisme(); }
+
+	public int getToursAvantChangement() { return toursAvantChangementDestination; }
+	public void setToursAvantChangement(int tours) { this.toursAvantChangementDestination = tours; }
+
 	public Map getMap()                  { return map; }
 
 	public Block getDomicile()           { return domicile; }
@@ -269,21 +250,6 @@ public class Habitant extends MobileElement {
 	 */
 	public void setResistanceCollective(int resistance) {
 		this.resistanceCollective = resistance;
-	}
-
-	/**
-	 * Incremente le compteur de rencontres sociales.
-	 * Utilise par CalculateurInteraction pour moduler la confiance.
-	 */
-	public void incrementerRencontres() {
-		this.nbRencontres++;
-	}
-
-	/**
-	 * Retourne le nombre de rencontres sociales de l'habitant.
-	 */
-	public int getNbRencontres() {
-		return nbRencontres;
 	}
 
 	@Override
@@ -328,8 +294,7 @@ public class Habitant extends MobileElement {
 	protected void agir(boolean estLaNuit) {
 		besoins.vivre(estLaNuit, tauxFaim, tauxFatigue, tauxSocial, tauxRecuperation);
 
-		EtatHabitant etatCandidat = psychologie.determinerEtat(besoins);
-		EtatHabitant etat = filtrerTransition(etatCandidat);
+		EtatHabitant etat = psychologie.determinerEtat(besoins);
 		etat.appliquer(this);
 		psychologie.evoluer(etat, besoins);
 		psychologie.evoluerSelonReseau(relations);
@@ -337,7 +302,7 @@ public class Habitant extends MobileElement {
 		this.strategieDeplacement = psychologie.determinerStrategieDeplacement();
 
 		// Contagion émotionnelle via les liens sociaux
-		int impact = etat.accept(new ContagionVisitor());
+		int impact = etat.accept(contagionVisitor);
 		if (impact != 0) {
 			for (Liens l : relations) {
 				Habitant proche = l.getPartenaire();
