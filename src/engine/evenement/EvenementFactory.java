@@ -13,11 +13,11 @@ public class EvenementFactory {
 
     public static EvenementSimulation creer(String nomEvenement) {
         switch (nomEvenement) {
-			case "Alerte Meteo": return new EventMeteo(true);
-			case "Beau Temps": return new EventMeteo(false);
-			case "Fete de Quartier": return new EventSocial();
-			case "Offres d'Emploi": return new EventPerso();
-			case "Expo Musee": return new EventCulturel();
+            case "Tempête Urbaine":    return new EventTempete();
+            case "Festival de Quartier": return new EventFestival();
+            case "Crise Économique":   return new EventCrise();
+            case "Semaine Culturelle": return new EventFestival();
+            case "Épidémie":           return new EventEpidemie();
             default:
                 throw new IllegalArgumentException("Événement inconnu : " + nomEvenement);
         }

@@ -7,10 +7,11 @@ import org.junit.Test;
 
 import engine.evenement.EvenementFactory;
 import engine.evenement.EvenementSimulation;
+import engine.evenement.EventTempete;
+import engine.evenement.EventFestival;
+import engine.evenement.EventCrise;
 import engine.evenement.EventCulturel;
-import engine.evenement.EventMeteo;
-import engine.evenement.EventPerso;
-import engine.evenement.EventSocial;
+import engine.evenement.EventEpidemie;
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -18,42 +19,50 @@ import engine.evenement.EventSocial;
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
- * TestCase sur la Factory et les evenements.
- * Verifie que la Factory produit les bons types
+ * TestCase sur la Factory et les événements.
+ * Vérifie que la Factory produit les bons types
  * et que le polymorphisme fonctionne correctement.
  */
 public class TestEvenement {
 
-	@Test
-	public void testFactoryAlerteMeteo() {
-		EvenementSimulation e = EvenementFactory.creer("Alerte Meteo");
-		assertNotNull(e);
-		assertTrue(e instanceof EventMeteo);
-	}
+    @Test
+    public void testFactoryTempete() {
+        EvenementSimulation e = EvenementFactory.creer("Tempête Urbaine");
+        assertNotNull("La factory ne doit pas retourner null", e);
+        assertTrue("Tempête Urbaine doit produire un EventTempete",
+                e instanceof EventTempete);
+    }
 
-	@Test
-	public void testFactoryFeteQuartier() {
-		EvenementSimulation e = EvenementFactory.creer("Fete de Quartier");
-		assertNotNull(e);
-		assertTrue(e instanceof EventSocial);
-	}
+    @Test
+    public void testFactoryFestival() {
+        EvenementSimulation e = EvenementFactory.creer("Festival de Quartier");
+        assertNotNull(e);
+        assertTrue(e instanceof EventFestival);
+    }
 
-	@Test
-	public void testFactoryOffresEmploi() {
-		EvenementSimulation e = EvenementFactory.creer("Offres d'Emploi");
-		assertNotNull(e);
-		assertTrue(e instanceof EventPerso);
-	}
+    @Test
+    public void testFactoryCrise() {
+        EvenementSimulation e = EvenementFactory.creer("Crise Économique");
+        assertNotNull(e);
+        assertTrue(e instanceof EventCrise);
+    }
 
-	@Test
-	public void testFactoryExpoMusee() {
-		EvenementSimulation e = EvenementFactory.creer("Expo Musee");
-		assertNotNull(e);
-		assertTrue(e instanceof EventCulturel);
-	}
+    @Test
+    public void testFactoryCulturel() {
+        EvenementSimulation e = EvenementFactory.creer("Semaine Culturelle");
+        assertNotNull(e);
+        assertTrue(e instanceof EventCulturel);
+    }
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testFactoryEvenementInconnu() {
-		EvenementFactory.creer("Evenement inexistant");
-	}
+    @Test
+    public void testFactoryEpidemie() {
+        EvenementSimulation e = EvenementFactory.creer("Épidémie");
+        assertNotNull(e);
+        assertTrue(e instanceof EventEpidemie);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testFactoryEvenementInconnu() {
+        EvenementFactory.creer("Événement inexistant");
+    }
 }

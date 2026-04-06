@@ -50,11 +50,15 @@ public class GraphDashboard extends JPanel {
 
 		// 1. CAMEMBERT — répartition des états
 		datasetEtats = new DefaultPieDataset();
-		datasetEtats.setValue("Décès", 0);
-		datasetEtats.setValue("Sommeil", 0);
-		datasetEtats.setValue("Détresse", 0);
-		datasetEtats.setValue("Neutre", 0);
-		datasetEtats.setValue("Bonheur", 0);
+		datasetEtats.setValue("Décès",      0);
+		datasetEtats.setValue("Sommeil",    0);
+		datasetEtats.setValue("Épanoui",    0);
+		datasetEtats.setValue("Euphorique", 0);
+		datasetEtats.setValue("Stable",     0);
+		datasetEtats.setValue("Anxieux",    0);
+		datasetEtats.setValue("Isolé",      0);
+		datasetEtats.setValue("Dépressif",  0);
+		datasetEtats.setValue("Burnout",    0);
 
 		JFreeChart pieChart = ChartFactory.createPieChart(
 				"États", datasetEtats, true, true, false
@@ -62,11 +66,15 @@ public class GraphDashboard extends JPanel {
 		org.jfree.chart.plot.PiePlot plot =
 				(org.jfree.chart.plot.PiePlot) pieChart.getPlot();
 
-		plot.setSectionPaint("Décès", Color.BLACK);
-		plot.setSectionPaint("Sommeil", Color.GRAY);
-		plot.setSectionPaint("Détresse", Color.RED);
-		plot.setSectionPaint("Neutre", Color.ORANGE);
-		plot.setSectionPaint("Bonheur", new Color(128, 0, 128));
+		plot.setSectionPaint("Décès",      Color.BLACK);
+		plot.setSectionPaint("Sommeil",    Color.GRAY);
+		plot.setSectionPaint("Épanoui",    new Color(128, 0, 128));
+		plot.setSectionPaint("Euphorique", new Color(200, 0, 200));
+		plot.setSectionPaint("Stable",     Color.ORANGE);
+		plot.setSectionPaint("Anxieux",    new Color(255, 140, 0));
+		plot.setSectionPaint("Isolé",      new Color(100, 100, 150));
+		plot.setSectionPaint("Dépressif",  Color.RED);
+		plot.setSectionPaint("Burnout",    new Color(80, 0, 0));
 		pieChart.setBackgroundPaint(new Color(245, 245, 245));
 		pieChart.setBorderVisible(false);
 
@@ -123,44 +131,64 @@ public class GraphDashboard extends JPanel {
 	public void updateStats(List<Habitant> habitants) {
 		if (habitants == null || habitants.isEmpty()) return;
 
-		//Comptage pour le camembert
-		int deces = 0, sommeil = 0, detresse = 0, neutre = 0, bonheur = 0;
+		// Comptage par état psychologique réel — via determinerEtat()
+		int deces      = 0;
+		int sommeil    = 0;  // fatigue < 20 — état physique, pas psychologique
+		int epanoui    = 0;
+		int euphorique = 0;
+		int stable     = 0;
+		int anxieux    = 0;
+		int isole      = 0;
+		int depressif  = 0;
+		int burnout    = 0;
 
-		//Totaux pour le bar chart
 		int totalFaim = 0, totalFatigue = 0,
 				totalSocial = 0, totalSante = 0, totalMoral = 0;
 
 		for (Habitant h : habitants) {
-			Besoins b = h.getBesoins();
+			engine.habitant.besoin.Besoins b = h.getBesoins();
 
-			// Camembert
-			if (b.getSante() <= 0) deces++;
-			else if (b.getFatigue() < 20) sommeil++;
-			else if (h.getMoral() < 30) detresse++;
-			else if (h.getMoral() < 70) neutre++;
-			else bonheur++;
+			if (b.getSante() <= 0) {
+				deces++;
+			} else if (b.getFatigue() < 20) {
+				sommeil++;
+			} else {
+				// On utilise le vrai état psychologique
+				engine.habitant.etat.EtatHabitant etat =
+						h.getPsychologie().determinerEtat(b);
 
-			// Bar chart — on accumule les totaux
-			totalFaim += b.getFaim();
+				if (etat instanceof engine.habitant.etat.EtatEpanoui)    epanoui++;
+				else if (etat instanceof engine.habitant.etat.EtatEuphorique) euphorique++;
+				else if (etat instanceof engine.habitant.etat.EtatStable)     stable++;
+				else if (etat instanceof engine.habitant.etat.EtatAnxieux)    anxieux++;
+				else if (etat instanceof engine.habitant.etat.EtatIsole)      isole++;
+				else if (etat instanceof engine.habitant.etat.EtatDepressif)  depressif++;
+				else if (etat instanceof engine.habitant.etat.EtatBurnout)    burnout++;
+			}
+
+			totalFaim    += b.getFaim();
 			totalFatigue += b.getFatigue();
-			totalSocial += b.getSocial();
-			totalSante += b.getSante();
-			totalMoral += b.getMoral();
+			totalSocial  += b.getSocial();
+			totalSante   += b.getSante();
+			totalMoral   += b.getMoral();
 		}
 
-		// Mise à jour camembert
-		datasetEtats.setValue("Décès", deces);
-		datasetEtats.setValue("Sommeil", sommeil);
-		datasetEtats.setValue("Détresse", detresse);
-		datasetEtats.setValue("Neutre", neutre);
-		datasetEtats.setValue("Bonheur", bonheur);
+		// Mise à jour camembert avec tous les états réels
+		datasetEtats.setValue("Décès",      deces);
+		datasetEtats.setValue("Sommeil",    sommeil);
+		datasetEtats.setValue("Épanoui",    epanoui);
+		datasetEtats.setValue("Euphorique", euphorique);
+		datasetEtats.setValue("Stable",     stable);
+		datasetEtats.setValue("Anxieux",    anxieux);
+		datasetEtats.setValue("Isolé",      isole);
+		datasetEtats.setValue("Dépressif",  depressif);
+		datasetEtats.setValue("Burnout",    burnout);
 
-		// Mise à jour bar chart — moyennes calculées
 		int taille = habitants.size();
-		datasetMoyennes.setValue(totalFaim / taille, "Moyenne", "Faim");
+		datasetMoyennes.setValue(totalFaim    / taille, "Moyenne", "Faim");
 		datasetMoyennes.setValue(totalFatigue / taille, "Moyenne", "Fatigue");
-		datasetMoyennes.setValue(totalSocial / taille, "Moyenne", "Social");
-		datasetMoyennes.setValue(totalSante / taille, "Moyenne", "Santé");
-		datasetMoyennes.setValue(totalMoral / taille, "Moyenne", "Moral");
+		datasetMoyennes.setValue(totalSocial  / taille, "Moyenne", "Social");
+		datasetMoyennes.setValue(totalSante   / taille, "Moyenne", "Santé");
+		datasetMoyennes.setValue(totalMoral   / taille, "Moyenne", "Moral");
 	}
 }
