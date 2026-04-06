@@ -24,12 +24,21 @@ import engine.map.Map;
  * une classe concrète qui implémente le contrat de dessin.
  * Pour changer le rendu, on crée une nouvelle classe
  * sans toucher au reste du code.
+ *
+ * [AJOUT - Modèle SIR]
+ * Les habitants porteurs d'une information sont distingués visuellement
+ * par une auréole dorée dessinée AVANT le cercle principal.
+ * Cela permet d'observer la propagation de l'information dans le réseau
+ * comme une vague visible se déplaçant de proche en proche.
  */
 public class PaintStrategyDefaut implements PaintStrategy {
 
     private boolean afficherFamille = true;
     private boolean afficherTravail = true;
     private boolean afficherAmis = true;
+
+    // Couleur de l'auréole — dorée, distincte de tous les états psychologiques
+    private static final Color COULEUR_INFORME = new Color(255, 215, 0);
 
     @Override
     public void setFiltres(boolean famille, boolean travail, boolean amis) {
@@ -63,12 +72,12 @@ public class PaintStrategyDefaut implements PaintStrategy {
         int x1 = position.getColumn() * blockSize + blockSize / 2;
         int y1 = position.getLine() * blockSize + blockSize / 2;
 
-        // Dessin des liens sociaux — inchangé
+        // Dessin des liens sociaux
         if (habitant.getRelation() != null) {
             for (Liens lien : habitant.getRelation()) {
                 Habitant ami = lien.getPartenaire();
 
-                if (lien instanceof Familial && !afficherFamille) continue;
+                if (lien instanceof Familial     && !afficherFamille) continue;
                 if (lien instanceof Professionnel && !afficherTravail) continue;
                 if (!(lien instanceof Familial) && !(lien instanceof Professionnel)
                         && !afficherAmis) continue;
@@ -88,8 +97,25 @@ public class PaintStrategyDefaut implements PaintStrategy {
             }
         }
 
-        // Dessin de l'habitant — couleur via CouleurVisitor
-        // Avant : jauges brutes → Après : état psychologique réel
+        int x = position.getColumn();
+        int y = position.getLine();
+
+        // ── [AJOUT SIR] Auréole dorée pour les habitants informés ──────────────
+        // Dessinée AVANT le cercle de l'habitant pour apparaître en arrière-plan.
+        // +4 pixels de rayon et -2 pixels d'offset pour centrer l'auréole.
+        // Principe : on ne modifie pas les classes EtatHabitant existantes —
+        // c'est la couche graphique seule qui connaît cette règle d'affichage.
+        if (habitant.estInforme()) {
+            graphics.setColor(COULEUR_INFORME);
+            graphics.drawOval(
+                    x * blockSize - 2,
+                    y * blockSize - 2,
+                    blockSize + 4,
+                    blockSize + 4
+            );
+        }
+
+        // ── Dessin principal de l'habitant ──────────────────────────────────────
         int sante = habitant.getBesoins().getSante();
 
         if (sante <= 0) {
@@ -102,8 +128,6 @@ public class PaintStrategyDefaut implements PaintStrategy {
             graphics.setColor(couleur);
         }
 
-        int y = position.getLine();
-        int x = position.getColumn();
         graphics.fillOval(x * blockSize, y * blockSize, blockSize, blockSize);
         graphics.setColor(Color.BLACK);
         graphics.drawOval(x * blockSize, y * blockSize, blockSize, blockSize);

@@ -37,9 +37,13 @@ public class MobileElementManager implements MobileInterface {
 	private int forceInfluence = 5;
 	private int resistanceCollective = 50;
 
+	private boolean enAttentePatientZero = false;
+
 	public MobileElementManager(Map map) {
 		this.map = map;
 	}
+
+
 
 	/**
 	 * Cœur du jeu : la boucle de simulation principale.
@@ -54,6 +58,12 @@ public class MobileElementManager implements MobileInterface {
 
 		// 1. Chaque habitant vit son tour (Template Method)
 		executerToursHabitants(estLaNuit);
+		// Vieillissement naturel de l'information
+		if (informationEnCours != null) {
+			for (Habitant h : habitants) {
+				h.vieillirInformation();
+			}
+		}
 
 		// 2. Rencontres entre habitants au même endroit
 		if (!estLaNuit) verifierRencontres();
@@ -145,22 +155,22 @@ public class MobileElementManager implements MobileInterface {
 		}
 	}
 
-	public void lancerInformation(String theme, float virulence, float veracite) {
-		this.informationEnCours = new InformationTransmission(theme, virulence, veracite);
-
-		int impact = (int) ((veracite - 0.5f) * 40);
-		for (Habitant h : habitants) {
-			if (h.getBesoins().getSante() > 0) {
-				h.getBesoins().setMoral(h.getBesoins().getMoral() + impact);
-				if (veracite < 0.4f) {
-					h.getPsychologie().augmenterNevrosisme(5);
-				} else if (veracite > 0.6f) {
-					h.getPsychologie().augmenterOuverture(3);
-				}
-			}
-		}
+	public void lancerInformationDepuis(Habitant patientZero) {
+		patientZero.devenirPatientZero();
+		this.enAttentePatientZero = false;
 	}
 
+	public boolean isEnAttentePatientZero() {
+		return enAttentePatientZero;
+	}
+
+	public void preparerPropagation(String theme, float virulence, float veracite) {
+		this.enAttentePatientZero = true;
+		this.informationEnCours = new InformationTransmission(theme, virulence, veracite);
+		for (Habitant h : habitants) {
+			h.reinitialiserInformation();
+		}
+	}
 
 	/**
 	 * Disperse les habitants trop entassés au même endroit.
@@ -198,6 +208,10 @@ public class MobileElementManager implements MobileInterface {
 
 
 	public void arreterInformation() {
+		// Réinitialise les états informés quand on arrête la propagation
+		for (Habitant h : habitants) {
+			h.reinitialiserInformation();
+		}
 		this.informationEnCours = null;
 	}
 

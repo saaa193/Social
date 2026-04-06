@@ -74,6 +74,8 @@ public class MacroDashboard extends JPanel {
 		zoneDroite.setBackground(Color.LIGHT_GRAY);
 		btnRecapitulatif.setBackground(new Color(50, 100, 200));
 		btnRecapitulatif.setForeground(Color.WHITE);
+		btnRecapitulatif.setOpaque(true);
+		btnRecapitulatif.setBorderPainted(false);
 		comboEvenement.addItem("Declencher un Evenement");
 		comboEvenement.addItem("Tempête Urbaine");
 		comboEvenement.addItem("Festival de Quartier");
@@ -84,6 +86,8 @@ public class MacroDashboard extends JPanel {
 
 		btnInformation.setBackground(new Color(200, 50, 50));
 		btnInformation.setForeground(Color.WHITE);
+		btnInformation.setOpaque(true);
+		btnInformation.setBorderPainted(false);
 		btnInformation.addActionListener(new BtnInformationAction());
 		zoneDroite.add(btnInformation);
 		zoneDroite.add(btnRecapitulatif);
