@@ -21,10 +21,8 @@ public class Amical extends Liens {
 	@Override
 	public void appliquerBonusMental(Habitant proprietaire) {
 		double ratio = this.force / 100.0;
-
-		int bonusMoral = (int) (15 * ratio);
-		int bonusSocial = (int) (30 * ratio);
-
+		int bonusMoral = (int) (3 * ratio);
+		int bonusSocial = (int) (5 * ratio);
 		proprietaire.getBesoins().setMoral(proprietaire.getBesoins().getMoral() + bonusMoral);
 		proprietaire.getBesoins().setSocial(proprietaire.getBesoins().getSocial() + bonusSocial);
 	}

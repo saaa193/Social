@@ -21,20 +21,17 @@ public class Professionnel extends Liens {
 	@Override
 	public void appliquerBonusMental(Habitant proprietaire) {
 		double ratio = this.force / 100.0;
-
-		int bonusSocial = (int) (20 * ratio);
+		int bonusSocial = (int) (4 * ratio);
 		proprietaire.getBesoins().setSocial(
 				proprietaire.getBesoins().getSocial() + bonusSocial
 		);
-
-		// Moral aléatoire selon l'ambiance au travail
-		if (Math.random() < 0.5) {
-			int bonusMoral = (int) (10 * ratio);
+		if (Math.random() < 0.3) {
+			int bonusMoral = (int) (2 * ratio);
 			proprietaire.getBesoins().setMoral(
 					proprietaire.getBesoins().getMoral() + bonusMoral
 			);
 		} else {
-			int malusMoral = (int) (8 * ratio);
+			int malusMoral = (int) (2 * ratio);
 			proprietaire.getBesoins().setMoral(
 					proprietaire.getBesoins().getMoral() - malusMoral
 			);
