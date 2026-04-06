@@ -30,6 +30,10 @@ import java.util.List;
  * Représente un habitant de la simulation avec ses besoins et son profil OCEAN.
  * Hérite de MobileElement — pattern Template Method du prof :
  * executerTour() est fixé, seDeplacer() et agir() sont délégués.
+ *
+ * [AJOUT] Champ estInforme : modélise l'état "Informé" du modèle SIR adapté.
+ * Un habitant peut être porteur d'une information et la propager via ses liens.
+ * Rendu visible par une auréole dorée dans PaintStrategyDefaut.
  */
 public class Habitant extends MobileElement {
 
@@ -49,6 +53,9 @@ public class Habitant extends MobileElement {
 	private double tauxFatigue;
 	private double tauxSocial;
 	private double tauxRecuperation;
+
+	// Compteur de tours depuis réception de l'information
+	private int toursDepuisInformation = 0;
 
 	// Réseau social
 	private List<Liens> relations = new ArrayList<Liens>();
@@ -77,6 +84,14 @@ public class Habitant extends MobileElement {
 	// Compteur personnel pour le changement de destination
 	private int toursAvantChangementDestination =
 			RandomProvider.getInstance().nextInt(GameConfiguration.TOURS_AVANT_CHANGEMENT);
+
+	/**
+	 * [AJOUT - Modèle SIR]
+	 * Indique si cet habitant est actuellement porteur d'une information.
+	 * Correspond à l'état "I" (Infected/Informé) du modèle SIR adapté.
+	 * Rendu visible visuellement par une auréole dorée dans PaintStrategyDefaut.
+	 */
+	private boolean estInforme = false;
 
 
 	/**
@@ -220,6 +235,8 @@ public class Habitant extends MobileElement {
 		return psychologie.calculerCompatibiliteAvec(autre.getPsychologie());
 	}
 
+	// ── Accesseurs OCEAN ────────────────────────────────────────────────────────
+
 	public List<Liens> getRelation()     { return relations; }
 	public String getPrenom()            { return prenom; }
 	public String getSexe()              { return sexe; }
@@ -250,6 +267,49 @@ public class Habitant extends MobileElement {
 	 */
 	public void setResistanceCollective(int resistance) {
 		this.resistanceCollective = resistance;
+	}
+
+	// ── Accesseurs modèle SIR ───────────────────────────────────────────────────
+
+	/**
+	 * [AJOUT - Modèle SIR]
+	 * Retourne vrai si l'habitant est actuellement porteur d'une information.
+	 * Utilisé par PaintStrategyDefaut pour afficher l'auréole dorée.
+	 */
+	public boolean estInforme() {
+		return estInforme;
+	}
+
+	public void vieillirInformation() {
+		if (!estInforme) return;
+		toursDepuisInformation++;
+		// Oubli après 30 tours — les consciencieux mémorisent plus longtemps
+		int seuilOubli = 3 + (psychologie.getConscience() / 10);
+		if (toursDepuisInformation > seuilOubli) {
+			estInforme = false;
+			toursDepuisInformation = 0;
+		}
+	}
+
+	public void recevoirInformation() {
+		this.estInforme = true;
+		this.toursDepuisInformation = 0; // reset si reçoit à nouveau
+	}
+
+
+	public void devenirPatientZero() {
+		this.estInforme = true;
+		this.toursDepuisInformation = 0;
+	}
+
+
+	/**
+	 * [AJOUT - Modèle SIR]
+	 * Réinitialise l'état "informé" entre deux propagations distinctes.
+	 * Appelé par InformationTransmission au début d'une nouvelle propagation.
+	 */
+	public void reinitialiserInformation() {
+		this.estInforme = false;
 	}
 
 	@Override
@@ -334,4 +394,6 @@ public class Habitant extends MobileElement {
 
 		nettoyerLiensMorts();
 	}
+
+
 }

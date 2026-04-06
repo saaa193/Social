@@ -213,13 +213,22 @@ public class MainGUI extends JFrame implements Runnable {
 	private class MouseControls implements MouseListener {
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			// Conversion des pixels en coordonnées de la Grille
 			Block position = dashboard.getBlockAt(e.getX(), e.getY());
 			Habitant habitant = manager.getHabitant(position.getLine(), position.getColumn());
 
 			if (habitant != null) {
-				// Ouvre la fenêtre modale d'inspection
-				new InspectionCitoyenModal(instance, habitant);
+				MobileElementManager mem = (MobileElementManager) manager;
+
+				if (mem.isEnAttentePatientZero()) {
+					// Désigne le patient zéro
+					mem.lancerInformationDepuis(habitant);
+					evenementDashboard.afficherEvenement(
+							"Patient zéro : " + habitant.getPrenom(), 1
+					);
+				} else {
+					// Comportement normal — inspection
+					new InspectionCitoyenModal(instance, habitant);
+				}
 			}
 		}
 
@@ -244,20 +253,15 @@ public class MainGUI extends JFrame implements Runnable {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			MobileElementManager mem = (MobileElementManager) manager;
-			mem.lancerInformation(
+			mem.preparerPropagation(
 					macro.getTheme(),
 					macro.getVirulence(),
 					macro.getVeracite()
 			);
-
-			// Feedback visuel immédiat — comme pour les événements
-			String typeInfo = macro.getVeracite() > 0.6f ? "✅ Info vérifiée" :
-					macro.getVeracite() < 0.4f ? "⚠ Rumeur" : "ℹ Info neutre";
-			String titre = typeInfo + " : " + macro.getTheme();
-			evenementDashboard.afficherEvenement(titre, manager.getHabitants().size());
-
-			// Flash info en haut
-			control.afficherFlashInfo(macro.getTheme());
+			evenementDashboard.afficherEvenement(
+					"Cliquez sur un habitant pour démarrer", 0
+			);
+			control.afficherFlashInfo("Désignez un patient zéro !");
 		}
 	}
 

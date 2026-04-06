@@ -29,6 +29,12 @@ import engine.habitant.besoin.Besoins;
  * Utilise deux graphiques JFreeChart (comme vu en cours) :
  * 1. PieChart → répartition des états psychologiques réels
  * 2. BarChart horizontal → moyennes des besoins vitaux
+ *
+ * [AJOUT - Modèle SIR]
+ * Le camembert intègre désormais une catégorie "Informés" (dorée)
+ * permettant de mesurer directement la propagation d'une information
+ * dans la population. On observe ainsi la courbe en cloche du modèle
+ * SIR : montée rapide → pic → stabilisation selon les résistances OCEAN.
  */
 public class GraphDashboard extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -45,7 +51,7 @@ public class GraphDashboard extends JPanel {
 		));
 		setBackground(new Color(245, 245, 245));
 
-		// 1. CAMEMBERT — répartition des états
+		// 1. CAMEMBERT — répartition des états psychologiques
 		datasetEtats = new DefaultPieDataset();
 		datasetEtats.setValue("Décès",      0);
 		datasetEtats.setValue("Sommeil",    0);
@@ -56,6 +62,8 @@ public class GraphDashboard extends JPanel {
 		datasetEtats.setValue("Isolé",      0);
 		datasetEtats.setValue("Dépressif",  0);
 		datasetEtats.setValue("Burnout",    0);
+		// [AJOUT SIR] Catégorie "Informés" — porteurs d'une information active
+		datasetEtats.setValue("Informés",   0);
 
 		JFreeChart pieChart = ChartFactory.createPieChart(
 				"États", datasetEtats, false, true, false
@@ -74,6 +82,8 @@ public class GraphDashboard extends JPanel {
 		plot.setSectionPaint("Isolé",      new Color(100, 100, 150));
 		plot.setSectionPaint("Dépressif",  Color.RED);
 		plot.setSectionPaint("Burnout",    new Color(80, 0, 0));
+		// [AJOUT SIR] Couleur dorée — cohérente avec l'auréole de PaintStrategyDefaut
+		plot.setSectionPaint("Informés",   new Color(255, 215, 0));
 
 		// Labels directement sur les parts — plus besoin de légende
 		plot.setLabelGenerator(
@@ -91,7 +101,7 @@ public class GraphDashboard extends JPanel {
 		piePanel.setBackground(new Color(245, 245, 245));
 		add(piePanel, BorderLayout.NORTH);
 
-		// 2. BAR CHART HORIZONTAL — moyennes des besoins
+		// 2. BAR CHART HORIZONTAL — moyennes des besoins vitaux
 		datasetMoyennes = new DefaultCategoryDataset();
 		datasetMoyennes.setValue(0, "Moyenne", "Faim");
 		datasetMoyennes.setValue(0, "Moyenne", "Fatigue");
@@ -113,9 +123,20 @@ public class GraphDashboard extends JPanel {
 
 		org.jfree.chart.plot.CategoryPlot barPlot =
 				(org.jfree.chart.plot.CategoryPlot) barChart.getPlot();
+
+// Renderer personnalisé — couleur selon la valeur
 		org.jfree.chart.renderer.category.BarRenderer renderer =
-				(org.jfree.chart.renderer.category.BarRenderer) barPlot.getRenderer();
-		renderer.setSeriesPaint(0, new Color(100, 100, 255));
+				new org.jfree.chart.renderer.category.BarRenderer() {
+					@Override
+					public java.awt.Paint getItemPaint(int row, int column) {
+						double valeur = datasetMoyennes.getValue(row, column).doubleValue();
+						if (valeur < 30) return new Color(220, 50, 50);
+						if (valeur < 60) return new Color(255, 165, 0);
+						return new Color(50, 180, 50);
+					}
+				};
+
+		barPlot.setRenderer(renderer);
 		barPlot.getRangeAxis().setRange(0, 100);
 
 		ChartPanel barPanel = new ChartPanel(barChart);
@@ -124,11 +145,21 @@ public class GraphDashboard extends JPanel {
 		add(barPanel, BorderLayout.CENTER);
 	}
 
+	/**
+	 * Met à jour les deux graphiques à chaque tick de simulation.
+	 *
+	 * [AJOUT SIR] Comptage des habitants "informés" pour la catégorie dorée.
+	 * Cela rend la propagation mesurable quantitativement : on observe
+	 * la montée puis la descente de la courbe "Informés" en temps réel.
+	 */
 	public void updateStats(List<Habitant> habitants) {
 		if (habitants == null || habitants.isEmpty()) return;
 
 		int deces = 0, sommeil = 0, epanoui = 0, euphorique = 0;
 		int stable = 0, anxieux = 0, isole = 0, depressif = 0, burnout = 0;
+		// [AJOUT SIR]
+		int informes = 0;
+
 		int totalFaim = 0, totalFatigue = 0,
 				totalSocial = 0, totalSante = 0, totalMoral = 0;
 
@@ -143,7 +174,7 @@ public class GraphDashboard extends JPanel {
 				engine.habitant.etat.EtatHabitant etat =
 						h.getPsychologie().determinerEtat(b);
 
-				if (etat instanceof engine.habitant.etat.EtatEpanoui)        epanoui++;
+				if      (etat instanceof engine.habitant.etat.EtatEpanoui)    epanoui++;
 				else if (etat instanceof engine.habitant.etat.EtatEuphorique) euphorique++;
 				else if (etat instanceof engine.habitant.etat.EtatStable)     stable++;
 				else if (etat instanceof engine.habitant.etat.EtatAnxieux)    anxieux++;
@@ -151,6 +182,9 @@ public class GraphDashboard extends JPanel {
 				else if (etat instanceof engine.habitant.etat.EtatDepressif)  depressif++;
 				else if (etat instanceof engine.habitant.etat.EtatBurnout)    burnout++;
 			}
+
+			// [AJOUT SIR] Compte indépendamment des états — un anxieux peut être informé
+			if (h.estInforme()) informes++;
 
 			totalFaim    += b.getFaim();
 			totalFatigue += b.getFatigue();
@@ -168,6 +202,8 @@ public class GraphDashboard extends JPanel {
 		datasetEtats.setValue("Isolé",      isole);
 		datasetEtats.setValue("Dépressif",  depressif);
 		datasetEtats.setValue("Burnout",    burnout);
+		// [AJOUT SIR]
+		datasetEtats.setValue("Informés",   informes);
 
 		int taille = habitants.size();
 		datasetMoyennes.setValue(totalFaim    / taille, "Moyenne", "Faim");
