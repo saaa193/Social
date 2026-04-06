@@ -1,11 +1,10 @@
 package engine.habitant.deplacement;
 
 import config.GameConfiguration;
+import config.RandomProvider;
 import engine.habitant.Habitant;
 import engine.map.Block;
 import engine.map.Map;
-import config.RandomProvider;
-
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -13,23 +12,27 @@ import config.RandomProvider;
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
- * Déplacement extraverti : destination personnelle qui change
- * périodiquement. Toutes les constantes viennent de GameConfiguration.
+ * Déplacement extraverti : destination personnelle stockée
+ * dans l'habitant — chaque habitant a son propre compteur.
+ * Corrige le problème d'entassement dû au compteur partagé.
  */
 public class DeplacementExtraverti implements StrategieDeplacement {
 
-	private int toursAvantChangement =
-			RandomProvider.getInstance().nextInt(GameConfiguration.TOURS_AVANT_CHANGEMENT);
-
 	@Override
 	public void deplacer(Habitant habitant, Map map) {
-		toursAvantChangement--;
-		if (toursAvantChangement <= 0) {
+		// Compteur personnel — stocké dans l'habitant, pas dans la stratégie
+		int tours = habitant.getToursAvantChangement();
+		tours--;
+
+		if (tours <= 0) {
+			// Nouvelle destination aléatoire personnelle
 			int nouvelleLigne   = RandomProvider.getInstance().nextInt(map.getLineCount());
 			int nouvelleColonne = RandomProvider.getInstance().nextInt(map.getColumnCount());
 			habitant.setDestination(map.getBlock(nouvelleLigne, nouvelleColonne));
-			toursAvantChangement = GameConfiguration.TOURS_AVANT_CHANGEMENT;
+			tours = GameConfiguration.TOURS_AVANT_CHANGEMENT;
 		}
+
+		habitant.setToursAvantChangement(tours);
 		avancerVers(habitant, habitant.getDestination(), map);
 	}
 

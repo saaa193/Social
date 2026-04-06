@@ -35,17 +35,20 @@ public class GameConfiguration {
 	public static final double OCEAN_IMPACT      = 0.20;
 
 	// --- Usure naturelle des besoins (entropie du système) ---
-	public static final double USURE_FAIM    = 0.05;
-	public static final double USURE_FATIGUE = 0.04;
-	public static final double USURE_SOCIAL  = 0.03;
+	// Usure plus forte
+	public static final double USURE_FAIM    = 0.15;
+	public static final double USURE_FATIGUE = 0.12;
+	public static final double USURE_SOCIAL  = 0.10;
+
+
 
 	// --- Récupération nocturne ---
 	public static final double PROBA_FAIM_NUIT = 0.40;
 
 	// --- Seuils critiques des besoins ---
-	public static final int SEUIL_FAIM_CRITIQUE    = 30;
-	public static final int SEUIL_SOCIAL_CRITIQUE  = 30;
-	public static final int SEUIL_FATIGUE_CRITIQUE = 20;
+	public static final int SEUIL_FAIM_CRITIQUE    = 40;
+	public static final int SEUIL_SOCIAL_CRITIQUE  = 40;
+	public static final int SEUIL_FATIGUE_CRITIQUE = 30;
 
 	// --- Seuils confort des besoins ---
 	public static final int SEUIL_FAIM_BON    = 70;
@@ -53,9 +56,10 @@ public class GameConfiguration {
 	public static final int SEUIL_FATIGUE_BON = 50;
 
 	// --- Probabilités d'évolution du moral ---
-	public static final double PROBA_MORAL_BAISSE = 0.12;
-	public static final double PROBA_MORAL_REMONTE = 0.10;
-	public static final double PROBA_MORAL_BONUS   = 0.06;
+	// Moral plus difficile à maintenir
+	public static final double PROBA_MORAL_REMONTE = 0.04;
+	public static final double PROBA_MORAL_BONUS   = 0.02;
+	public static final double PROBA_MORAL_BAISSE  = 0.18;
 
 	// --- Seuil de mort ---
 	public static final double PROBA_SANTE_BAISSE = 0.15;

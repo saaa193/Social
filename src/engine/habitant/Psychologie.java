@@ -79,13 +79,18 @@ public class Psychologie {
 			return new EtatEuphorique();
 		}
 
-		// États existants
+		// Anxieux : névrosisme élevé + moral fragilisé
 		if (nevrosisme > 70 && besoins.getMoral() < 50) {
 			return new EtatAnxieux();
 		}
-		if (extraversion > 70 && besoins.getSocial() < 30) {
+
+		// Isolé : peu de liens sociaux réels (pas juste une jauge basse)
+		// Un extraverti avec peu d'amis souffre plus de l'isolement
+		if (extraversion > 50 && besoins.getSocial() < 40) {
 			return new EtatIsole();
 		}
+
+		// Épanoui : moral et social élevés
 		if (besoins.getMoral() > 70 && besoins.getSocial() > 60) {
 			return new EtatEpanoui();
 		}
