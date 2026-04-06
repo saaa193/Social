@@ -1,6 +1,8 @@
 package engine.habitant;
 
 import config.GameConfiguration;
+import config.RandomProvider;
+
 import engine.evenement.EventVisitor;
 import engine.habitant.deplacement.StrategieDeplacement;
 import engine.habitant.etat.EtatAnxieux;
@@ -257,7 +259,7 @@ public class Habitant extends MobileElement {
 			boolean noctambule = psychologie.getExtraversion() > GameConfiguration.SEUIL_NOCTAMBULE_EXTRAVERSION
 					|| psychologie.getConscience() < GameConfiguration.SEUIL_NOCTAMBULE_CONSCIENCE;
 			if (!noctambule) return;
-			if (Math.random() > GameConfiguration.PROBA_NOCTAMBULE_BOUGE) return;
+			if (RandomProvider.getInstance().nextDouble() > GameConfiguration.PROBA_NOCTAMBULE_BOUGE) return;
 		}
 
 		// Épuisement total → bloqué
@@ -266,12 +268,11 @@ public class Habitant extends MobileElement {
 		// Fatigue modérée → ralentissement progressif
 		if (besoins.getFatigue() < GameConfiguration.SEUIL_FATIGUE_LENTE) {
 			double chanceDeBouger = besoins.getFatigue() / (double) GameConfiguration.SEUIL_FATIGUE_LENTE;
-			if (Math.random() > chanceDeBouger) return;
+			if (RandomProvider.getInstance().nextDouble() > chanceDeBouger) return;
 		}
 
 		// Déprimé → ralenti mais pas immobile
-		if (getMoral() < GameConfiguration.SEUIL_DEPRESSION_MOUVEMENT
-				&& Math.random() > GameConfiguration.PROBA_DEPRIME_BOUGE) return;
+		if (RandomProvider.getInstance().nextDouble() > GameConfiguration.PROBA_DEPRIME_BOUGE) return;
 
 		// Délègue au Strategy Pattern OCEAN
 		strategieDeplacement.deplacer(this, map);

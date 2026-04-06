@@ -4,6 +4,8 @@ import config.GameConfiguration;
 import engine.habitant.Habitant;
 import engine.map.Block;
 import engine.map.Map;
+import config.RandomProvider;
+
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -17,14 +19,14 @@ import engine.map.Map;
 public class DeplacementExtraverti implements StrategieDeplacement {
 
 	private int toursAvantChangement =
-			(int)(Math.random() * GameConfiguration.TOURS_AVANT_CHANGEMENT);
+			RandomProvider.getInstance().nextInt(GameConfiguration.TOURS_AVANT_CHANGEMENT);
 
 	@Override
 	public void deplacer(Habitant habitant, Map map) {
 		toursAvantChangement--;
 		if (toursAvantChangement <= 0) {
-			int nouvelleLigne   = (int)(Math.random() * map.getLineCount());
-			int nouvelleColonne = (int)(Math.random() * map.getColumnCount());
+			int nouvelleLigne   = RandomProvider.getInstance().nextInt(map.getLineCount());
+			int nouvelleColonne = RandomProvider.getInstance().nextInt(map.getColumnCount());
 			habitant.setDestination(map.getBlock(nouvelleLigne, nouvelleColonne));
 			toursAvantChangement = GameConfiguration.TOURS_AVANT_CHANGEMENT;
 		}
@@ -36,8 +38,8 @@ public class DeplacementExtraverti implements StrategieDeplacement {
 		int ligne   = pos.getLine();
 		int colonne = pos.getColumn();
 
-		if (Math.random() < GameConfiguration.PROBA_PAS_ALEATOIRE) {
-			int direction = (int)(Math.random() * 4);
+		if (RandomProvider.getInstance().nextDouble() < GameConfiguration.PROBA_PAS_ALEATOIRE) {
+			int direction = RandomProvider.getInstance().nextInt(4);
 			if (direction == 0 && ligne > 0) ligne--;
 			else if (direction == 1 && ligne < map.getLineCount() - 1) ligne++;
 			else if (direction == 2 && colonne > 0) colonne--;
