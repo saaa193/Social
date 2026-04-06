@@ -1,5 +1,6 @@
 package engine.habitant.deplacement;
 
+import config.GameConfiguration;
 import engine.habitant.Habitant;
 import engine.map.Block;
 import engine.map.Map;
@@ -10,34 +11,30 @@ import engine.map.Map;
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
- * Déplacement anxieux : l'habitant reste proche de son domicile.
- * Il bouge peu et revient toujours vers sa position de départ.
+ * Déplacement anxieux : reste proche de son domicile.
+ * Toutes les constantes viennent de GameConfiguration.
  */
 public class DeplacementAnxieux implements StrategieDeplacement {
 
 	@Override
 	public void deplacer(Habitant habitant, Map map) {
-		// 70% du temps il reste sur place
-		if (Math.random() > 0.30) return;
+		if (Math.random() > GameConfiguration.PROBA_ANXIEUX_BOUGE) return;
 
-		// Sinon petit déplacement aléatoire mais limité
 		Block pos = habitant.getPosition();
 		Block domicile = habitant.getDomicile();
 		int ligne   = pos.getLine();
 		int colonne = pos.getColumn();
 
-		// Si trop loin du domicile (> 5 cases) → retour domicile
 		int distLigne   = Math.abs(ligne - domicile.getLine());
 		int distColonne = Math.abs(colonne - domicile.getColumn());
 
-		if (distLigne > 5 || distColonne > 5) {
-			// Retour vers le domicile
+		if (distLigne > GameConfiguration.DISTANCE_MAX_DOMICILE
+				|| distColonne > GameConfiguration.DISTANCE_MAX_DOMICILE) {
 			if (ligne < domicile.getLine()) ligne++;
 			else if (ligne > domicile.getLine()) ligne--;
 			if (colonne < domicile.getColumn()) colonne++;
 			else if (colonne > domicile.getColumn()) colonne--;
 		} else {
-			// Petit mouvement aléatoire
 			int direction = (int)(Math.random() * 4);
 			if (direction == 0 && ligne > 0) ligne--;
 			else if (direction == 1 && ligne < map.getLineCount() - 1) ligne++;

@@ -298,36 +298,31 @@ public class Habitant extends MobileElement {
 		// Mort → ne bouge pas
 		if (besoins.getSante() <= 0) return;
 
-		// Nuit → la majorité dort, mais les noctambules bougent
+		// Nuit → seuls les noctambules bougent
 		if (estLaNuit()) {
-			boolean noctambule = psychologie.getExtraversion() > 70
-					|| psychologie.getConscience() < 30;
+			boolean noctambule = psychologie.getExtraversion() > GameConfiguration.SEUIL_NOCTAMBULE_EXTRAVERSION
+					|| psychologie.getConscience() < GameConfiguration.SEUIL_NOCTAMBULE_CONSCIENCE;
 			if (!noctambule) return;
-			if (Math.random() > 0.50) return;
+			if (Math.random() > GameConfiguration.PROBA_NOCTAMBULE_BOUGE) return;
 		}
 
-		// Épuisement total → seul un effondrement complet bloque
-		if (besoins.getFatigue() < 10) return;
+		// Épuisement total → bloqué
+		if (besoins.getFatigue() < GameConfiguration.SEUIL_EPUISEMENT_TOTAL) return;
 
-		// Fatigue modérée → ralentissement progressif (pas un mur)
-		if (besoins.getFatigue() < 40) {
-			double chanceDeBouger = besoins.getFatigue() / 40.0;
+		// Fatigue modérée → ralentissement progressif
+		if (besoins.getFatigue() < GameConfiguration.SEUIL_FATIGUE_LENTE) {
+			double chanceDeBouger = besoins.getFatigue() / (double) GameConfiguration.SEUIL_FATIGUE_LENTE;
 			if (Math.random() > chanceDeBouger) return;
 		}
 
 		// Déprimé → ralenti mais pas immobile
-		if (getMoral() < 20 && Math.random() > 0.50) return;
+		if (getMoral() < GameConfiguration.SEUIL_DEPRESSION_MOUVEMENT
+				&& Math.random() > GameConfiguration.PROBA_DEPRIME_BOUGE) return;
 
 		// Délègue au Strategy Pattern OCEAN
 		strategieDeplacement.deplacer(this, map);
 	}
 
-	/**
-	 * Actions de l'habitant a chaque tour : mise a jour des besoins,
-	 * evolution psychologique, contagion emotionnelle et traumatisme.
-	 *
-	 * @param estLaNuit vrai si la simulation est en periode nocturne
-	 */
 	@Override
 	protected void agir(boolean estLaNuit) {
 		besoins.vivre(estLaNuit, tauxFaim, tauxFatigue, tauxSocial, tauxRecuperation);
@@ -338,8 +333,6 @@ public class Habitant extends MobileElement {
 		psychologie.evoluer(etat, besoins);
 		psychologie.evoluerSelonReseau(relations);
 		besoins.setStrategieNutrition(psychologie.determinerStrategieNutrition());
-
-		// La stratégie de déplacement évolue avec le profil OCEAN
 		this.strategieDeplacement = psychologie.determinerStrategieDeplacement();
 
 		// Contagion émotionnelle via les liens sociaux
@@ -347,16 +340,16 @@ public class Habitant extends MobileElement {
 		if (impact != 0) {
 			for (Liens l : relations) {
 				Habitant proche = l.getPartenaire();
-				double facteurSexe = sexe.equals("Femme") ? 1.2 : 0.9;
-				int impactModule = (int) (impact * (l.getForce() / 100.0) * facteurSexe);
+				int impactModule = (int)(impact * (l.getForce() / 100.0));
+
 				if (impactModule < 0) {
 					if (proche.getPsychologie().estVulnerable())
-						impactModule = (int) (impactModule * 1.5);
+						impactModule = (int)(impactModule * GameConfiguration.FACTEUR_VULNERABLE);
 					if (proche.getPsychologie().estResiliant())
-						impactModule = (int) (impactModule * 0.5);
+						impactModule = (int)(impactModule * GameConfiguration.FACTEUR_RESILIENT);
 				}
 				if (impactModule > 0 && proche.getPsychologie().estResiliant())
-					impactModule = (int) (impactModule * 1.2);
+					impactModule = (int)(impactModule * GameConfiguration.FACTEUR_RESILIENT_POSITIF);
 
 				proche.getBesoins().setMoral(proche.getBesoins().getMoral() + impactModule);
 			}
@@ -365,7 +358,7 @@ public class Habitant extends MobileElement {
 		// Traumatisme si état négatif prolongé
 		if (etat instanceof EtatDepressif || etat instanceof EtatAnxieux || etat instanceof EtatBurnout) {
 			toursEtatNegatif++;
-			if (toursEtatNegatif >= 5) {
+			if (toursEtatNegatif >= GameConfiguration.TOURS_AVANT_TRAUMATISME) {
 				traumatisme.appliquer(this, resistanceCollective);
 				toursEtatNegatif = 0;
 			}
