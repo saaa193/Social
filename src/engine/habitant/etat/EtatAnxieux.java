@@ -16,8 +16,12 @@ public class EtatAnxieux implements EtatHabitant {
 
 	@Override
 	public void appliquer(Habitant habitant) {
-		habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() - 1);
-		habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - 1);
+		int malus = 1 + (habitant.getNevrosisme() - 70) / 10;
+		if (malus < 1) {
+			malus = 1;
+		}
+		habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() - malus);
+		habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - malus);
 	}
 
 	public <T> T accept(EtatVisitor<T> visitor) {

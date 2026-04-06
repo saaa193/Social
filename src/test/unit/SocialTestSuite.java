@@ -18,7 +18,8 @@ import org.junit.runners.Suite;
 		TestEvenement.class,
 		TestPsychologie.class,
 		TestTraumatisme.class,
-		TestLiens.class
+		TestLiens.class,
+		TestCalculateurInteraction.class
 })
 public class SocialTestSuite {
 

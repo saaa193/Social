@@ -16,11 +16,12 @@ public class EtatBurnout implements EtatHabitant {
 
 	@Override
 	public void appliquer(Habitant habitant) {
-		// Épuisement total — fatigue chute rapidement
-		habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 3);
-		// Le moral s'effondre
+		int malus = 2 + (habitant.getConscience() - 80) / 10;
+		if (malus < 2) {
+			malus = 2;
+		}
+		habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - malus);
 		habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - 2);
-		// La conscience diminue — l'habitant perd sa rigueur
 		habitant.getPsychologie().diminuerConscience(2);
 	}
 

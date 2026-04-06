@@ -8,6 +8,14 @@ import engine.habitant.nutrition.NutritionNevrosee;
 import engine.habitant.nutrition.NutritionSociale;
 import engine.habitant.nutrition.StrategieNutrition;
 import engine.habitant.lien.Liens;
+import engine.habitant.biais.BiaisCognitif;
+import engine.habitant.biais.BiaisConfirmation;
+import engine.habitant.biais.BiaisNegatif;
+import engine.habitant.biais.BiaisOptimisme;
+import engine.habitant.adaptation.AdaptationEmotionnelle;
+import engine.habitant.adaptation.AdaptationEvitement;
+import engine.habitant.adaptation.AdaptationRationnelle;
+import engine.habitant.adaptation.StrategieAdaptation;
 
 import java.util.List;
 
@@ -151,6 +159,35 @@ public class Psychologie {
 			return new NutritionNevrosee();
 		}
 		return new NutritionSociale();
+	}
+
+	/**
+	 * Retourne le biais cognitif selon le profil OCEAN dominant.
+	 * Calquee sur determinerStrategieNutrition().
+	 */
+	public BiaisCognitif determinerBiais() {
+		if (nevrosisme > 65) {
+			return new BiaisNegatif();
+		}
+		if (agreabilite > 65) {
+			return new BiaisOptimisme();
+		}
+		return new BiaisConfirmation();
+	}
+
+	/**
+	 * Retourne la strategie d'adaptation au stress selon le profil OCEAN.
+	 * Calquee sur determinerStrategieNutrition() du prof.
+	 * Modele transactionnel du stress de Lazarus (1984).
+	 */
+	public StrategieAdaptation determinerStrategieAdaptation() {
+		if (conscience > 65) {
+			return new AdaptationRationnelle();
+		}
+		if (agreabilite > 65) {
+			return new AdaptationEmotionnelle();
+		}
+		return new AdaptationEvitement();
 	}
 
 	/**

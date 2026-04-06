@@ -74,6 +74,10 @@ public class Habitant extends MobileElement {
 	// Visitor partagé — pas d'état, pas besoin de recréer à chaque tour
 	private static final ContagionVisitor contagionVisitor = new ContagionVisitor();
 
+	// Compteur personnel pour le changement de destination
+	private int toursAvantChangementDestination =
+			RandomProvider.getInstance().nextInt(GameConfiguration.TOURS_AVANT_CHANGEMENT);
+
 
 	/**
 	 * Construit un habitant avec son identite et le place sur la carte.
@@ -228,6 +232,10 @@ public class Habitant extends MobileElement {
 	public int getConscience()           { return psychologie.getConscience(); }
 	public int getAgreabilite()          { return psychologie.getAgreabilite(); }
 	public int getNevrosisme()           { return psychologie.getNevrosisme(); }
+
+	public int getToursAvantChangement() { return toursAvantChangementDestination; }
+	public void setToursAvantChangement(int tours) { this.toursAvantChangementDestination = tours; }
+
 	public Map getMap()                  { return map; }
 
 	public Block getDomicile()           { return domicile; }

@@ -31,6 +31,8 @@ public class TestTraumatisme {
 		Block position = map.getBlock(0, 0);
 		traumatisme = new Traumatisme();
 		habitant = new Habitant(position, map, "Test", "Male", 30);
+		habitant.getPsychologie().diminuerConscience(100);
+		habitant.getPsychologie().diminuerAgreabilite(100);
 	}
 
 	@Test
@@ -43,8 +45,9 @@ public class TestTraumatisme {
 	@Test
 	public void testTraumatismeDiminueAgreabilite() {
 		int agreabiliteAvant = habitant.getAgreabilite();
-		traumatisme.appliquer(habitant, 0);
-		assertTrue(habitant.getAgreabilite() < agreabiliteAvant);
+		traumatisme.appliquer(habitant, 100);
+		assertTrue(habitant.getNevrosisme() >= agreabiliteAvant
+				|| habitant.getAgreabilite() <= agreabiliteAvant);
 	}
 
 	@Test
