@@ -10,30 +10,22 @@ import engine.map.Map;
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
- * Déplacement stable : mouvement aléatoire dans les 4 directions
- * pour un habitant psychologiquement stable.
+ * Déplacement stable : mouvement aléatoire dans les 4 directions.
  */
 public class DeplacementStable implements StrategieDeplacement {
 
 	@Override
 	public void deplacer(Habitant habitant, Map map) {
-		// Choix aléatoire d'une direction (0=haut, 1=bas, 2=gauche, 3=droite)
-		int direction = (int) (Math.random() * 4);
+		int direction = (int)(Math.random() * 4);
 
 		Block pos = habitant.getPosition();
-		int ligne = pos.getLine();
+		int ligne   = pos.getLine();
 		int colonne = pos.getColumn();
 
-		// On vérifie les bords avant de bouger
-		if (direction == 0 && !map.isOnTop(pos)) {
-			ligne--;
-		} else if (direction == 1 && !map.isOnBottom(pos)) {
-			ligne++;
-		} else if (direction == 2 && !map.isOnLeftBorder(pos)) {
-			colonne--;
-		} else if (direction == 3 && !map.isOnRightBorder(pos)) {
-			colonne++;
-		}
+		if (direction == 0 && !map.isOnTop(pos)) ligne--;
+		else if (direction == 1 && !map.isOnBottom(pos)) ligne++;
+		else if (direction == 2 && !map.isOnLeftBorder(pos)) colonne--;
+		else if (direction == 3 && !map.isOnRightBorder(pos)) colonne++;
 
 		habitant.setPosition(map.getBlock(ligne, colonne));
 	}
