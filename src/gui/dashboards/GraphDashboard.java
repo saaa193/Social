@@ -24,19 +24,16 @@ import engine.habitant.besoin.Besoins;
  * Genie Logiciel - Projet SOCIAL
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
- * <p>
+ *
  * GraphDashboard : Visualisation statistique de la population.
  * Utilise deux graphiques JFreeChart (comme vu en cours) :
- * 1. PieChart → répartition des états (Bonheur, Détresse, etc.)
- * 2. BarChart horizontal → moyennes des besoins vitaux de la population
+ * 1. PieChart → répartition des états psychologiques réels
+ * 2. BarChart horizontal → moyennes des besoins vitaux
  */
 public class GraphDashboard extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	// Dataset du camembert (états)
 	private DefaultPieDataset datasetEtats;
-
-	// Dataset du bar chart horizontal (moyennes des besoins)
 	private DefaultCategoryDataset datasetMoyennes;
 
 	public GraphDashboard() {
@@ -61,11 +58,13 @@ public class GraphDashboard extends JPanel {
 		datasetEtats.setValue("Burnout",    0);
 
 		JFreeChart pieChart = ChartFactory.createPieChart(
-				"États", datasetEtats, true, true, false
+				"États", datasetEtats, false, true, false
 		);
+
 		org.jfree.chart.plot.PiePlot plot =
 				(org.jfree.chart.plot.PiePlot) pieChart.getPlot();
 
+		// Couleurs par état — cohérentes avec CouleurVisitor
 		plot.setSectionPaint("Décès",      Color.BLACK);
 		plot.setSectionPaint("Sommeil",    Color.GRAY);
 		plot.setSectionPaint("Épanoui",    new Color(128, 0, 128));
@@ -75,6 +74,15 @@ public class GraphDashboard extends JPanel {
 		plot.setSectionPaint("Isolé",      new Color(100, 100, 150));
 		plot.setSectionPaint("Dépressif",  Color.RED);
 		plot.setSectionPaint("Burnout",    new Color(80, 0, 0));
+
+		// Labels directement sur les parts — plus besoin de légende
+		plot.setLabelGenerator(
+				new org.jfree.chart.labels.StandardPieSectionLabelGenerator("{0}")
+		);
+
+		// Masquer les sections à 0 pour ne pas polluer le camembert
+		plot.setIgnoreZeroValues(true);
+
 		pieChart.setBackgroundPaint(new Color(245, 245, 245));
 		pieChart.setBorderVisible(false);
 
@@ -91,16 +99,13 @@ public class GraphDashboard extends JPanel {
 		datasetMoyennes.setValue(0, "Moyenne", "Santé");
 		datasetMoyennes.setValue(0, "Moyenne", "Moral");
 
-		// PlotOrientation.HORIZONTAL = barres horizontales
 		JFreeChart barChart = ChartFactory.createBarChart(
-				"Moyennes des besoins",  // titre
-				"Besoin",                // axe catégories
-				"Valeur (0-100)",        // axe valeurs
+				"Moyennes des besoins",
+				"Besoin",
+				"Valeur (0-100)",
 				datasetMoyennes,
 				PlotOrientation.HORIZONTAL,
-				false,
-				true,
-				false
+				false, true, false
 		);
 
 		barChart.setBackgroundPaint(new Color(245, 245, 245));
@@ -110,38 +115,20 @@ public class GraphDashboard extends JPanel {
 				(org.jfree.chart.plot.CategoryPlot) barChart.getPlot();
 		org.jfree.chart.renderer.category.BarRenderer renderer =
 				(org.jfree.chart.renderer.category.BarRenderer) barPlot.getRenderer();
-
 		renderer.setSeriesPaint(0, new Color(100, 100, 255));
-
-		// Axe des valeurs limité à 0-100
 		barPlot.getRangeAxis().setRange(0, 100);
 
 		ChartPanel barPanel = new ChartPanel(barChart);
-		barPanel.setPreferredSize(
-				new Dimension(GameConfiguration.MENU_RIGHT_WIDTH, 200)
-		);
+		barPanel.setPreferredSize(new Dimension(GameConfiguration.MENU_RIGHT_WIDTH, 200));
 		barPanel.setBackground(new Color(245, 245, 245));
 		add(barPanel, BorderLayout.CENTER);
 	}
 
-	/**
-	 * Mise à jour des deux graphiques à chaque tour.
-	 * Appelée depuis MainGUI.run() → graph.updateStats(habitants)
-	 */
 	public void updateStats(List<Habitant> habitants) {
 		if (habitants == null || habitants.isEmpty()) return;
 
-		// Comptage par état psychologique réel — via determinerEtat()
-		int deces      = 0;
-		int sommeil    = 0;  // fatigue < 20 — état physique, pas psychologique
-		int epanoui    = 0;
-		int euphorique = 0;
-		int stable     = 0;
-		int anxieux    = 0;
-		int isole      = 0;
-		int depressif  = 0;
-		int burnout    = 0;
-
+		int deces = 0, sommeil = 0, epanoui = 0, euphorique = 0;
+		int stable = 0, anxieux = 0, isole = 0, depressif = 0, burnout = 0;
 		int totalFaim = 0, totalFatigue = 0,
 				totalSocial = 0, totalSante = 0, totalMoral = 0;
 
@@ -153,11 +140,10 @@ public class GraphDashboard extends JPanel {
 			} else if (b.getFatigue() < 20) {
 				sommeil++;
 			} else {
-				// On utilise le vrai état psychologique
 				engine.habitant.etat.EtatHabitant etat =
 						h.getPsychologie().determinerEtat(b);
 
-				if (etat instanceof engine.habitant.etat.EtatEpanoui)    epanoui++;
+				if (etat instanceof engine.habitant.etat.EtatEpanoui)        epanoui++;
 				else if (etat instanceof engine.habitant.etat.EtatEuphorique) euphorique++;
 				else if (etat instanceof engine.habitant.etat.EtatStable)     stable++;
 				else if (etat instanceof engine.habitant.etat.EtatAnxieux)    anxieux++;
@@ -173,7 +159,6 @@ public class GraphDashboard extends JPanel {
 			totalMoral   += b.getMoral();
 		}
 
-		// Mise à jour camembert avec tous les états réels
 		datasetEtats.setValue("Décès",      deces);
 		datasetEtats.setValue("Sommeil",    sommeil);
 		datasetEtats.setValue("Épanoui",    epanoui);

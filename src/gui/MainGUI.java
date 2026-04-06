@@ -249,7 +249,14 @@ public class MainGUI extends JFrame implements Runnable {
 					macro.getVirulence(),
 					macro.getVeracite()
 			);
-			// Affiche le flash info en haut de l'écran
+
+			// Feedback visuel immédiat — comme pour les événements
+			String typeInfo = macro.getVeracite() > 0.6f ? "✅ Info vérifiée" :
+					macro.getVeracite() < 0.4f ? "⚠ Rumeur" : "ℹ Info neutre";
+			String titre = typeInfo + " : " + macro.getTheme();
+			evenementDashboard.afficherEvenement(titre, manager.getHabitants().size());
+
+			// Flash info en haut
 			control.afficherFlashInfo(macro.getTheme());
 		}
 	}

@@ -108,6 +108,7 @@ public class RecapitulatifDashboard extends JDialog {
 		renderer.setSeriesPaint(1, Color.RED);
 		renderer.setSeriesPaint(2, new Color(0, 150, 0));
 		plot.setRenderer(renderer);
+		plot.getRangeAxis().setRange(0, 100);
 		chart.setBackgroundPaint(Color.WHITE);
 
 		ChartPanel panel = new ChartPanel(chart);
