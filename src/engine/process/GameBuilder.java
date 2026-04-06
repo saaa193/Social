@@ -44,7 +44,7 @@ public class GameBuilder {
 			// Création des attributs d'identité
 			String prenom = "Habitant" + i;
 			int age = 18 + (int) (Math.random() * 47);
-			String sexe = (i % 2 == 0) ? "Male" : "Female";
+			String sexe = (i % 2 == 0) ? "Homme" : "Femme";
 
 			Habitant h = new Habitant(position, map, prenom, sexe, age);
 

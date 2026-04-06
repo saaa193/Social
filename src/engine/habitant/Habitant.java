@@ -3,10 +3,7 @@ package engine.habitant;
 import config.GameConfiguration;
 import engine.evenement.EventVisitor;
 import engine.habitant.deplacement.StrategieDeplacement;
-import engine.habitant.etat.EtatAnxieux;
-import engine.habitant.etat.EtatBurnout;
-import engine.habitant.etat.EtatDepressif;
-import engine.habitant.etat.EtatHabitant;
+import engine.habitant.etat.*;
 import engine.habitant.lien.Amical;
 import engine.habitant.lien.Liens;
 import engine.MobileElement;
@@ -58,6 +55,10 @@ public class Habitant extends MobileElement {
 	private int toursEtatNegatif = 0;
 	private Traumatisme traumatisme = new Traumatisme();
 
+	// Etat precedent — pour les transitions progressives
+	private EtatHabitant etatPrecedent = new EtatStable();
+	private int toursEtatActuel = 0;
+
 	// Position de domicile — fixe toute la simulation
 	// Chaque habitant a son propre point d'ancrage spatial
 	private Block domicile;
@@ -68,6 +69,9 @@ public class Habitant extends MobileElement {
 
 	// Resistance collective — mise a jour depuis MacroDashboard via MobileElementManager
 	private int resistanceCollective = 50;
+
+	// Nombre de rencontres sociales — alimente CalculateurInteraction
+	private int nbRencontres = 0;
 
 	/**
 	 * Construit un habitant avec son identite et le place sur la carte.
@@ -125,6 +129,33 @@ public class Habitant extends MobileElement {
 	 */
 	public void acceptEvent(EventVisitor visiteurEvenement) {
 		visiteurEvenement.visit(this);
+	}
+
+	private EtatHabitant filtrerTransition(EtatHabitant etatCandidat) {
+		if (etatCandidat.getClass() == etatPrecedent.getClass()) {
+			toursEtatActuel++;
+		} else {
+			toursEtatActuel = 1;
+		}
+
+		// Depressif necessite d'abord 3 tours en Anxieux
+		if (etatCandidat instanceof EtatDepressif) {
+			if (!(etatPrecedent instanceof EtatAnxieux) || toursEtatActuel < 3) {
+				etatPrecedent = new EtatAnxieux();
+				return new EtatAnxieux();
+			}
+		}
+
+		// Euphorique necessite d'abord 3 tours en Epanoui
+		if (etatCandidat instanceof EtatEuphorique) {
+			if (!(etatPrecedent instanceof EtatEpanoui) || toursEtatActuel < 3) {
+				etatPrecedent = new EtatEpanoui();
+				return new EtatEpanoui();
+			}
+		}
+
+		etatPrecedent = etatCandidat;
+		return etatCandidat;
 	}
 
 	/**
@@ -238,6 +269,21 @@ public class Habitant extends MobileElement {
 		this.resistanceCollective = resistance;
 	}
 
+	/**
+	 * Incremente le compteur de rencontres sociales.
+	 * Utilise par CalculateurInteraction pour moduler la confiance.
+	 */
+	public void incrementerRencontres() {
+		this.nbRencontres++;
+	}
+
+	/**
+	 * Retourne le nombre de rencontres sociales de l'habitant.
+	 */
+	public int getNbRencontres() {
+		return nbRencontres;
+	}
+
 	@Override
 	public String toString() {
 		return prenom + " (" + sexe + ", " + age + " ans) - Moral: " + getMoral();
@@ -281,7 +327,8 @@ public class Habitant extends MobileElement {
 	protected void agir(boolean estLaNuit) {
 		besoins.vivre(estLaNuit, tauxFaim, tauxFatigue, tauxSocial, tauxRecuperation);
 
-		EtatHabitant etat = psychologie.determinerEtat(besoins);
+		EtatHabitant etatCandidat = psychologie.determinerEtat(besoins);
+		EtatHabitant etat = filtrerTransition(etatCandidat);
 		etat.appliquer(this);
 		psychologie.evoluer(etat, besoins);
 		psychologie.evoluerSelonReseau(relations);
