@@ -75,12 +75,12 @@ public class InformationTransmission {
 			// Effet de la véracité sur les traits OCEAN
 			if (veracite > 0.6f) {
 				// Information vraie → rassure, renforce la confiance
-				cible.getBesoins().setMoral(cible.getBesoins().getMoral() + 5);
+				cible.getBesoins().setMoral(cible.getBesoins().getMoral() + 15);
 				// L'ouverture augmente — on fait confiance aux infos fiables
 				cible.getPsychologie().augmenterOuverture(1);
 			} else if (veracite < 0.4f) {
 				// Rumeur → anxiété et méfiance
-				cible.getBesoins().setMoral(cible.getBesoins().getMoral() - 5);
+				cible.getBesoins().setMoral(cible.getBesoins().getMoral() - 15);
 				// Le névrosisme augmente — la rumeur fragilise
 				cible.getPsychologie().augmenterNevrosisme(2);
 				// L'agréabilité diminue — on se méfie des autres

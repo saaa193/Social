@@ -10,6 +10,7 @@ import engine.habitant.besoin.Besoins;
 import engine.habitant.etat.EtatAnxieux;
 import engine.habitant.etat.EtatBurnout;
 import engine.habitant.etat.EtatDepressif;
+import engine.habitant.etat.EtatEpanoui;
 import engine.habitant.etat.EtatHabitant;
 import engine.habitant.etat.EtatStable;
 import engine.habitant.nutrition.NutritionSociale;
@@ -31,6 +32,12 @@ public class TestPsychologie {
 	@Before
 	public void initialiser() {
 		besoins = new Besoins(new NutritionSociale());
+		// Valeurs neutres — ni trop hautes ni trop basses
+		// pour éviter de tomber dans EtatEpanoui ou EtatDepressif
+		besoins.setMoral(50);
+		besoins.setSocial(50);
+		besoins.setFatigue(50);
+		besoins.setFaim(50);
 	}
 
 	@Test
@@ -59,10 +66,21 @@ public class TestPsychologie {
 
 	@Test
 	public void testEtatStable() {
+		// Profil neutre — aucun seuil dépassé → EtatStable
 		Psychologie psychologie = new Psychologie(50, 50, 50, 50, 50);
 		besoins.setMoral(50);
 		besoins.setSocial(50);
 		EtatHabitant etat = psychologie.determinerEtat(besoins);
 		assertTrue(etat instanceof EtatStable);
+	}
+
+	@Test
+	public void testEtatEpanoui() {
+		// Moral et social élevés → EtatEpanoui
+		Psychologie psychologie = new Psychologie(50, 50, 50, 50, 50);
+		besoins.setMoral(80);
+		besoins.setSocial(75);
+		EtatHabitant etat = psychologie.determinerEtat(besoins);
+		assertTrue(etat instanceof EtatEpanoui);
 	}
 }

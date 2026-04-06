@@ -16,7 +16,7 @@ public class EvenementFactory {
             case "Tempête Urbaine":    return new EventTempete();
             case "Festival de Quartier": return new EventFestival();
             case "Crise Économique":   return new EventCrise();
-            case "Semaine Culturelle": return new EventFestival();
+            case "Semaine Culturelle": return new EventCulturel();
             case "Épidémie":           return new EventEpidemie();
             default:
                 throw new IllegalArgumentException("Événement inconnu : " + nomEvenement);
