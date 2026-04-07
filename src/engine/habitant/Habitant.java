@@ -57,6 +57,9 @@ public class Habitant extends MobileElement {
 	// Compteur de tours depuis réception de l'information
 	private int toursDepuisInformation = 0;
 
+	private int nbRencontres = 0;
+
+
 	// Réseau social
 	private List<Liens> relations = new ArrayList<Liens>();
 
@@ -249,6 +252,9 @@ public class Habitant extends MobileElement {
 	public int getConscience()           { return psychologie.getConscience(); }
 	public int getAgreabilite()          { return psychologie.getAgreabilite(); }
 	public int getNevrosisme()           { return psychologie.getNevrosisme(); }
+
+	public int getNbRencontres() { return nbRencontres; }
+	public void incrementerRencontres() { this.nbRencontres++; }
 
 	public int getToursAvantChangement() { return toursAvantChangementDestination; }
 	public void setToursAvantChangement(int tours) { this.toursAvantChangementDestination = tours; }

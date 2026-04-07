@@ -108,9 +108,7 @@ public class InformationTransmission {
 				impact = (int) (impact * amplification);
 			}
 
-			BiaisCognitif biais = cible.getPsychologie().determinerBiais();
-			int impactFiltre = biais.filtrerImpact(impact, veracite);
-			cible.getBesoins().setMoral(cible.getBesoins().getMoral() + impactFiltre);
+			cible.getBesoins().setMoral(cible.getBesoins().getMoral() + impact);
 
 			// 3. Effet de la véracité sur les traits OCEAN
 			if (veracite > 0.6f) {
