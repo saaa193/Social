@@ -1,7 +1,6 @@
 package engine.analyse;
 
 import engine.habitant.Habitant;
-import engine.habitant.lien.Liens;
 import java.util.List;
 
 /**
@@ -17,29 +16,26 @@ import java.util.List;
  */
 public class CohesionSociale implements IndicateurMacro {
 
-    @Override
-    public double calculer(List<Habitant> habitants) {
-        if (habitants.size() < 2) return 0.0;
+	@Override
+	public double calculer(List<Habitant> habitants) {
+		if (habitants.size() < 2) return 0.0;
 
-        // Nombre réel de liens dans toute la population
-        int liensReels = 0;
-        for (Habitant h : habitants) {
-            if (h.getRelation() != null) {
-                liensReels += h.getRelation().size();
-            }
-        }
-        // Chaque lien est compté deux fois (A→B et B→A)
-        liensReels = liensReels / 2;
+		int liensReels = 0;
+		for (Habitant h : habitants) {
+			if (h.getRelation() != null) {
+				liensReels += h.getRelation().size();
+			}
+		}
+		liensReels = liensReels / 2;
 
-        // Nombre maximum possible : n*(n-1)/2
-        int n = habitants.size();
-        int liensMax = (n * (n - 1)) / 2;
+		int n = habitants.size();
+		int liensMax = (n * (n - 1)) / 2;
 
-        return (double) liensReels / liensMax;
-    }
+		return (double) liensReels / liensMax;
+	}
 
-    @Override
-    public String getNom() {
-        return "Cohésion sociale";
-    }
+	@Override
+	public String getNom() {
+		return "Cohésion sociale";
+	}
 }

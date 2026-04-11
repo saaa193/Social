@@ -1,5 +1,6 @@
 package engine.habitant;
 
+import config.RandomProvider;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,10 +9,8 @@ import java.util.List;
  * Genie Logiciel - Projet SOCIAL
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
- * <p>
- * Groupe : Représente un groupe social d'habitants.
- * Un groupe se forme naturellement quand plusieurs habitants
- * sont connectés entre eux via des liens sociaux.
+ *
+ * Groupe : représente un groupe social d'habitants.
  * Le leader est l'habitant avec l'extraversion + agréabilité les plus élevées.
  */
 public class Groupe {
@@ -19,8 +18,7 @@ public class Groupe {
 	private List<Habitant> membres = new ArrayList<Habitant>();
 	private Habitant leader;
 
-	public Groupe() {
-	}
+	public Groupe() {}
 
 	/**
 	 * Ajoute un membre au groupe et recalcule le leader.
@@ -32,11 +30,6 @@ public class Groupe {
 		}
 	}
 
-	/**
-	 * Détermine le leader du groupe.
-	 * Le leader est celui qui a le score extraversion + agréabilité le plus élevé.
-	 * Ancré dans le Big Five : l'extraversion = influence sociale naturelle.
-	 */
 	private void actualiserLeader() {
 		if (membres.isEmpty()) return;
 
@@ -56,7 +49,6 @@ public class Groupe {
 
 	/**
 	 * Le leader influence les traits OCEAN des membres selon la force d'influence.
-	 * Appelee a chaque tour depuis GestionnaireGroupes.
 	 *
 	 * @param forceInfluence la force d'influence du leader (0 a 10)
 	 */
@@ -66,9 +58,8 @@ public class Groupe {
 		for (Habitant membre : membres) {
 			if (membre == leader) continue;
 
-			// Influence psychologique OCEAN — modulee par le slider
 			double probabilite = forceInfluence / 10.0 * 0.20;
-			if (Math.random() < probabilite) {
+			if (RandomProvider.getInstance().nextDouble() < probabilite) {
 				if (leader.getExtraversion() > 70) {
 					membre.getPsychologie().augmenterExtraversion(1);
 				}
@@ -80,11 +71,10 @@ public class Groupe {
 				}
 			}
 
-			// Deplacement autour du leader — inchange
 			int ligne = leader.getPosition().getLine();
 			int colonne = leader.getPosition().getColumn();
 
-			int direction = (int) (Math.random() * 4);
+			int direction = RandomProvider.getInstance().nextInt(4);
 
 			if (direction == 0 && !membre.getMap().isOnTop(leader.getPosition())) {
 				ligne--;
@@ -100,15 +90,7 @@ public class Groupe {
 		}
 	}
 
-	public List<Habitant> getMembres() {
-		return membres;
-	}
-
-	public Habitant getLeader() {
-		return leader;
-	}
-
-	public int getTaille() {
-		return membres.size();
-	}
+	public List<Habitant> getMembres() { return membres; }
+	public Habitant getLeader() { return leader; }
+	public int getTaille() { return membres.size(); }
 }

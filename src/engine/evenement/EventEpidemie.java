@@ -1,5 +1,6 @@
 package engine.evenement;
 
+import config.RandomProvider;
 import engine.habitant.Habitant;
 import engine.habitant.lien.Liens;
 import java.util.List;
@@ -18,58 +19,50 @@ import java.util.List;
  */
 public class EventEpidemie implements EvenementSimulation, EventVisitor {
 
-    @Override
-    public boolean estConcerne(Habitant h) {
-        // Les premiers touchés sont les plus vulnérables
-        return h.getPsychologie().estVulnerable()
-                || h.getNevrosisme() > 60;
-    }
+	@Override
+	public boolean estConcerne(Habitant h) {
+		return h.getPsychologie().estVulnerable()
+				|| h.getNevrosisme() > 60;
+	}
 
-    @Override
-    public void appliquer(Habitant h) {
-        // On infecte l'habitant
-        h.acceptEvent(this);
+	@Override
+	public void appliquer(Habitant h) {
+		h.acceptEvent(this);
+		propagerViaLiens(h);
+	}
 
-        // Puis on propage via ses liens — cœur du mécanisme
-        propagerViaLiens(h);
-    }
+	@Override
+	public void visit(Habitant habitant) {
+		habitant.getBesoins().setSante(habitant.getBesoins().getSante() - 20);
+		habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 25);
+		habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - 15);
+		habitant.getPsychologie().augmenterNevrosisme(5);
+	}
 
-    @Override
-    public void visit(Habitant habitant) {
-        // Impact direct sur la santé et le moral
-        habitant.getBesoins().setSante(habitant.getBesoins().getSante() - 20);
-        habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 25);
-        habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - 15);
-        habitant.getPsychologie().augmenterNevrosisme(5);
-    }
+	/**
+	 * Propage l'épidémie via le réseau de liens sociaux.
+	 * Plus le lien est fort, plus la contagion est probable.
+	 * Les résilients résistent à la propagation.
+	 */
+	private void propagerViaLiens(Habitant habitant) {
+		List<Liens> relations = habitant.getRelation();
+		if (relations == null) return;
 
-    /**
-     * Propage l'épidémie via le réseau de liens sociaux.
-     * Plus le lien est fort, plus la contagion est probable.
-     * Les résilients résistent à la propagation.
-     */
-    private void propagerViaLiens(Habitant habitant) {
-        List<Liens> relations = habitant.getRelation();
-        if (relations == null) return;
+		for (Liens lien : relations) {
+			Habitant proche = lien.getPartenaire();
+			if (proche.getBesoins().getSante() <= 0) continue;
 
-        for (Liens lien : relations) {
-            Habitant proche = lien.getPartenaire();
-            if (proche.getBesoins().getSante() <= 0) continue;
+			double probaContagion = lien.getForce() / 100.0 * 0.6;
 
-            // Probabilité de contagion selon la force du lien
-            double probaContagion = lien.getForce() / 100.0 * 0.6;
+			if (proche.getPsychologie().estResiliant()) {
+				probaContagion *= 0.5;
+			}
 
-            // Les résilients ont 50% de chance en moins d'être contaminés
-            if (proche.getPsychologie().estResiliant()) {
-                probaContagion *= 0.5;
-            }
-
-            if (config.RandomProvider.getInstance().nextDouble() < probaContagion) {
-                // Effet atténué sur les proches — pas aussi fort que le foyer
-                proche.getBesoins().setSante(proche.getBesoins().getSante() - 10);
-                proche.getBesoins().setFatigue(proche.getBesoins().getFatigue() - 15);
-                proche.getBesoins().setMoral(proche.getBesoins().getMoral() - 10);
-            }
-        }
-    }
+			if (RandomProvider.getInstance().nextDouble() < probaContagion) {
+				proche.getBesoins().setSante(proche.getBesoins().getSante() - 10);
+				proche.getBesoins().setFatigue(proche.getBesoins().getFatigue() - 15);
+				proche.getBesoins().setMoral(proche.getBesoins().getMoral() - 10);
+			}
+		}
+	}
 }

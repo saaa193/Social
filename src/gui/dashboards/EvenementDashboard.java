@@ -8,6 +8,7 @@ import java.awt.Font;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.util.List;
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -29,6 +30,8 @@ public class EvenementDashboard extends JPanel {
 	private JLabel lblTitre    = new JLabel("AUCUN EVENEMENT", JLabel.CENTER);
 	private JLabel lblSousTitre = new JLabel("La ville est calme pour le moment.", JLabel.CENTER);
 	private JLabel lblImpact   = new JLabel(" ", JLabel.CENTER);
+
+	private int toursEcoules = 0;
 
 	public EvenementDashboard() {
 		setLayout(new BorderLayout(0, 4));
@@ -87,10 +90,18 @@ public class EvenementDashboard extends JPanel {
 	 * Chaque tour = 10 minutes simulees.
 	 * Retour a l'etat calme quand minutesRestantes atteint zero.
 	 */
-	public void nextTour() {
+	public void nextTour(List<engine.habitant.Habitant> habitants) {
 		if (minutesRestantes > 0) {
-			minutesRestantes -= 10;
-			if (minutesRestantes <= 0) {
+			int nbInformes = 0;
+			for (engine.habitant.Habitant h : habitants) {
+				if (h.estInforme()) nbInformes++;
+			}
+			lblSousTitre.setText(nbInformes + " habitants affectés");
+
+			toursEcoules++;
+
+			if (nbInformes == 0 || toursEcoules >= 60) {
+				toursEcoules = 0;
 				minutesRestantes = 0;
 				reinitialiser();
 			}

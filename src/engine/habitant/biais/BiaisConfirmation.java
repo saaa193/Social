@@ -12,8 +12,8 @@ package engine.habitant.biais;
  */
 public class BiaisConfirmation implements BiaisCognitif {
 
-	private static final float SEUIL_VERACITE    = 0.60f;
-	private static final double FACTEUR_CREDIBLE  = 1.2;
+	private static final float SEUIL_VERACITE = 0.60f;
+	private static final double FACTEUR_CREDIBLE = 1.2;
 	private static final double FACTEUR_INCREDULE = 0.1;
 
 	@Override

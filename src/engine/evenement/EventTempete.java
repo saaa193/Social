@@ -17,7 +17,6 @@ public class EventTempete implements EvenementSimulation, EventVisitor {
 
 	@Override
 	public boolean estConcerne(Habitant h) {
-		// Tout le monde est concerné par une tempête
 		return true;
 	}
 

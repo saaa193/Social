@@ -2,8 +2,9 @@ package engine.habitant;
 
 import config.GameConfiguration;
 import config.RandomProvider;
-
+import engine.MobileElement;
 import engine.evenement.EventVisitor;
+import engine.habitant.besoin.Besoins;
 import engine.habitant.deplacement.StrategieDeplacement;
 import engine.habitant.etat.EtatAnxieux;
 import engine.habitant.etat.EtatBurnout;
@@ -11,13 +12,10 @@ import engine.habitant.etat.EtatDepressif;
 import engine.habitant.etat.EtatHabitant;
 import engine.habitant.lien.Amical;
 import engine.habitant.lien.Liens;
-import engine.MobileElement;
 import engine.habitant.lien.Professionnel;
 import engine.habitant.visitor.ContagionVisitor;
 import engine.map.Block;
-import engine.habitant.besoin.Besoins;
 import engine.map.Map;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,79 +26,44 @@ import java.util.List;
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
  * Représente un habitant de la simulation avec ses besoins et son profil OCEAN.
- * Hérite de MobileElement — pattern Template Method du prof :
- * executerTour() est fixé, seDeplacer() et agir() sont délégués.
- *
- * [AJOUT] Champ estInforme : modélise l'état "Informé" du modèle SIR adapté.
- * Un habitant peut être porteur d'une information et la propager via ses liens.
- * Rendu visible par une auréole dorée dans PaintStrategyDefaut.
+ * Hérite de MobileElement — pattern Template Method.
  */
 public class Habitant extends MobileElement {
 
-	// Identité
 	private String prenom;
 	private String sexe;
 	private int age;
 
-	// Besoins vitaux
 	private Besoins besoins;
-
-	// Profil psychologique OCEAN
 	private Psychologie psychologie;
 
-	// Taux de dégradation personnels (calculés depuis OCEAN)
 	private double tauxFaim;
 	private double tauxFatigue;
 	private double tauxSocial;
 	private double tauxRecuperation;
 
-	// Compteur de tours depuis réception de l'information
 	private int toursDepuisInformation = 0;
-
 	private int nbRencontres = 0;
 
-
-	// Réseau social
 	private List<Liens> relations = new ArrayList<Liens>();
-
-	// Pattern Strategy : comportement de déplacement injecté selon OCEAN
 	private StrategieDeplacement strategieDeplacement;
 
-	// Compteur de tours dans un état négatif → déclenche un traumatisme
 	private int toursEtatNegatif = 0;
 	private Traumatisme traumatisme = new Traumatisme();
 
-	// Position de domicile — fixe toute la simulation
-	// Chaque habitant a son propre point d'ancrage spatial
 	private Block domicile;
-
-	// Destination courante — change périodiquement selon le profil OCEAN
-	// L'extraverti explore, l'anxieux reste près de chez lui
 	private Block destination;
 
-	// Resistance collective — mise a jour depuis MacroDashboard via MobileElementManager
 	private int resistanceCollective = 50;
 
-	// Visitor partagé — pas d'état, pas besoin de recréer à chaque tour
 	private static final ContagionVisitor contagionVisitor = new ContagionVisitor();
 
-	// Compteur personnel pour le changement de destination
-	private int toursAvantChangementDestination =
-			RandomProvider.getInstance().nextInt(GameConfiguration.TOURS_AVANT_CHANGEMENT);
+	private int toursAvantChangementDestination = RandomProvider.getInstance().nextInt(GameConfiguration.TOURS_AVANT_CHANGEMENT);
 
-	/**
-	 * [AJOUT - Modèle SIR]
-	 * Indique si cet habitant est actuellement porteur d'une information.
-	 * Correspond à l'état "I" (Infected/Informé) du modèle SIR adapté.
-	 * Rendu visible visuellement par une auréole dorée dans PaintStrategyDefaut.
-	 */
 	private boolean estInforme = false;
-
 
 	/**
 	 * Construit un habitant avec son identite et le place sur la carte.
-	 * Initialise le profil OCEAN aleatoirement et calcule les taux
-	 * de degradation personnels depuis les traits de personnalite.
 	 *
 	 * @param position la case initiale de l'habitant sur la carte
 	 * @param map      la carte de la simulation
@@ -114,21 +77,17 @@ public class Habitant extends MobileElement {
 		this.sexe = sexe;
 		this.age = age;
 
-		// Le domicile est fixé une fois pour toutes à la position initiale
 		this.domicile = position;
-		// La destination de départ est le domicile
 		this.destination = position;
 
 		this.psychologie = new Psychologie();
 		this.besoins = new Besoins(this.psychologie.determinerStrategieNutrition());
 
-		// Légère variance initiale pour diversifier la population
-		this.besoins.setFaim(60 + (int) (Math.random() * 40));
-		this.besoins.setFatigue(50 + (int) (Math.random() * 50));
-		this.besoins.setSocial(40 + (int) (Math.random() * 60));
-		this.besoins.setMoral(40 + (int) (Math.random() * 40));
+		this.besoins.setFaim(60 + (int) (RandomProvider.getInstance().nextInt(40)));
+		this.besoins.setFatigue(50 + (int) (RandomProvider.getInstance().nextInt(50)));
+		this.besoins.setSocial(40 + (int) (RandomProvider.getInstance().nextInt(60)));
+		this.besoins.setMoral(40 + (int) (RandomProvider.getInstance().nextInt(40)));
 
-		// Calcul des taux personnels depuis OCEAN
 		this.tauxFaim = GameConfiguration.BASE_FAIM
 				- (psychologie.getConscience() / 100.0) * GameConfiguration.OCEAN_IMPACT;
 
@@ -143,21 +102,16 @@ public class Habitant extends MobileElement {
 		this.tauxRecuperation = GameConfiguration.BASE_RECUPERATION
 				- (psychologie.getNevrosisme() / 100.0) * GameConfiguration.OCEAN_IMPACT * 2;
 
-		// Stratégie de déplacement initiale selon OCEAN
 		this.strategieDeplacement = psychologie.determinerStrategieDeplacement();
 	}
 
 	/**
-	 * Pattern Visitor : L'habitant "accepte" de subir un événement.
-	 * L'événement applique ses propres règles — double dispatch.
+	 * Pattern Visitor : l'habitant accepte de subir un événement.
 	 */
 	public void acceptEvent(EventVisitor visiteurEvenement) {
 		visiteurEvenement.visit(this);
 	}
 
-	/**
-	 * Supprime tous les liens dont la force est tombée à 0.
-	 */
 	private void nettoyerLiensMorts() {
 		List<Liens> aSupprimer = new ArrayList<Liens>();
 		for (Liens l : relations) {
@@ -186,10 +140,7 @@ public class Habitant extends MobileElement {
 		}
 
 		if (!dejaConnu) {
-			// La limite compte TOUS les liens (pas juste amicaux)
-			// Plafonnée à 8 maximum, même pour les super-extravertis
 			int limiteAmis = Math.min(8, (psychologie.getExtraversion() / 15) + 2);
-
 			if (this.relations.size() < limiteAmis) {
 				int forceInitiale = calculerCompatibilite(autre);
 				Liens nouveauLien = new Amical(autre, forceInitiale);
@@ -203,10 +154,10 @@ public class Habitant extends MobileElement {
 
 	/**
 	 * Gestion d'une rencontre professionnelle.
-	 * Si deja connu → renforce le lien.
-	 * Si inconnu → cree un lien selon compatibilite OCEAN.
+	 * Si déjà connu → renforce le lien.
+	 * Si inconnu → crée un lien selon compatibilité OCEAN.
 	 *
-	 * @param autre l'habitant rencontre professionnellement
+	 * @param autre l'habitant rencontré professionnellement
 	 */
 	public void ajouterLienProfessionnel(Habitant autre) {
 		boolean dejaConnu = false;
@@ -222,7 +173,6 @@ public class Habitant extends MobileElement {
 
 		if (!dejaConnu) {
 			int limiteCollegues = Math.min(5, (psychologie.getConscience() / 20) + 1);
-
 			if (this.relations.size() < limiteCollegues) {
 				int forceInitiale = calculerCompatibilite(autre);
 				Liens nouveauLien = new Professionnel(autre, forceInitiale);
@@ -238,36 +188,30 @@ public class Habitant extends MobileElement {
 		return psychologie.calculerCompatibiliteAvec(autre.getPsychologie());
 	}
 
-	// ── Accesseurs OCEAN ────────────────────────────────────────────────────────
-
-	public List<Liens> getRelation()     { return relations; }
-	public String getPrenom()            { return prenom; }
-	public String getSexe()              { return sexe; }
-	public int getAge()                  { return age; }
-	public int getMoral()                { return besoins.getMoral(); }
-	public Besoins getBesoins()          { return besoins; }
-	public Psychologie getPsychologie()  { return psychologie; }
-	public int getExtraversion()         { return psychologie.getExtraversion(); }
-	public int getOuverture()            { return psychologie.getOuverture(); }
-	public int getConscience()           { return psychologie.getConscience(); }
-	public int getAgreabilite()          { return psychologie.getAgreabilite(); }
-	public int getNevrosisme()           { return psychologie.getNevrosisme(); }
-
+	public List<Liens> getRelation() { return relations; }
+	public String getPrenom() { return prenom; }
+	public String getSexe() { return sexe; }
+	public int getAge() { return age; }
+	public int getMoral() { return besoins.getMoral(); }
+	public Besoins getBesoins() { return besoins; }
+	public Psychologie getPsychologie() { return psychologie; }
+	public int getExtraversion() { return psychologie.getExtraversion(); }
+	public int getOuverture() { return psychologie.getOuverture(); }
+	public int getConscience() { return psychologie.getConscience(); }
+	public int getAgreabilite() { return psychologie.getAgreabilite(); }
+	public int getNevrosisme() { return psychologie.getNevrosisme(); }
 	public int getNbRencontres() { return nbRencontres; }
 	public void incrementerRencontres() { this.nbRencontres++; }
-
 	public int getToursAvantChangement() { return toursAvantChangementDestination; }
 	public void setToursAvantChangement(int tours) { this.toursAvantChangementDestination = tours; }
-
-	public Map getMap()                  { return map; }
-
-	public Block getDomicile()           { return domicile; }
-	public Block getDestination()                    { return destination; }
-	public void setDestination(Block destination)    { this.destination = destination; }
+	public Map getMap() { return map; }
+	public Block getDomicile() { return domicile; }
+	public Block getDestination() { return destination; }
+	public void setDestination(Block destination) { this.destination = destination; }
+	public boolean estInforme() { return estInforme; }
 
 	/**
 	 * Met a jour la resistance collective de la population.
-	 * Appelee depuis MobileElementManager a chaque tour.
 	 *
 	 * @param resistance la valeur du slider (0 a 100)
 	 */
@@ -275,21 +219,12 @@ public class Habitant extends MobileElement {
 		this.resistanceCollective = resistance;
 	}
 
-	// ── Accesseurs modèle SIR ───────────────────────────────────────────────────
-
 	/**
-	 * [AJOUT - Modèle SIR]
-	 * Retourne vrai si l'habitant est actuellement porteur d'une information.
-	 * Utilisé par PaintStrategyDefaut pour afficher l'auréole dorée.
+	 * Retourne vrai si l'habitant est porteur d'une information.
 	 */
-	public boolean estInforme() {
-		return estInforme;
-	}
-
 	public void vieillirInformation() {
 		if (!estInforme) return;
 		toursDepuisInformation++;
-		// Oubli après 30 tours — les consciencieux mémorisent plus longtemps
 		int seuilOubli = 3 + (psychologie.getConscience() / 10);
 		if (toursDepuisInformation > seuilOubli) {
 			estInforme = false;
@@ -299,21 +234,14 @@ public class Habitant extends MobileElement {
 
 	public void recevoirInformation() {
 		this.estInforme = true;
-		this.toursDepuisInformation = 0; // reset si reçoit à nouveau
+		this.toursDepuisInformation = 0;
 	}
-
 
 	public void devenirPatientZero() {
 		this.estInforme = true;
 		this.toursDepuisInformation = 0;
 	}
 
-
-	/**
-	 * [AJOUT - Modèle SIR]
-	 * Réinitialise l'état "informé" entre deux propagations distinctes.
-	 * Appelé par InformationTransmission au début d'une nouvelle propagation.
-	 */
 	public void reinitialiserInformation() {
 		this.estInforme = false;
 	}
@@ -323,16 +251,10 @@ public class Habitant extends MobileElement {
 		return prenom + " (" + sexe + ", " + age + " ans) - Moral: " + getMoral();
 	}
 
-	/**
-	 * Deplacement de l'habitant selon son etat et son profil OCEAN.
-	 * Delegue au Strategy Pattern pour le comportement specifique.
-	 */
 	@Override
 	protected void seDeplacer() {
-		// Mort → ne bouge pas
 		if (besoins.getSante() <= 0) return;
 
-		// Nuit → seuls les noctambules bougent
 		if (estLaNuit()) {
 			boolean noctambule = psychologie.getExtraversion() > GameConfiguration.SEUIL_NOCTAMBULE_EXTRAVERSION
 					|| psychologie.getConscience() < GameConfiguration.SEUIL_NOCTAMBULE_CONSCIENCE;
@@ -340,19 +262,15 @@ public class Habitant extends MobileElement {
 			if (RandomProvider.getInstance().nextDouble() > GameConfiguration.PROBA_NOCTAMBULE_BOUGE) return;
 		}
 
-		// Épuisement total → bloqué
 		if (besoins.getFatigue() < GameConfiguration.SEUIL_EPUISEMENT_TOTAL) return;
 
-		// Fatigue modérée → ralentissement progressif
 		if (besoins.getFatigue() < GameConfiguration.SEUIL_FATIGUE_LENTE) {
 			double chanceDeBouger = besoins.getFatigue() / (double) GameConfiguration.SEUIL_FATIGUE_LENTE;
 			if (RandomProvider.getInstance().nextDouble() > chanceDeBouger) return;
 		}
 
-		// Déprimé → ralenti mais pas immobile
 		if (RandomProvider.getInstance().nextDouble() > GameConfiguration.PROBA_DEPRIME_BOUGE) return;
 
-		// Délègue au Strategy Pattern OCEAN
 		strategieDeplacement.deplacer(this, map);
 	}
 
@@ -367,7 +285,6 @@ public class Habitant extends MobileElement {
 		besoins.setStrategieNutrition(psychologie.determinerStrategieNutrition());
 		this.strategieDeplacement = psychologie.determinerStrategieDeplacement();
 
-		// Contagion émotionnelle via les liens sociaux
 		int impact = etat.accept(contagionVisitor);
 		if (impact != 0) {
 			for (Liens l : relations) {
@@ -387,7 +304,6 @@ public class Habitant extends MobileElement {
 			}
 		}
 
-		// Traumatisme si état négatif prolongé
 		if (etat instanceof EtatDepressif || etat instanceof EtatAnxieux || etat instanceof EtatBurnout) {
 			toursEtatNegatif++;
 			if (toursEtatNegatif >= GameConfiguration.TOURS_AVANT_TRAUMATISME) {
@@ -400,6 +316,4 @@ public class Habitant extends MobileElement {
 
 		nettoyerLiensMorts();
 	}
-
-
 }

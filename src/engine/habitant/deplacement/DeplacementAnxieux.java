@@ -1,10 +1,10 @@
 package engine.habitant.deplacement;
 
 import config.GameConfiguration;
+import config.RandomProvider;
 import engine.habitant.Habitant;
 import engine.map.Block;
 import engine.map.Map;
-import config.RandomProvider;
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -23,10 +23,10 @@ public class DeplacementAnxieux implements StrategieDeplacement {
 
 		Block pos = habitant.getPosition();
 		Block domicile = habitant.getDomicile();
-		int ligne   = pos.getLine();
+		int ligne = pos.getLine();
 		int colonne = pos.getColumn();
 
-		int distLigne   = Math.abs(ligne - domicile.getLine());
+		int distLigne = Math.abs(ligne - domicile.getLine());
 		int distColonne = Math.abs(colonne - domicile.getColumn());
 
 		if (distLigne > GameConfiguration.DISTANCE_MAX_DOMICILE

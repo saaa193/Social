@@ -17,41 +17,34 @@ import java.util.Random;
  */
 public class RandomProvider {
 
-    // L'unique instance — pattern Singleton comme le prof
-    private static RandomProvider instance = new RandomProvider();
+	private static RandomProvider instance = new RandomProvider();
+	private Random random = new Random();
 
-    // Le générateur partagé par tout le projet
-    private Random random = new Random();
+	private RandomProvider() {}
 
-    // Constructeur privé — personne ne peut faire new RandomProvider()
-    private RandomProvider() {}
+	public static RandomProvider getInstance() {
+		return instance;
+	}
 
-    // Accès à l'instance unique — comme VariableRepository.getInstance()
-    public static RandomProvider getInstance() {
-        return instance;
-    }
+	/**
+	 * Fixe le seed pour rendre la simulation reproductible.
+	 * Avec le même seed, on obtient exactement la même simulation.
+	 */
+	public void setSeed(long seed) {
+		this.random = new Random(seed);
+	}
 
-    /**
-     * Fixe le seed pour rendre la simulation reproductible.
-     * Avec le même seed, on obtient exactement la même simulation.
-     */
-    public void setSeed(long seed) {
-        this.random = new Random(seed);
-    }
+	/**
+	 * Retourne un double entre 0.0 et 1.0.
+	 */
+	public double nextDouble() {
+		return random.nextDouble();
+	}
 
-    /**
-     * Retourne un double entre 0.0 et 1.0.
-     * Remplace Math.random() partout dans le projet.
-     */
-    public double nextDouble() {
-        return random.nextDouble();
-    }
-
-    /**
-     * Retourne un entier entre 0 (inclus) et bound (exclus).
-     * Remplace (int)(Math.random() * N) partout dans le projet.
-     */
-    public int nextInt(int bound) {
-        return random.nextInt(bound);
-    }
+	/**
+	 * Retourne un entier entre 0 (inclus) et bound (exclus).
+	 */
+	public int nextInt(int bound) {
+		return random.nextInt(bound);
+	}
 }
