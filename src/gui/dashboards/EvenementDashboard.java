@@ -1,6 +1,8 @@
 package gui.dashboards;
 
 import config.GameConfiguration;
+import config.RandomProvider;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -26,12 +28,10 @@ public class EvenementDashboard extends JPanel {
 
 	private int minutesRestantes = 0;
 
-	private JLabel lblIcone    = new JLabel("🗓", JLabel.CENTER);
-	private JLabel lblTitre    = new JLabel("AUCUN EVENEMENT", JLabel.CENTER);
+	private JLabel lblIcone = new JLabel("🗓", JLabel.CENTER);
+	private JLabel lblTitre = new JLabel("AUCUN EVENEMENT", JLabel.CENTER);
 	private JLabel lblSousTitre = new JLabel("La ville est calme pour le moment.", JLabel.CENTER);
-	private JLabel lblImpact   = new JLabel(" ", JLabel.CENTER);
-
-	private int toursEcoules = 0;
+	private JLabel lblImpact = new JLabel(" ", JLabel.CENTER);
 
 	public EvenementDashboard() {
 		setLayout(new BorderLayout(0, 4));
@@ -86,25 +86,25 @@ public class EvenementDashboard extends JPanel {
 	}
 
 	/**
-	 * Decremente les minutes restantes de 10 a chaque tour.
-	 * Chaque tour = 10 minutes simulees.
+	 * Met a jour l'affichage a chaque tour.
 	 * Retour a l'etat calme quand minutesRestantes atteint zero.
 	 */
 	public void nextTour(List<engine.habitant.Habitant> habitants) {
-		if (minutesRestantes > 0) {
-			int nbInformes = 0;
-			for (engine.habitant.Habitant h : habitants) {
-				if (h.estInforme()) nbInformes++;
-			}
+		if (minutesRestantes <= 0) return;
+
+		minutesRestantes--;
+
+		int nbInformes = 0;
+		for (engine.habitant.Habitant h : habitants) {
+			if (h.estInforme()) nbInformes++;
+		}
+
+		if (nbInformes > 0) {
 			lblSousTitre.setText(nbInformes + " habitants affectés");
+		}
 
-			toursEcoules++;
-
-			if (nbInformes == 0 || toursEcoules >= 60) {
-				toursEcoules = 0;
-				minutesRestantes = 0;
-				reinitialiser();
-			}
+		if (minutesRestantes <= 0) {
+			reinitialiser();
 		}
 	}
 
@@ -134,23 +134,22 @@ public class EvenementDashboard extends JPanel {
 	 * @return le nombre de tours d'affichage
 	 */
 	private int getDureeAleatoire(String nomEvenement) {
-		if (nomEvenement.equals("Offres d'Emploi")) {
-			// ~30 sec reelles a vitesse x1
-			return 500 + (int) (Math.random() * 201);
+		if (nomEvenement.equals("Tempête Urbaine")) {
+			return 120 + RandomProvider.getInstance().nextInt(61);
 		}
-		if (nomEvenement.equals("Alerte Meteo")) {
-			// ~45 sec reelles a vitesse x1
-			return 700 + (int) (Math.random() * 201);
+		if (nomEvenement.equals("Festival de Quartier")) {
+			return 180 + RandomProvider.getInstance().nextInt(61);
 		}
-		if (nomEvenement.equals("Expo Musee")) {
-			// ~1 min reelle a vitesse x1
-			return 900 + (int) (Math.random() * 201);
+		if (nomEvenement.equals("Crise Économique")) {
+			return 240 + RandomProvider.getInstance().nextInt(121);
 		}
-		if (nomEvenement.equals("Fete de Quartier")) {
-			// ~1 min 30 sec reelles a vitesse x1
-			return 1100 + (int) (Math.random() * 201);
+		if (nomEvenement.equals("Semaine Culturelle")) {
+			return 180 + RandomProvider.getInstance().nextInt(61);
 		}
-		return 500;
+		if (nomEvenement.equals("Épidémie")) {
+			return 240 + RandomProvider.getInstance().nextInt(121);
+		}
+		return 120;
 	}
 
 	/**
@@ -159,17 +158,20 @@ public class EvenementDashboard extends JPanel {
 	 * dans chaque classe Event*.
 	 */
 	private String getImpactOCEAN(String nomEvenement) {
-		if (nomEvenement.equals("Alerte Meteo")) {
-			return "Nevrosisme \u2191   Moral \u2193";
+		if (nomEvenement.equals("Tempête Urbaine")) {
+			return "Nevrosisme ↑   Moral ↓";
 		}
-		if (nomEvenement.equals("Fete de Quartier")) {
-			return "Social \u2191   Agreabilite \u2191";
+		if (nomEvenement.equals("Festival de Quartier")) {
+			return "Social ↑   Extraversion ↑";
 		}
-		if (nomEvenement.equals("Offres d'Emploi")) {
-			return "Moral \u2191   Nevrosisme \u2193";
+		if (nomEvenement.equals("Crise Économique")) {
+			return "Moral ↓   Nevrosisme ↑";
 		}
-		if (nomEvenement.equals("Expo Musee")) {
-			return "Ouverture \u2191   Moral \u2191";
+		if (nomEvenement.equals("Semaine Culturelle")) {
+			return "Ouverture ↑   Moral ↑";
+		}
+		if (nomEvenement.equals("Épidémie")) {
+			return "Sante ↓   Moral ↓";
 		}
 		return " ";
 	}

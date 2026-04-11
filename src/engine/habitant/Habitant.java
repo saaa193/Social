@@ -116,6 +116,7 @@ public class Habitant extends MobileElement {
 		List<Liens> aSupprimer = new ArrayList<Liens>();
 		for (Liens l : relations) {
 			if (l.estMort()) aSupprimer.add(l);
+			if (l.getPartenaire().getBesoins().getSante() <= 0) aSupprimer.add(l);
 		}
 		for (Liens l : aSupprimer) {
 			relations.remove(l);
@@ -276,6 +277,11 @@ public class Habitant extends MobileElement {
 
 	@Override
 	protected void agir(boolean estLaNuit) {
+		if (besoins.getSante() <= 0) {
+			relations.clear();
+			return;
+		}
+
 		besoins.vivre(estLaNuit, tauxFaim, tauxFatigue, tauxSocial, tauxRecuperation);
 
 		EtatHabitant etat = psychologie.determinerEtat(besoins);
