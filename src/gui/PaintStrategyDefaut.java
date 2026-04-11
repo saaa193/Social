@@ -68,6 +68,15 @@ public class PaintStrategyDefaut implements PaintStrategy {
 		int x1 = position.getColumn() * blockSize + blockSize / 2;
 		int y1 = position.getLine() * blockSize + blockSize / 2;
 
+		if (habitant.getBesoins().getSante() <= 0) {
+			int x = position.getColumn();
+			int y = position.getLine();
+			graphics.setColor(Color.BLACK);
+			graphics.fillOval(x * blockSize, y * blockSize, blockSize, blockSize);
+			graphics.drawOval(x * blockSize, y * blockSize, blockSize, blockSize);
+			return;
+		}
+
 		if (habitant.getRelation() != null) {
 			for (Liens lien : habitant.getRelation()) {
 				Habitant ami = lien.getPartenaire();
