@@ -150,18 +150,18 @@ public class MainGUI extends JFrame implements Runnable {
 		control.setPeriodeText(manager.getHorloge().estWeekend() ? "WEEKEND" : "SEMAINE");
 		graph.updateStats(manager.getHabitants());
 		reseau.updateReseau(manager.getHabitants());
+		MobileElementManager mem = (MobileElementManager) manager;
 		dashboard.getPaintStrategy().setFiltres(
 				reseau.afficherFamille(),
 				reseau.afficherTravail(),
 				reseau.afficherAmis()
 		);
-		MobileElementManager mem = (MobileElementManager) manager;
+		dashboard.getPaintStrategy().setToursDepuisPropagation(mem.getToursDepuisPropagation());
 		control.setMeteo(mem.isMauvaisTemps());
-		evenementDashboard.nextTour();
+		evenementDashboard.nextTour(manager.getHabitants());
 		mem.setParametres(macro.getResistance(), macro.getInfluence());
 	}
 
-	//Pattern "Listener" pour gérer les clics
 	private class StartStopAction implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -220,13 +220,13 @@ public class MainGUI extends JFrame implements Runnable {
 				MobileElementManager mem = (MobileElementManager) manager;
 
 				if (mem.isEnAttentePatientZero()) {
-					// Désigne le patient zéro
 					mem.lancerInformationDepuis(habitant);
 					evenementDashboard.afficherEvenement(
 							"Patient zéro : " + habitant.getPrenom(), 1
 					);
+					control.afficherFlashInfo(macro.getTheme());
 				} else {
-					// Comportement normal — inspection
+					// Comportement normal
 					new InspectionCitoyenModal(instance, habitant);
 				}
 			}
@@ -253,14 +253,8 @@ public class MainGUI extends JFrame implements Runnable {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			MobileElementManager mem = (MobileElementManager) manager;
-			mem.preparerPropagation(
-					macro.getTheme(),
-					macro.getVirulence(),
-					macro.getVeracite()
-			);
-			evenementDashboard.afficherEvenement(
-					"Cliquez sur un habitant pour démarrer", 0
-			);
+			mem.preparerPropagation( macro.getTheme(), macro.getVirulence(), macro.getVeracite());
+			evenementDashboard.afficherEvenement("Cliquez sur un habitant pour démarrer", 0);
 			control.afficherFlashInfo("Désignez un patient zéro !");
 		}
 	}

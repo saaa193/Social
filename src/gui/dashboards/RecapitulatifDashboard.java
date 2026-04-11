@@ -8,7 +8,6 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -21,10 +20,8 @@ import java.util.List;
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
- * RecapitulatifDashboard : Fenêtre modale affichant deux analyses :
- * 1. L'évolution psychologique jour par jour (courbes)
- * 2. Les indicateurs macroscopiques actuels (barres)
- *    calculés via AnalyseurPopulation — pattern Strategy.
+ * RecapitulatifDashboard : fenêtre modale affichant l'évolution psychologique
+ * et les indicateurs macroscopiques de la population.
  */
 public class RecapitulatifDashboard extends JDialog {
 
@@ -42,20 +39,15 @@ public class RecapitulatifDashboard extends JDialog {
 		setLayout(new BorderLayout());
 		getContentPane().setBackground(Color.WHITE);
 
-		// Panel principal avec deux graphiques empilés
 		JPanel panelPrincipal = new JPanel();
 		panelPrincipal.setLayout(new BoxLayout(panelPrincipal, BoxLayout.Y_AXIS));
 		panelPrincipal.setBackground(Color.WHITE);
 
-		// --- GRAPHIQUE 1 : Évolution psychologique ---
 		panelPrincipal.add(construireGraphiquePsycho(manager));
-
-		// --- GRAPHIQUE 2 : Indicateurs macroscopiques ---
 		panelPrincipal.add(construireGraphiqueIndicateurs(manager));
 
 		add(panelPrincipal, BorderLayout.CENTER);
 
-		// Message si pas encore de données
 		if (manager.getHistoriqueJours().isEmpty()) {
 			JLabel msg = new JLabel(
 					"Aucune donnée — lancez la simulation au moins un jour.",
@@ -65,7 +57,6 @@ public class RecapitulatifDashboard extends JDialog {
 			add(msg, BorderLayout.NORTH);
 		}
 
-		// Bouton fermer
 		JButton btnFermer = new JButton("Fermer");
 		btnFermer.addActionListener(new FermerAction());
 		JPanel bas = new JPanel();
@@ -77,20 +68,19 @@ public class RecapitulatifDashboard extends JDialog {
 	}
 
 	/**
-	 * Construit le graphique d'évolution psychologique.
-	 * Identique à l'original — aucun changement.
+	 * Construit le graphique d'évolution psychologique jour par jour.
 	 */
 	private ChartPanel construireGraphiquePsycho(MobileElementManager manager) {
-		List<String> jours      = manager.getHistoriqueJours();
+		List<String> jours = manager.getHistoriqueJours();
 		List<Double> nevrosisme = manager.getHistoriqueNevrosisme();
 		List<Double> agreabilite = manager.getHistoriqueAgreabilite();
-		List<Double> moral      = manager.getHistoriqueMoral();
+		List<Double> moral = manager.getHistoriqueMoral();
 
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		for (int i = 0; i < jours.size(); i++) {
 			String jour = jours.get(i);
-			dataset.addValue(moral.get(i),       "Moral",       jour);
-			dataset.addValue(nevrosisme.get(i),  "Névrosisme",  jour);
+			dataset.addValue(moral.get(i), "Moral", jour);
+			dataset.addValue(nevrosisme.get(i), "Névrosisme", jour);
 			dataset.addValue(agreabilite.get(i), "Agréabilité", jour);
 		}
 
@@ -118,8 +108,6 @@ public class RecapitulatifDashboard extends JDialog {
 
 	/**
 	 * Construit le graphique des indicateurs macroscopiques.
-	 * Utilise AnalyseurPopulation — pattern Strategy :
-	 * chaque indicateur calcule sa propre valeur.
 	 */
 	private ChartPanel construireGraphiqueIndicateurs(MobileElementManager manager) {
 		AnalyseurPopulation analyseur = new AnalyseurPopulation();
@@ -128,7 +116,6 @@ public class RecapitulatifDashboard extends JDialog {
 
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		for (int i = 0; i < indicateurs.size(); i++) {
-			// Valeur entre 0 et 100 pour l'affichage
 			double valeur = resultats.get(i) * 100.0;
 			dataset.addValue(valeur, "Valeur", indicateurs.get(i).getNom());
 		}

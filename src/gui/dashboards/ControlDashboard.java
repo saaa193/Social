@@ -103,7 +103,7 @@ public class ControlDashboard extends JPanel {
 	public void afficherFlashInfo(String theme) {
 		lblFlashInfo.setText("🔴 FLASH INFO : " + theme);
 		lblFlashInfo.setVisible(true);
-		Timer timer = new Timer(5000, new ResetFlashInfoAction());
+		Timer timer = new Timer(10000, new ResetFlashInfoAction());
 		timer.setRepeats(false);
 		timer.start();
 	}

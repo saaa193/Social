@@ -6,6 +6,8 @@ import engine.habitant.visitor.DiagnosticVisitor;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -161,9 +163,9 @@ public class InspectionCitoyenModal extends JDialog {
 	/**
 	 * Action du bouton Fermer.
 	 */
-	private class FermerAction implements java.awt.event.ActionListener {
+	private class FermerAction implements ActionListener {
 		@Override
-		public void actionPerformed(java.awt.event.ActionEvent e) {
+		public void actionPerformed(ActionEvent e) {
 			dispose();
 		}
 	}

@@ -18,45 +18,42 @@ import java.util.List;
  */
 public class AnalyseurPopulation {
 
-    // Liste des indicateurs — pattern Strategy
-    private List<IndicateurMacro> indicateurs = new ArrayList<IndicateurMacro>();
+	private List<IndicateurMacro> indicateurs = new ArrayList<IndicateurMacro>();
 
-    public AnalyseurPopulation() {
-        // On enregistre les indicateurs disponibles
-        indicateurs.add(new CohesionSociale());
-        indicateurs.add(new InequaliteMoral());
-        indicateurs.add(new PolarisationPopulation());
-    }
+	public AnalyseurPopulation() {
+		indicateurs.add(new CohesionSociale());
+		indicateurs.add(new InequaliteMoral());
+		indicateurs.add(new PolarisationPopulation());
+	}
 
-    /**
-     * Calcule tous les indicateurs sur la population.
-     * Retourne une liste de résultats dans le même ordre
-     * que la liste des indicateurs.
-     */
-    public List<Double> calculerTous(List<Habitant> habitants) {
-        List<Double> resultats = new ArrayList<Double>();
-        for (IndicateurMacro indicateur : indicateurs) {
-            resultats.add(indicateur.calculer(habitants));
-        }
-        return resultats;
-    }
+	/**
+	 * Calcule tous les indicateurs sur la population.
+	 * Retourne une liste de résultats dans le même ordre
+	 * que la liste des indicateurs.
+	 */
+	public List<Double> calculerTous(List<Habitant> habitants) {
+		List<Double> resultats = new ArrayList<Double>();
+		for (IndicateurMacro indicateur : indicateurs) {
+			resultats.add(indicateur.calculer(habitants));
+		}
+		return resultats;
+	}
 
-    /**
-     * Retourne les noms des indicateurs pour l'affichage.
-     */
-    public List<String> getNoms() {
-        List<String> noms = new ArrayList<String>();
-        for (IndicateurMacro indicateur : indicateurs) {
-            noms.add(indicateur.getNom());
-        }
-        return noms;
-    }
+	/**
+	 * Retourne les noms des indicateurs pour l'affichage.
+	 */
+	public List<String> getNoms() {
+		List<String> noms = new ArrayList<String>();
+		for (IndicateurMacro indicateur : indicateurs) {
+			noms.add(indicateur.getNom());
+		}
+		return noms;
+	}
 
-    /**
-     * Retourne la liste des indicateurs.
-     * Utile pour itérer depuis le dashboard.
-     */
-    public List<IndicateurMacro> getIndicateurs() {
-        return indicateurs;
-    }
+	/**
+	 * Retourne la liste des indicateurs.
+	 */
+	public List<IndicateurMacro> getIndicateurs() {
+		return indicateurs;
+	}
 }

@@ -1,10 +1,9 @@
 package engine.habitant.deplacement;
 
+import config.RandomProvider;
 import engine.habitant.Habitant;
 import engine.map.Block;
 import engine.map.Map;
-import config.RandomProvider;
-
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -21,7 +20,7 @@ public class DeplacementStable implements StrategieDeplacement {
 		int direction = RandomProvider.getInstance().nextInt(4);
 
 		Block pos = habitant.getPosition();
-		int ligne   = pos.getLine();
+		int ligne = pos.getLine();
 		int colonne = pos.getColumn();
 
 		if (direction == 0 && !map.isOnTop(pos)) ligne--;

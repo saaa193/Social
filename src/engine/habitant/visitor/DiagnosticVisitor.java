@@ -7,7 +7,7 @@ import engine.habitant.etat.*;
  * Genie Logiciel - Projet SOCIAL
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
- * <p>
+ *
  * DiagnosticVisitor : retourne le label d'état affiché dans
  * la fenêtre "Inspection Citoyen".
  */

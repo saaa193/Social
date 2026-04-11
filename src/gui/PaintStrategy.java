@@ -21,4 +21,7 @@ public interface PaintStrategy {
     void paint(Habitant habitant, Graphics graphics);
 
     void setFiltres(boolean famille, boolean travail, boolean amis);
+
+	void setToursDepuisPropagation(int tours);
+
 }

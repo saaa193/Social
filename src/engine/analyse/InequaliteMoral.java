@@ -1,6 +1,7 @@
 package engine.analyse;
 
 import engine.habitant.Habitant;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,42 +19,38 @@ import java.util.List;
  */
 public class InequaliteMoral implements IndicateurMacro {
 
-    @Override
-    public double calculer(List<Habitant> habitants) {
-        if (habitants.isEmpty()) return 0.0;
+	@Override
+	public double calculer(List<Habitant> habitants) {
+		if (habitants.isEmpty()) return 0.0;
 
-        // On récupère les moraux des habitants vivants
-        List<Integer> moraux = new java.util.ArrayList<Integer>();
-        for (Habitant h : habitants) {
-            if (h.getBesoins().getSante() > 0) {
-                moraux.add(h.getMoral());
-            }
-        }
+		List<Integer> moraux = new ArrayList<Integer>();
+		for (Habitant h : habitants) {
+			if (h.getBesoins().getSante() > 0) {
+				moraux.add(h.getMoral());
+			}
+		}
 
-        if (moraux.size() < 2) return 0.0;
+		if (moraux.size() < 2) return 0.0;
 
-        // Calcul de la moyenne
-        double somme = 0;
-        for (int m : moraux) somme += m;
-        double moyenne = somme / moraux.size();
+		double somme = 0;
+		for (int m : moraux) somme += m;
+		double moyenne = somme / moraux.size();
 
-        if (moyenne == 0) return 0.0;
+		if (moyenne == 0) return 0.0;
 
-        // Calcul de l'indice de Gini simplifié
-        // Somme des différences absolues entre chaque paire
-        double sommeDiff = 0;
-        for (int m1 : moraux) {
-            for (int m2 : moraux) {
-                sommeDiff += Math.abs(m1 - m2);
-            }
-        }
+		double sommeDiff = 0;
+		for (int m1 : moraux) {
+			for (int m2 : moraux) {
+				sommeDiff += Math.abs(m1 - m2);
+			}
+		}
 
-        double gini = sommeDiff / (2.0 * moraux.size() * moraux.size() * moyenne);
-        return Math.min(1.0, gini);
-    }
+		double gini = sommeDiff / (2.0 * moraux.size() * moraux.size() * moyenne);
+		return Math.min(1.0, gini);
+	}
 
-    @Override
-    public String getNom() {
-        return "Inégalité du moral";
-    }
+	@Override
+	public String getNom() {
+		return "Inégalité du moral";
+	}
 }

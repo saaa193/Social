@@ -38,6 +38,8 @@ public class MobileElementManager implements MobileInterface {
 	private int forceInfluence = 5;
 	private int resistanceCollective = 50;
 
+	private int toursDepuisPropagation = 0;
+
 	private boolean enAttentePatientZero = false;
 
 	public MobileElementManager(Map map) {
@@ -73,6 +75,7 @@ public class MobileElementManager implements MobileInterface {
 
 		// 3. Propagation d'information si active
 		if (informationEnCours != null) {
+			toursDepuisPropagation++;
 			informationEnCours.propagerDansReseau(habitants);
 		}
 
@@ -176,6 +179,7 @@ public class MobileElementManager implements MobileInterface {
 	public void preparerPropagation(String theme, float virulence, float veracite) {
 		this.enAttentePatientZero = true;
 		this.informationEnCours = new InformationTransmission(theme, virulence, veracite);
+		this.toursDepuisPropagation = 0;
 		for (Habitant h : habitants) {
 			h.reinitialiserInformation();
 		}
@@ -279,6 +283,9 @@ public class MobileElementManager implements MobileInterface {
 	public List<Double> getHistoriqueNevrosisme()  { return historiqueNevrosisme; }
 	public List<Double> getHistoriqueAgreabilite() { return historiqueAgreabilite; }
 	public List<Double> getHistoriqueMoral()       { return historiqueMoral; }
+	public int getToursDepuisPropagation() {
+		return toursDepuisPropagation;
+	}
 
 	public void setParametres(int resistance, int forceInfluence) {
 		this.resistanceCollective = resistance;

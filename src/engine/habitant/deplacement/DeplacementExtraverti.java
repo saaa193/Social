@@ -20,13 +20,11 @@ public class DeplacementExtraverti implements StrategieDeplacement {
 
 	@Override
 	public void deplacer(Habitant habitant, Map map) {
-		// Compteur personnel — stocké dans l'habitant, pas dans la stratégie
 		int tours = habitant.getToursAvantChangement();
 		tours--;
 
 		if (tours <= 0) {
-			// Nouvelle destination aléatoire personnelle
-			int nouvelleLigne   = RandomProvider.getInstance().nextInt(map.getLineCount());
+			int nouvelleLigne = RandomProvider.getInstance().nextInt(map.getLineCount());
 			int nouvelleColonne = RandomProvider.getInstance().nextInt(map.getColumnCount());
 			habitant.setDestination(map.getBlock(nouvelleLigne, nouvelleColonne));
 			tours = GameConfiguration.TOURS_AVANT_CHANGEMENT;
@@ -38,7 +36,7 @@ public class DeplacementExtraverti implements StrategieDeplacement {
 
 	private void avancerVers(Habitant habitant, Block cible, Map map) {
 		Block pos = habitant.getPosition();
-		int ligne   = pos.getLine();
+		int ligne = pos.getLine();
 		int colonne = pos.getColumn();
 
 		if (RandomProvider.getInstance().nextDouble() < GameConfiguration.PROBA_PAS_ALEATOIRE) {

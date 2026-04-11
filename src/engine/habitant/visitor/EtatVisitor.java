@@ -7,7 +7,7 @@ import engine.habitant.etat.*;
  * Genie Logiciel - Projet SOCIAL
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
- * <p>
+ *
  * Interface Visitor pour les états psychologiques.
  * Miroir exact de TreeVisitor<T> du prof :
  * une méthode visit() par type concret.

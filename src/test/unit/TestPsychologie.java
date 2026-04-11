@@ -1,10 +1,8 @@
 package test.unit;
 
 import static org.junit.Assert.assertTrue;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import engine.habitant.Psychologie;
 import engine.habitant.besoin.Besoins;
 import engine.habitant.etat.EtatAnxieux;
@@ -32,8 +30,6 @@ public class TestPsychologie {
 	@Before
 	public void initialiser() {
 		besoins = new Besoins(new NutritionSociale());
-		// Valeurs neutres — ni trop hautes ni trop basses
-		// pour éviter de tomber dans EtatEpanoui ou EtatDepressif
 		besoins.setMoral(50);
 		besoins.setSocial(50);
 		besoins.setFatigue(50);
@@ -66,7 +62,6 @@ public class TestPsychologie {
 
 	@Test
 	public void testEtatStable() {
-		// Profil neutre — aucun seuil dépassé → EtatStable
 		Psychologie psychologie = new Psychologie(50, 50, 50, 50, 50);
 		besoins.setMoral(50);
 		besoins.setSocial(50);
@@ -76,7 +71,6 @@ public class TestPsychologie {
 
 	@Test
 	public void testEtatEpanoui() {
-		// Moral et social élevés → EtatEpanoui
 		Psychologie psychologie = new Psychologie(50, 50, 50, 50, 50);
 		besoins.setMoral(80);
 		besoins.setSocial(75);

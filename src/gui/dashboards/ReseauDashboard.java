@@ -44,7 +44,7 @@ public class ReseauDashboard extends JPanel {
 
 		contenu.add(creerLigneLien("FAMILLE", barreFamille, nombreFamille, btnFamille, new Color(220, 50, 100)));
 		contenu.add(creerLigneLien("TRAVAIL", barreTravail, nombreTravail, btnTravail, new Color(50, 100, 220)));
-		contenu.add(creerLigneLien("AMIS",    barreAmis,    nombreAmis,    btnAmis,    new Color(50, 180, 50)));
+		contenu.add(creerLigneLien("AMIS", barreAmis, nombreAmis, btnAmis, new Color(50, 180, 50)));
 
 		add(contenu, BorderLayout.CENTER);
 
@@ -95,7 +95,7 @@ public class ReseauDashboard extends JPanel {
 
 		int nbFamille = Statistique.getNombreLiensParType(habitants, "Familial");
 		int nbTravail = Statistique.getNombreLiensParType(habitants, "Professionnel");
-		int nbAmis    = Statistique.getNombreLiensParType(habitants, "Amical");
+		int nbAmis = Statistique.getNombreLiensParType(habitants, "Amical");
 
 		barreFamille.setValue(Math.min(nbFamille, 200));
 		barreTravail.setValue(Math.min(nbTravail, 200));
@@ -112,5 +112,5 @@ public class ReseauDashboard extends JPanel {
 
 	public boolean afficherFamille() { return btnFamille.isSelected(); }
 	public boolean afficherTravail() { return btnTravail.isSelected(); }
-	public boolean afficherAmis()    { return btnAmis.isSelected(); }
+	public boolean afficherAmis() { return btnAmis.isSelected(); }
 }
