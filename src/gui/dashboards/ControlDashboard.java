@@ -11,7 +11,7 @@ import javax.swing.Timer;
  * Genie Logiciel - Projet SOCIAL
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
- * <p>
+ *
  * ControlDashboard : Le tableau de bord principal.
  * Il regroupe les informations de temps, météo et les contrôles de la simulation.
  * Utilisation de BorderLayout pour une répartition propre des zones de l'interface.
@@ -20,7 +20,7 @@ public class ControlDashboard extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private JLabel titre = new JLabel("Projet SOCIAL ");
-	private JLabel lblHorloge = new JLabel("Lancement");
+	private JLabel lblHorloge = new JLabel("START");
 	private JLabel lblPeriode = new JLabel("SEMAINE");
 	private JLabel lblMeteo = new JLabel("☀ Soleil");
 

@@ -5,7 +5,6 @@ package engine.map;
  * Genie Logiciel - Projet SOCIAL
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
- * <p>
  * Classe Heure : Représente le temps journalier dans la simulation.
  * Elle gère l'incrémentation des minutes et des heures, et gère le passage
  * à la journée suivante via un signal booléen.

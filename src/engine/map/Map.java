@@ -9,7 +9,6 @@ import java.util.HashMap;
  * Genie Logiciel - Projet SOCIAL
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
- * <p>
  * Classe Map : Représente la grille de jeu.
  */
 public class Map {

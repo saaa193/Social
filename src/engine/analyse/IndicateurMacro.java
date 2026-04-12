@@ -10,7 +10,6 @@ import java.util.List;
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
  * Interface Strategy pour les indicateurs macroscopiques.
- * Calquée sur ColorStrategy du prof (Tree V2) :
  * chaque indicateur encapsule son propre algorithme de calcul.
  * Pour ajouter un nouvel indicateur : créer une classe,
  * implémenter cette interface — rien d'autre ne change.

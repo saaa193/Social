@@ -16,7 +16,7 @@ import engine.process.MobileInterface;
  * Genie Logiciel - Projet SOCIAL
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
- * <p>
+ *
  * GameDisplay : Composant Swing responsable du rendu graphique.
  * Il utilise une stratégie de dessin (PaintStrategy) pour séparer la logique de rendu de la logique de contrôle.
  */

@@ -27,7 +27,7 @@ import gui.dashboards.*;
  * Genie Logiciel - Projet SOCIAL
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
- * <p>
+ *
  * MainGUI : La classe principale qui orchestre tout le programme.
  * Elle implémente Runnable car elle gère la boucle de jeu
  * dans un Thread séparé pour ne pas bloquer l'interface graphique.

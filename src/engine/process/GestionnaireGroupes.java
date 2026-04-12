@@ -12,7 +12,7 @@ import java.util.List;
  * Genie Logiciel - Projet SOCIAL
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
- * <p>
+ *
  * GestionnaireGroupes : Détecte et gère les groupes sociaux
  * qui se forment naturellement dans la population.
  * Un groupe existe quand 3 habitants ou plus se connaissent entre eux.
