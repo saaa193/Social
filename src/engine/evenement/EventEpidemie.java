@@ -13,8 +13,7 @@ import java.util.List;
  *
  * Épidémie : se propage de proche en proche via le réseau social.
  * Contrairement aux autres événements qui frappent tout le monde
- * en même temps, l'épidémie utilise les liens sociaux pour se
- * propager — exactement comme une vraie maladie.
+ * en même temps, l'épidémie utilise les liens sociaux pour se propager — exactement comme une vraie maladie.
  * Visible sur la carte : vague de rouge qui progresse dans le réseau.
  */
 public class EventEpidemie implements EvenementSimulation, EventVisitor {

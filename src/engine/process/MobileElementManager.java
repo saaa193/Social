@@ -1,5 +1,6 @@
 package engine.process;
 
+import config.GameConfiguration;
 import config.RandomProvider;
 import engine.map.Map;
 import engine.habitant.Habitant;
@@ -106,13 +107,24 @@ public class MobileElementManager implements MobileInterface {
 
 	private void appliquerResistance() {
 		for (Habitant h : habitants) {
-			if (h.getBesoins().getSante() > 0) {
-				if (resistanceCollective < 30) {
-					h.getBesoins().setMoral(h.getBesoins().getMoral() - 1);
-				} else if (resistanceCollective > 70) {
-					h.getBesoins().setMoral(h.getBesoins().getMoral() + 1);
-				}
+			if (h.getBesoins().getSante() <= 0) continue;
+
+			if (resistanceCollective < 30) {
+				// Résistance faible → moral baisse lentement
+				h.getBesoins().setMoral(h.getBesoins().getMoral() - 1);
+			} else if (resistanceCollective > 70) {
+				// Résistance forte → moral remonte
+				double coefficient = 0.15;
+				if (h.getPsychologie().estResiliant())  coefficient = 0.20;
+				if (h.getPsychologie().estVulnerable()) coefficient = 0.08;
+
+				int ecart = 100 - h.getBesoins().getMoral();
+				int force = (int)(ecart * coefficient);
+				if (ecart > 5 && force == 0) force = 1;
+
+				h.getBesoins().setMoral(h.getBesoins().getMoral() + force);
 			}
+			// Entre 30 et 70 → aucun effet — neutre
 		}
 	}
 

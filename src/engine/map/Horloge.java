@@ -5,7 +5,6 @@ package engine.map;
  * Genie Logiciel - Projet SOCIAL
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
- * <p>
  * Classe Horloge : C'est le moteur temporel de la simulation.
  * Elle synchronise la Date et l'Heure et fournit une interface unifiée
  * pour les autres composants du jeu.

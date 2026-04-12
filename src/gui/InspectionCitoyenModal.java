@@ -14,7 +14,7 @@ import java.awt.event.ActionListener;
  * Genie Logiciel - Projet SOCIAL
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
- * <p>
+ *
  * InspectionCitoyenModal : Fenêtre modale d'inspection d'un habitant.
  * S'ouvre au clic sur un habitant dans la carte.
  * Affiche : identité, état psychologique, jauges de besoins, profil OCEAN.

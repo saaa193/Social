@@ -26,7 +26,7 @@ import engine.habitant.besoin.Besoins;
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
  * GraphDashboard : Visualisation statistique de la population.
- * Utilise deux graphiques JFreeChart (comme vu en cours) :
+ * Utilise deux graphiques JFreeChart :
  * 1. PieChart → répartition des états psychologiques réels
  * 2. BarChart horizontal → moyennes des besoins vitaux
  *
@@ -82,7 +82,7 @@ public class GraphDashboard extends JPanel {
 		plot.setSectionPaint("Isolé",      new Color(100, 100, 150));
 		plot.setSectionPaint("Dépressif",  Color.RED);
 		plot.setSectionPaint("Burnout",    new Color(80, 0, 0));
-		// [AJOUT SIR] Couleur dorée — cohérente avec l'auréole de PaintStrategyDefaut
+		// Couleur dorée — cohérente avec l'auréole de PaintStrategyDefaut
 		plot.setSectionPaint("Informés",   new Color(255, 215, 0));
 
 		// Labels directement sur les parts — plus besoin de légende
@@ -148,7 +148,7 @@ public class GraphDashboard extends JPanel {
 	/**
 	 * Met à jour les deux graphiques à chaque tick de simulation.
 	 *
-	 * [AJOUT SIR] Comptage des habitants "informés" pour la catégorie dorée.
+	 *  Comptage des habitants "informés" pour la catégorie dorée.
 	 * Cela rend la propagation mesurable quantitativement : on observe
 	 * la montée puis la descente de la courbe "Informés" en temps réel.
 	 */
@@ -202,7 +202,6 @@ public class GraphDashboard extends JPanel {
 		datasetEtats.setValue("Isolé",      isole);
 		datasetEtats.setValue("Dépressif",  depressif);
 		datasetEtats.setValue("Burnout",    burnout);
-		// [AJOUT SIR]
 		datasetEtats.setValue("Informés",   informes);
 
 		int taille = habitants.size();

@@ -14,7 +14,7 @@ import java.awt.event.ActionListener;
  * Genie Logiciel - Projet SOCIAL
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
- * <p>
+ *
  * MacroDashboard : Zone opérationnelle située en bas de l'écran.
  * Contient les paramètres de simulation et les boutons d'action.
  */
