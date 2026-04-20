@@ -1,6 +1,7 @@
 package engine.evenement;
 
 import engine.habitant.Habitant;
+import engine.habitant.biais.BiaisCognitif;
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -8,10 +9,8 @@ import engine.habitant.Habitant;
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
- * Festival de Quartier : joie collective mais avec contrepartie.
- * Les extravertis adorent mais s'épuisent.
- * Les introvertis subissent la foule.
- * Effet visible : moral monte puis fatigue crée une descente le lendemain.
+ * Festival de Quartier : joie collective visible immediatement.
+ * Les extravertis profitent pleinement, les introvertis subissent.
  */
 public class EventFestival implements EvenementSimulation, EventVisitor {
 
@@ -27,21 +26,23 @@ public class EventFestival implements EvenementSimulation, EventVisitor {
 
 	@Override
 	public void visit(Habitant habitant) {
+		BiaisCognitif biais = habitant.getPsychologie().determinerBiais();
+
 		if (habitant.getExtraversion() > 60) {
-			// Extravertis — profitent pleinement mais s'épuisent
-			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 25);
-			habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 20);
-			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 25);
-			habitant.getPsychologie().augmenterExtraversion(3);
-		} else if (habitant.getExtraversion() < 35) {
-			// Introvertis — subissent la foule
-			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - 10);
-			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 20);
-			habitant.getPsychologie().augmenterNevrosisme(3);
-		} else {
-			// Profil neutre — léger bénéfice
-			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 10);
+			int impact = biais.filtrerImpact(35, 1.0f);
+			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + impact);
+			habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 25);
 			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 10);
+			habitant.getPsychologie().augmenterExtraversion(2);
+		} else if (habitant.getExtraversion() < 35) {
+			int impact = biais.filtrerImpact(-8, 1.0f);
+			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + impact);
+			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 10);
+			habitant.getPsychologie().augmenterNevrosisme(2);
+		} else {
+			int impact = biais.filtrerImpact(15, 1.0f);
+			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + impact);
+			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 5);
 		}
 	}
 }

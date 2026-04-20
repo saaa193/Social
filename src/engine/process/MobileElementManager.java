@@ -1,10 +1,13 @@
 package engine.process;
 
-import config.GameConfiguration;
 import config.RandomProvider;
+import engine.analyse.CohesionSociale;
 import engine.map.Map;
 import engine.habitant.Habitant;
 import engine.map.Horloge;
+import log.LoggerUtility;
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -20,6 +23,8 @@ import java.util.HashMap;
  * Délègue les effets environnementaux à GestionnaireEnvironnement.
  */
 public class MobileElementManager implements MobileInterface {
+
+	private static final Logger logger = LoggerUtility.getLogger(MobileElementManager.class, "text");
 
 	private Map map;
 	private List<Habitant> habitants = new ArrayList<Habitant>();
@@ -43,11 +48,11 @@ public class MobileElementManager implements MobileInterface {
 
 	private boolean enAttentePatientZero = false;
 
+	private CohesionSociale cohesion = new CohesionSociale();
+
 	public MobileElementManager(Map map) {
 		this.map = map;
 	}
-
-
 
 	/**
 	 * Cœur du jeu : la boucle de simulation principale.
@@ -106,25 +111,24 @@ public class MobileElementManager implements MobileInterface {
 	}
 
 	private void appliquerResistance() {
+		double scoreCohesion = cohesion.calculer(habitants);
+
 		for (Habitant h : habitants) {
 			if (h.getBesoins().getSante() <= 0) continue;
 
 			if (resistanceCollective < 30) {
-				// Résistance faible → moral baisse lentement
-				h.getBesoins().setMoral(h.getBesoins().getMoral() - 1);
+				h.getBesoins().setMoral(h.getBesoins().getMoral() - 2);
+				h.getBesoins().setSocial(h.getBesoins().getSocial() - 1);
 			} else if (resistanceCollective > 70) {
-				// Résistance forte → moral remonte
-				double coefficient = 0.15;
-				if (h.getPsychologie().estResiliant())  coefficient = 0.20;
-				if (h.getPsychologie().estVulnerable()) coefficient = 0.08;
-
-				int ecart = 100 - h.getBesoins().getMoral();
-				int force = (int)(ecart * coefficient);
-				if (ecart > 5 && force == 0) force = 1;
-
-				h.getBesoins().setMoral(h.getBesoins().getMoral() + force);
+				h.getBesoins().setMoral(h.getBesoins().getMoral() + 2);
+				h.getBesoins().setSocial(h.getBesoins().getSocial() + 1);
 			}
-			// Entre 30 et 70 → aucun effet — neutre
+
+			if (scoreCohesion > 0.3) {
+				h.getBesoins().setMoral(h.getBesoins().getMoral() + 1);
+			} else if (scoreCohesion < 0.1) {
+				h.getBesoins().setMoral(h.getBesoins().getMoral() - 1);
+			}
 		}
 	}
 
@@ -146,7 +150,7 @@ public class MobileElementManager implements MobileInterface {
 
 						// Algorithme psychologique — probabilite modulee par les profils OCEAN
 						double probabilite = calculateur.calculerProbabilite(h1, h2);
-						if (Math.random() > probabilite) continue;
+						if (RandomProvider.getInstance().nextDouble() > probabilite) continue;
 
 						rencontresCeTour.put(h1, r1 + 1);
 						rencontresCeTour.put(h2, r2 + 1);
@@ -158,6 +162,7 @@ public class MobileElementManager implements MobileInterface {
 						if (h1.getAgreabilite() > 50 && h2.getAgreabilite() > 50) {
 							h1.ajouterLienAmical(h2);
 							h2.ajouterLienAmical(h1);
+							logger.info("Rencontre amicale : " + h1.getPrenom() + " + " + h2.getPrenom());
 						} else if (h1.getConscience() > 60 && h2.getConscience() > 60) {
 							h1.ajouterLienProfessionnel(h2);
 							h2.ajouterLienProfessionnel(h1);
@@ -182,6 +187,7 @@ public class MobileElementManager implements MobileInterface {
 	public void lancerInformationDepuis(Habitant patientZero) {
 		patientZero.devenirPatientZero();
 		this.enAttentePatientZero = false;
+		logger.info("Patient zero designe : " + patientZero.getPrenom());
 	}
 
 	public boolean isEnAttentePatientZero() {
@@ -289,6 +295,8 @@ public class MobileElementManager implements MobileInterface {
 		historiqueNevrosisme.add(totalNevrosisme / taille);
 		historiqueAgreabilite.add(totalAgreabilite / taille);
 		historiqueMoral.add(totalMoral / taille);
+
+		logger.info("Stats jour " + horloge.getDateCourte() + " - Moral=" + (int)(totalMoral/taille) + " Nevrosisme=" + (int)(totalNevrosisme/taille));
 	}
 
 	public List<String> getHistoriqueJours()      { return historiqueJours; }
