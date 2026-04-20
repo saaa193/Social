@@ -1,5 +1,6 @@
 package engine.habitant.nutrition;
 
+import config.RandomProvider;
 import engine.habitant.besoin.Besoins;
 
 /**
@@ -12,7 +13,7 @@ import engine.habitant.besoin.Besoins;
  */
 public class NutritionNevrosee implements StrategieNutrition {
 	public void appliquer(Besoins besoins) {
-		if (Math.random() < 0.25) {
+		if (RandomProvider.getInstance().nextDouble() < 0.25) {
 			besoins.setFaim(besoins.getFaim() + 1);
 		}
 	}

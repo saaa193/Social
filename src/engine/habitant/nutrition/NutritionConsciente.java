@@ -1,5 +1,6 @@
 package engine.habitant.nutrition;
 
+import config.RandomProvider;
 import engine.habitant.besoin.Besoins;
 
 /**
@@ -12,7 +13,7 @@ import engine.habitant.besoin.Besoins;
  */
 public class NutritionConsciente implements StrategieNutrition {
 	public void appliquer(Besoins besoins) {
-		if (Math.random() < 0.70) {
+		if (RandomProvider.getInstance().nextDouble() < 0.70) {
 			besoins.setFaim(besoins.getFaim() + 3);
 		}
 	}

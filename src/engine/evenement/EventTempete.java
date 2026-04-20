@@ -1,6 +1,7 @@
 package engine.evenement;
 
 import engine.habitant.Habitant;
+import engine.habitant.biais.BiaisCognitif;
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -8,10 +9,8 @@ import engine.habitant.Habitant;
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
- * Tempête Urbaine : événement catastrophique qui frappe
- * toute la population différemment selon leur profil OCEAN.
- * Les névrosés paniquent, les résilients résistent.
- * Effet visible immédiat sur la carte — vague de rouge.
+ * Tempête Urbaine : impact fort et immédiat sur toute la population.
+ * Visible en 2-3 tours. Réversible — ne touche pas à la santé.
  */
 public class EventTempete implements EvenementSimulation, EventVisitor {
 
@@ -27,20 +26,22 @@ public class EventTempete implements EvenementSimulation, EventVisitor {
 
 	@Override
 	public void visit(Habitant habitant) {
+		BiaisCognitif biais = habitant.getPsychologie().determinerBiais();
+
 		if (habitant.getPsychologie().estVulnerable()) {
-			// Vulnérables — panique totale
-			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - 35);
-			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 25);
-			habitant.getPsychologie().augmenterNevrosisme(8);
+			int impact = biais.filtrerImpact(-45, 0.0f);
+			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + impact);
+			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 30);
+			habitant.getPsychologie().augmenterNevrosisme(5);
 		} else if (habitant.getPsychologie().estResiliant()) {
-			// Résilients — résistent bien
-			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - 10);
-			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 5);
+			int impact = biais.filtrerImpact(-15, 0.0f);
+			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + impact);
+			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 10);
 		} else {
-			// Population normale — impact modéré
-			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() - 20);
-			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 15);
-			habitant.getPsychologie().augmenterNevrosisme(4);
+			int impact = biais.filtrerImpact(-30, 0.0f);
+			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + impact);
+			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 20);
+			habitant.getPsychologie().augmenterNevrosisme(3);
 		}
 	}
 }

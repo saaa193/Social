@@ -2,6 +2,7 @@ package engine.process;
 
 import config.RandomProvider;
 import engine.habitant.Habitant;
+import engine.habitant.biais.BiaisCognitif;
 import engine.habitant.etat.EtatHabitant;
 import engine.habitant.lien.Liens;
 import engine.habitant.visitor.ContagionVisitor;
@@ -73,6 +74,8 @@ public class InformationTransmission {
 				impact = (int) (impact * amplification);
 			}
 
+			BiaisCognitif biais = cible.getPsychologie().determinerBiais();
+			impact = biais.filtrerImpact(impact, veracite);
 			cible.getBesoins().setMoral(cible.getBesoins().getMoral() + impact);
 
 			if (veracite > 0.6f) {

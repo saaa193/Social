@@ -1,6 +1,7 @@
 package engine.evenement;
 
 import engine.habitant.Habitant;
+import engine.habitant.biais.BiaisCognitif;
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -8,9 +9,8 @@ import engine.habitant.Habitant;
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
- * Semaine Culturelle : effect lent sur l'ouverture d'esprit.
- * Seuls les habitants ouverts en profitent vraiment.
- * Les fermés d'esprit sont indifférents voire agacés.
+ * Semaine Culturelle : boost moral visible immediatement.
+ * Moins fort que le Festival. Les ouverts en profitent davantage.
  */
 public class EventCulturel implements EvenementSimulation, EventVisitor {
 
@@ -26,17 +26,19 @@ public class EventCulturel implements EvenementSimulation, EventVisitor {
 
 	@Override
 	public void visit(Habitant habitant) {
+		BiaisCognitif biais = habitant.getPsychologie().determinerBiais();
+
 		if (habitant.getOuverture() > 65) {
-			// Très ouverts — profitent pleinement
-			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 20);
-			habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 15);
-			habitant.getPsychologie().augmenterOuverture(5);
-			habitant.getPsychologie().diminuerNevrosisme(4);
+			int impact = biais.filtrerImpact(25, 1.0f);
+			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + impact);
+			habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 20);
+			habitant.getPsychologie().augmenterOuverture(3);
+			habitant.getPsychologie().diminuerNevrosisme(3);
 		} else {
-			// Moyennement ouverts — bénéfice modéré
-			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + 10);
-			habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 8);
-			habitant.getPsychologie().augmenterOuverture(2);
+			int impact = biais.filtrerImpact(15, 1.0f);
+			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + impact);
+			habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + 10);
+			habitant.getPsychologie().augmenterOuverture(1);
 		}
 	}
 }

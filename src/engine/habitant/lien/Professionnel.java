@@ -1,5 +1,6 @@
 package engine.habitant.lien;
 
+import config.RandomProvider;
 import engine.habitant.Habitant;
 
 /**
@@ -25,7 +26,7 @@ public class Professionnel extends Liens {
 		proprietaire.getBesoins().setSocial(
 				proprietaire.getBesoins().getSocial() + bonusSocial
 		);
-		if (Math.random() < 0.3) {
+		if (RandomProvider.getInstance().nextDouble() < 0.3) {
 			int bonusMoral = (int) (2 * ratio);
 			proprietaire.getBesoins().setMoral(
 					proprietaire.getBesoins().getMoral() + bonusMoral

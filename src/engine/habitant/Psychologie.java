@@ -73,14 +73,14 @@ public class Psychologie {
 		if (besoins.getMoral() < 20 && nevrosisme > 60) {
 			return new EtatDepressif();
 		}
-		if (extraversion > 80 && besoins.getSocial() > 80) {
-			return new EtatEuphorique();
-		}
 		if (nevrosisme > 70 && besoins.getMoral() < 50) {
 			return new EtatAnxieux();
 		}
 		if (extraversion > 50 && besoins.getSocial() < 40) {
 			return new EtatIsole();
+		}
+		if (extraversion > 80 && besoins.getSocial() > 80) {
+			return new EtatEuphorique();
 		}
 		if (besoins.getMoral() > 70 && besoins.getSocial() > 60) {
 			return new EtatEpanoui();
