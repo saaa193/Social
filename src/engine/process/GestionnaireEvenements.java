@@ -27,25 +27,22 @@ public class GestionnaireEvenements {
 	 * @param forceInfluence la force d'influence du slider (0 a 10)
 	 * @return le nombre d'habitants affectes
 	 */
-	public static int declencherEvenement(String nomEvenement, List<Habitant> habitants, int forceInfluence) {
+	public static int declencherEvenement(String nomEvenement,
+	                                      List<Habitant> habitants,
+	                                      int forceInfluence) {
 		EvenementSimulation evenement = EvenementFactory.creer(nomEvenement);
+
+		// Force 0  → multiplicateur 0.2 (effet quasi nul)
+		// Force 5  → multiplicateur 1.35 (effet normal)
+		// Force 10 → multiplicateur 2.5 (effet dévastateur)
+		double multiplicateur = 0.2 + (forceInfluence / 10.0) * 2.3;
+
+		evenement.declencher(habitants, multiplicateur);
 
 		int nbAffectes = 0;
 		for (Habitant h : habitants) {
-			if (evenement.estConcerne(h)) {
-				nbAffectes++;
-			}
+			if (evenement.estConcerne(h)) nbAffectes++;
 		}
-
-		evenement.declencher(habitants);
-
-		int bonusMoral = (forceInfluence - 5) * 2;
-		for (Habitant h : habitants) {
-			if (evenement.estConcerne(h) && h.getBesoins().getSante() > 0) {
-				h.getBesoins().setMoral(h.getBesoins().getMoral() + bonusMoral);
-			}
-		}
-
 		return nbAffectes;
 	}
 }

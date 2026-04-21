@@ -1,5 +1,6 @@
 package engine.process;
 
+import config.GameConfiguration;
 import config.RandomProvider;
 import engine.analyse.CohesionSociale;
 import engine.map.Map;
@@ -111,24 +112,22 @@ public class MobileElementManager implements MobileInterface {
 	}
 
 	private void appliquerResistance() {
-		double scoreCohesion = cohesion.calculer(habitants);
+		int moralCible = resistanceCollective;
 
 		for (Habitant h : habitants) {
 			if (h.getBesoins().getSante() <= 0) continue;
 
-			if (resistanceCollective < 30) {
-				h.getBesoins().setMoral(h.getBesoins().getMoral() - 2);
-				h.getBesoins().setSocial(h.getBesoins().getSocial() - 1);
-			} else if (resistanceCollective > 70) {
-				h.getBesoins().setMoral(h.getBesoins().getMoral() + 2);
-				h.getBesoins().setSocial(h.getBesoins().getSocial() + 1);
-			}
+			int moralActuel = h.getBesoins().getMoral();
+			int ecart = moralCible - moralActuel;
 
-			if (scoreCohesion > 0.3) {
-				h.getBesoins().setMoral(h.getBesoins().getMoral() + 1);
-			} else if (scoreCohesion < 0.1) {
-				h.getBesoins().setMoral(h.getBesoins().getMoral() - 1);
-			}
+			double coefficient = GameConfiguration.COEFF_RESISTANCE_COLLECTIVE;
+			if (h.getPsychologie().estResiliant())  coefficient = 0.20;
+			if (h.getPsychologie().estVulnerable()) coefficient = 0.08;
+
+			int force = (int)(ecart * coefficient);
+			if (Math.abs(ecart) > 5 && force == 0) force = ecart > 0 ? 1 : -1;
+
+			h.getBesoins().setMoral(moralActuel + force);
 		}
 	}
 

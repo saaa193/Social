@@ -26,4 +26,16 @@ public interface EvenementSimulation {
             }
         }
     }
+
+    default void declencher(List<Habitant> habitants, double multiplicateur) {
+        for (Habitant h : habitants) {
+            if (estConcerne(h) && h.getBesoins().getSante() > 0) {
+                int moralAvant = h.getBesoins().getMoral();
+                appliquer(h);
+                int delta = h.getBesoins().getMoral() - moralAvant;
+                int bonus = (int)(delta * (multiplicateur - 1.0));
+                h.getBesoins().setMoral(h.getBesoins().getMoral() + bonus);
+            }
+        }
+    }
 }
