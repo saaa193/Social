@@ -31,7 +31,7 @@ public class GameConfiguration {
 	public static final double BASE_FAIM         = 0.30;  // réduit — faim descend moins vite
 	public static final double BASE_FATIGUE      = 0.35;  // réduit — fatigue descend moins vite
 	public static final double BASE_SOCIAL       = 0.18;  // réduit — social descend moins vite
-	public static final double BASE_RECUPERATION = 0.75;  // augmenté — récupération nocturne meilleure
+	public static final double BASE_RECUPERATION = 0.80;  // augmenté — récupération nocturne meilleure
 	public static final double OCEAN_IMPACT      = 0.20;
 
 	// Usure naturelle des besoins
@@ -89,5 +89,5 @@ public class GameConfiguration {
 	public static final int TOURS_AVANT_TRAUMATISME = 5;
 
 	// Résistance collective — modèle ressort
-	public static final double COEFF_RESISTANCE_COLLECTIVE = 0.15;
+	public static final double COEFF_RESISTANCE_COLLECTIVE = 0.08;
 }

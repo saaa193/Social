@@ -29,16 +29,16 @@ public class EventTempete implements EvenementSimulation, EventVisitor {
 		BiaisCognitif biais = habitant.getPsychologie().determinerBiais();
 
 		if (habitant.getPsychologie().estVulnerable()) {
-			int impact = biais.filtrerImpact(-45, 0.0f);
+			int impact = biais.filtrerImpact(-45, 0.5f);
 			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + impact);
 			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 30);
 			habitant.getPsychologie().augmenterNevrosisme(5);
 		} else if (habitant.getPsychologie().estResiliant()) {
-			int impact = biais.filtrerImpact(-15, 0.0f);
+			int impact = biais.filtrerImpact(-15, 0.5f);
 			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + impact);
 			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 10);
 		} else {
-			int impact = biais.filtrerImpact(-30, 0.0f);
+			int impact = biais.filtrerImpact(-30, 0.5f);
 			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + impact);
 			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 20);
 			habitant.getPsychologie().augmenterNevrosisme(3);

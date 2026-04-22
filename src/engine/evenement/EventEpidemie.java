@@ -33,18 +33,18 @@ public class EventEpidemie implements EvenementSimulation, EventVisitor {
 		BiaisCognitif biais = habitant.getPsychologie().determinerBiais();
 
 		if (habitant.getPsychologie().estVulnerable()) {
-			int impact = biais.filtrerImpact(-30, 0.0f);
+			int impact = biais.filtrerImpact(-30, 0.5f);
 			habitant.getBesoins().setSante(habitant.getBesoins().getSante() - 20);
 			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 25);
 			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + impact);
 			habitant.getPsychologie().augmenterNevrosisme(5);
 		} else if (habitant.getPsychologie().estResiliant()) {
-			int impact = biais.filtrerImpact(-10, 0.0f);
+			int impact = biais.filtrerImpact(-10, 0.5f);
 			habitant.getBesoins().setSante(habitant.getBesoins().getSante() - 5);
 			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 10);
 			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + impact);
 		} else {
-			int impact = biais.filtrerImpact(-20, 0.0f);
+			int impact = biais.filtrerImpact(-20, 0.5f);
 			habitant.getBesoins().setSante(habitant.getBesoins().getSante() - 12);
 			habitant.getBesoins().setFatigue(habitant.getBesoins().getFatigue() - 18);
 			habitant.getBesoins().setMoral(habitant.getBesoins().getMoral() + impact);

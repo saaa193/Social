@@ -75,14 +75,18 @@ public class RecapitulatifDashboard extends JDialog {
 		List<Double> nevrosisme = manager.getHistoriqueNevrosisme();
 		List<Double> agreabilite = manager.getHistoriqueAgreabilite();
 		List<Double> moral = manager.getHistoriqueMoral();
+		List<Double> extraversion = manager.getHistoriqueExtraversion();
+
 
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
 		for (int i = 0; i < jours.size(); i++) {
 			String jour = jours.get(i);
-			dataset.addValue(moral.get(i), "Moral", jour);
-			dataset.addValue(nevrosisme.get(i), "Névrosisme", jour);
-			dataset.addValue(agreabilite.get(i), "Agréabilité", jour);
+			dataset.addValue(moral.get(i),        "Moral",        jour);
+			dataset.addValue(nevrosisme.get(i),   "Névrosisme",   jour);
+			dataset.addValue(agreabilite.get(i),  "Agréabilité",  jour);
+			dataset.addValue(extraversion.get(i), "Extraversion", jour);
 		}
+
 
 		JFreeChart chart = ChartFactory.createLineChart(
 				"Évolution Psychologique de la Population",
@@ -97,6 +101,8 @@ public class RecapitulatifDashboard extends JDialog {
 		renderer.setSeriesPaint(0, new Color(128, 0, 128));
 		renderer.setSeriesPaint(1, Color.RED);
 		renderer.setSeriesPaint(2, new Color(0, 150, 0));
+		renderer.setSeriesPaint(3, new Color(0, 100, 200)); // bleu pour extraversion
+
 		plot.setRenderer(renderer);
 		plot.getRangeAxis().setRange(0, 100);
 		chart.setBackgroundPaint(Color.WHITE);
@@ -115,10 +121,28 @@ public class RecapitulatifDashboard extends JDialog {
 		List<Double> resultats = analyseur.calculerTous(manager.getHabitants());
 
 		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+		// Indicateurs existants
 		for (int i = 0; i < indicateurs.size(); i++) {
 			double valeur = resultats.get(i) * 100.0;
 			dataset.addValue(valeur, "Valeur", indicateurs.get(i).getNom());
 		}
+
+		// Résilience collective — % habitants résilients
+		long vivants = manager.getHabitants().stream()
+				.filter(h -> h.getBesoins().getSante() > 0).count();
+		long resilients = manager.getHabitants().stream()
+				.filter(h -> h.getBesoins().getSante() > 0
+						&& h.getPsychologie().estResiliant()).count();
+		long vulnerables = manager.getHabitants().stream()
+				.filter(h -> h.getBesoins().getSante() > 0
+						&& h.getPsychologie().estVulnerable()).count();
+
+		double tauxResilience  = vivants > 0 ? (resilients  * 100.0 / vivants) : 0;
+		double tauxVulnerabilite = vivants > 0 ? (vulnerables * 100.0 / vivants) : 0;
+
+		dataset.addValue(tauxResilience,   "Valeur", "Résilience collective");
+		dataset.addValue(tauxVulnerabilite, "Valeur", "Vulnérabilité collective");
 
 		JFreeChart chart = ChartFactory.createBarChart(
 				"Indicateurs Macroscopiques",
@@ -135,7 +159,7 @@ public class RecapitulatifDashboard extends JDialog {
 		chart.setBackgroundPaint(Color.WHITE);
 
 		ChartPanel panel = new ChartPanel(chart);
-		panel.setPreferredSize(new Dimension(700, 200));
+		panel.setPreferredSize(new Dimension(700, 250));
 		return panel;
 	}
 
