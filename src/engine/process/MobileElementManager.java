@@ -51,6 +51,8 @@ public class MobileElementManager implements MobileInterface {
 
 	private CohesionSociale cohesion = new CohesionSociale();
 
+	private List<Double> historiqueExtraversion = new ArrayList<Double>();
+
 	public MobileElementManager(Map map) {
 		this.map = map;
 	}
@@ -280,7 +282,7 @@ public class MobileElementManager implements MobileInterface {
 		double totalNevrosisme  = 0;
 		double totalAgreabilite = 0;
 		double totalMoral       = 0;
-
+		double totalExtraversion = 0;
 		for (Habitant h : habitants) {
 			if (h.getBesoins().getSante() > 0) {
 				totalNevrosisme  += h.getNevrosisme();
@@ -289,12 +291,18 @@ public class MobileElementManager implements MobileInterface {
 			}
 		}
 
+		for (Habitant h : habitants) {
+			if (h.getBesoins().getSante() > 0) {
+				totalExtraversion += h.getExtraversion();
+			}
+		}
+
 		int taille = habitants.size();
 		historiqueJours.add(horloge.getDateCourte());
 		historiqueNevrosisme.add(totalNevrosisme / taille);
 		historiqueAgreabilite.add(totalAgreabilite / taille);
 		historiqueMoral.add(totalMoral / taille);
-
+		historiqueExtraversion.add(totalExtraversion / taille);
 		logger.info("Stats jour " + horloge.getDateCourte() + " - Moral=" + (int)(totalMoral/taille) + " Nevrosisme=" + (int)(totalNevrosisme/taille));
 	}
 
@@ -305,6 +313,8 @@ public class MobileElementManager implements MobileInterface {
 	public int getToursDepuisPropagation() {
 		return toursDepuisPropagation;
 	}
+	public List<Double> getHistoriqueExtraversion() { return historiqueExtraversion; }
+
 
 	public void setParametres(int resistance, int forceInfluence) {
 		this.resistanceCollective = resistance;

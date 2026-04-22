@@ -25,6 +25,6 @@ public class AdaptationEmotionnelle implements StrategieAdaptation {
 		int malusReduit = (int) (malus * FACTEUR_REDUCTION);
 		habitant.getPsychologie().augmenterNevrosisme(malusReduit);
 		habitant.getPsychologie().diminuerAgreabilite(1);
-		habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() - malusReduit);
+		habitant.getBesoins().setSocial(habitant.getBesoins().getSocial() + malusReduit);
 	}
 }
