@@ -29,9 +29,9 @@ public class GameConfiguration {
 
 	// Taux de base des besoins (influence OCEAN)
 	public static final double BASE_FAIM         = 0.30;  // réduit — faim descend moins vite
-	public static final double BASE_FATIGUE      = 0.35;  // réduit — fatigue descend moins vite
+	public static final double BASE_FATIGUE      = 0.28;  // réduit — fatigue descend moins vite
 	public static final double BASE_SOCIAL       = 0.18;  // réduit — social descend moins vite
-	public static final double BASE_RECUPERATION = 0.80;  // augmenté — récupération nocturne meilleure
+	public static final double BASE_RECUPERATION = 0.85;  // augmenté — récupération nocturne meilleure
 	public static final double OCEAN_IMPACT      = 0.20;
 
 	// Usure naturelle des besoins
@@ -43,9 +43,9 @@ public class GameConfiguration {
 	public static final double PROBA_FAIM_NUIT = 0.40;
 
 	// Seuils critiques des besoins
-	public static final int SEUIL_FAIM_CRITIQUE    = 20;
-	public static final int SEUIL_SOCIAL_CRITIQUE  = 20;
-	public static final int SEUIL_FATIGUE_CRITIQUE = 15;
+	public static final int SEUIL_FAIM_CRITIQUE    = 15;
+	public static final int SEUIL_SOCIAL_CRITIQUE  = 15;
+	public static final int SEUIL_FATIGUE_CRITIQUE = 10;
 
 	// Seuils confort des besoins
 	public static final int SEUIL_FAIM_BON    = 70;
@@ -53,9 +53,9 @@ public class GameConfiguration {
 	public static final int SEUIL_FATIGUE_BON = 45;  // plus facile à atteindre
 
 	// Probabilités d'évolution du moral
-	public static final double PROBA_MORAL_REMONTE = 0.12;  // augmenté — moral remonte plus facilement
-	public static final double PROBA_MORAL_BONUS   = 0.08;  // augmenté
-	public static final double PROBA_MORAL_BAISSE  = 0.08;  // réduit — moral baisse moins vite
+	public static final double PROBA_MORAL_REMONTE = 0.15;  // augmenté — moral remonte plus facilement
+	public static final double PROBA_MORAL_BONUS   = 0.10;  // augmenté
+	public static final double PROBA_MORAL_BAISSE  = 0.04;  // réduit — moral baisse moins vite
 
 	// Seuil de mort
 	public static final double PROBA_SANTE_BAISSE = 0.10;  // réduit — moins de décès
@@ -86,8 +86,11 @@ public class GameConfiguration {
 	public static final double FACTEUR_RESILIENT_POSITIF = 1.2;
 
 	// Traumatisme
-	public static final int TOURS_AVANT_TRAUMATISME = 5;
+	public static final int TOURS_AVANT_TRAUMATISME = 20;
 
 	// Résistance collective — modèle ressort
-	public static final double COEFF_RESISTANCE_COLLECTIVE = 0.08;
+	public static final double COEFF_RESISTANCE_COLLECTIVE = 0.12;
+
+	public static final double PROBA_BONNE_JOURNEE_PRO = 0.50;
+
 }
