@@ -4,6 +4,8 @@ import engine.evenement.EvenementFactory;
 import engine.evenement.EvenementSimulation;
 import engine.habitant.Habitant;
 import java.util.List;
+import log.LoggerUtility;
+import org.apache.log4j.Logger;
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -16,6 +18,8 @@ import java.util.List;
  * Delegue entierement a la Factory et a EvenementSimulation.
  */
 public class GestionnaireEvenements {
+	private static final Logger logger = LoggerUtility.getLogger(GestionnaireEvenements.class, "text");
+
 
 	/**
 	 * Declenche un evenement sur la population.
@@ -30,6 +34,7 @@ public class GestionnaireEvenements {
 	public static int declencherEvenement(String nomEvenement,
 	                                      List<Habitant> habitants,
 	                                      int forceInfluence) {
+
 		EvenementSimulation evenement = EvenementFactory.creer(nomEvenement);
 
 		// Force 0  → multiplicateur 0.2 (effet quasi nul)
@@ -43,6 +48,8 @@ public class GestionnaireEvenements {
 		for (Habitant h : habitants) {
 			if (evenement.estConcerne(h)) nbAffectes++;
 		}
+		logger.info("Evenement declenche : " + nomEvenement + " — " + nbAffectes + " habitants affectes");
 		return nbAffectes;
+
 	}
 }

@@ -2,6 +2,7 @@ package gui.dashboards;
 
 import engine.analyse.AnalyseurPopulation;
 import engine.analyse.IndicateurMacro;
+import engine.habitant.Habitant;
 import engine.process.MobileElementManager;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -129,15 +130,16 @@ public class RecapitulatifDashboard extends JDialog {
 		}
 
 		// Résilience collective — % habitants résilients
-		long vivants = manager.getHabitants().stream()
-				.filter(h -> h.getBesoins().getSante() > 0).count();
-		long resilients = manager.getHabitants().stream()
-				.filter(h -> h.getBesoins().getSante() > 0
-						&& h.getPsychologie().estResiliant()).count();
-		long vulnerables = manager.getHabitants().stream()
-				.filter(h -> h.getBesoins().getSante() > 0
-						&& h.getPsychologie().estVulnerable()).count();
-
+		int vivants     = 0;
+		int resilients  = 0;
+		int vulnerables = 0;
+		for (Habitant h : manager.getHabitants()) {
+			if (h.getBesoins().getSante() > 0) {
+				vivants++;
+				if (h.getPsychologie().estResiliant())  resilients++;
+				if (h.getPsychologie().estVulnerable()) vulnerables++;
+			}
+		}
 		double tauxResilience  = vivants > 0 ? (resilients  * 100.0 / vivants) : 0;
 		double tauxVulnerabilite = vivants > 0 ? (vulnerables * 100.0 / vivants) : 0;
 
