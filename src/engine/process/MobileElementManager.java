@@ -63,6 +63,7 @@ public class MobileElementManager implements MobileInterface {
 	 */
 	@Override
 	public void nextRound() {
+		logger.debug("Tour " + horloge.getHeureActuelle() + " — " + habitants.size() + " habitants actifs");
 		int heureActuelle = horloge.getHeureObject().getHeures();
 		boolean estLaNuit = (heureActuelle >= 23 || heureActuelle < 7);
 		boolean estLeWeekend = horloge.estWeekend();
@@ -144,6 +145,7 @@ public class MobileElementManager implements MobileInterface {
 
 				if (h1.getPosition().equals(h2.getPosition())) {
 					if (h1.getBesoins().getSante() > 0 && h2.getBesoins().getSante() > 0) {
+						logger.warn("Rencontre negative : " + h1.getPrenom() + " fragilise par " + h2.getPrenom());
 
 						int r1 = rencontresCeTour.getOrDefault(h1, 0);
 						int r2 = rencontresCeTour.getOrDefault(h2, 0);
@@ -183,6 +185,7 @@ public class MobileElementManager implements MobileInterface {
 				}
 			}
 		}
+
 	}
 
 	public void lancerInformationDepuis(Habitant patientZero) {
@@ -245,6 +248,8 @@ public class MobileElementManager implements MobileInterface {
 			h.reinitialiserInformation();
 		}
 		this.informationEnCours = null;
+		logger.info("Propagation terminee — information effacee");
+
 	}
 
 	@Override

@@ -329,32 +329,35 @@ public class MacroDashboard extends JPanel {
 			contenu.setBorder(BorderFactory.createEmptyBorder(15, 20, 10, 20));
 
 			JLabel lblResistanceTitre = new JLabel("Slider Résistance (0-100%)");
-			lblResistanceTitre.setFont(new Font("Arial", Font.BOLD, 12));
+			lblResistanceTitre.setFont(new Font("Arial", Font.BOLD, 15));
 			contenu.add(lblResistanceTitre);
 			contenu.add(Box.createVerticalStrut(5));
 
-			JLabel lblResistance1 = new JLabel("Résistance à 0% → moral baisse de 2 points pour tous");
-			JLabel lblResistance2 = new JLabel("Résistance à 50% → aucun effet (neutre)");
-			JLabel lblResistance3 = new JLabel("Résistance à 100% → moral monte de 2 points pour tous");
-			lblResistance1.setFont(new Font("Arial", Font.PLAIN, 11));
-			lblResistance2.setFont(new Font("Arial", Font.PLAIN, 11));
-			lblResistance3.setFont(new Font("Arial", Font.PLAIN, 11));
+			JLabel lblResistance1 = new JLabel("Résistance à 0% → moral baisse progressivement pour tous");
+			JLabel lblResistance2 = new JLabel("Résistance à 50% → moral tend vers 60 (légère récupération)");
+			JLabel lblResistance3 = new JLabel("Résistance à 100% → moral tend vers 100 (récupération maximale)");
+			lblResistance1.setFont(new Font("Arial", Font.PLAIN, 14));
+			lblResistance2.setFont(new Font("Arial", Font.PLAIN, 14));
+			lblResistance3.setFont(new Font("Arial", Font.PLAIN, 14));
 			contenu.add(lblResistance1);
 			contenu.add(lblResistance2);
 			contenu.add(lblResistance3);
 			contenu.add(Box.createVerticalStrut(15));
 
 			JLabel lblInfluenceTitre = new JLabel("Slider Force d'influence (0-10)");
-			lblInfluenceTitre.setFont(new Font("Arial", Font.BOLD, 12));
+			lblInfluenceTitre.setFont(new Font("Arial", Font.BOLD, 15));
 			contenu.add(lblInfluenceTitre);
 			contenu.add(Box.createVerticalStrut(5));
 
-			JLabel lblInfluence1 = new JLabel("Force à 0 → événement normal");
-			JLabel lblInfluence2 = new JLabel("Force à 10 → événement touche 2x plus d'habitants avec un impact doublé");
-			lblInfluence1.setFont(new Font("Arial", Font.PLAIN, 11));
-			lblInfluence2.setFont(new Font("Arial", Font.PLAIN, 11));
+			JLabel lblInfluence1 = new JLabel("Force à 0 → impact de l'événement réduit à 20%");
+			JLabel lblInfluence2 = new JLabel("Force à 5 → impact normal de l'événement");
+			JLabel lblInfluence3 = new JLabel("Force à 10 → impact multiplié par 2.5 (effet dévastateur ou euphorisant)");
+			lblInfluence1.setFont(new Font("Arial", Font.PLAIN, 14));
+			lblInfluence2.setFont(new Font("Arial", Font.PLAIN, 14));
+			lblInfluence3.setFont(new Font("Arial", Font.PLAIN, 14));
 			contenu.add(lblInfluence1);
 			contenu.add(lblInfluence2);
+			contenu.add(lblInfluence3);
 
 			aide.add(contenu, BorderLayout.CENTER);
 
