@@ -31,9 +31,7 @@ public class GestionnaireEvenements {
 	 * @param forceInfluence la force d'influence du slider (0 a 10)
 	 * @return le nombre d'habitants affectes
 	 */
-	public static int declencherEvenement(String nomEvenement,
-	                                      List<Habitant> habitants,
-	                                      int forceInfluence) {
+	public static int declencherEvenement(String nomEvenement, List<Habitant> habitants, int forceInfluence) {
 
 		EvenementSimulation evenement = EvenementFactory.creer(nomEvenement);
 
