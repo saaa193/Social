@@ -115,7 +115,7 @@ public class MobileElementManager implements MobileInterface {
 	}
 
 	private void appliquerResistance() {
-		int moralCible = Math.max(60, resistanceCollective);
+		int moralCible = Math.max(65, resistanceCollective);
 
 		for (Habitant h : habitants) {
 			if (h.getBesoins().getSante() <= 0) continue;
