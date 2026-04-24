@@ -1,5 +1,6 @@
 package engine.habitant.lien;
 
+import config.GameConfiguration;
 import config.RandomProvider;
 import engine.habitant.Habitant;
 
@@ -26,7 +27,7 @@ public class Professionnel extends Liens {
 		proprietaire.getBesoins().setSocial(
 				proprietaire.getBesoins().getSocial() + bonusSocial
 		);
-		if (RandomProvider.getInstance().nextDouble() < 0.3) {
+		if (RandomProvider.getInstance().nextDouble() < GameConfiguration.PROBA_BONNE_JOURNEE_PRO) {
 			int bonusMoral = (int) (2 * ratio);
 			proprietaire.getBesoins().setMoral(
 					proprietaire.getBesoins().getMoral() + bonusMoral
