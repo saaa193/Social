@@ -5,9 +5,13 @@ import config.RandomProvider;
 import engine.habitant.Habitant;
 
 /**
+ * Université CY Cergy Paris - L2 Informatique
+ * Genie Logiciel - Projet SOCIAL
+ *
+ * @author HANANE Sanaa & PIRABAKARAN Parthipan
+ *
  * Lien professionnel entre deux habitants.
- * Booste le social, et impacte le moral aléatoirement (bonne/mauvaise journée).
- * Peut mourir si l'ambiance se dégrade trop.
+ * Booste le social et impacte le moral aleatoirement.
  */
 public class Professionnel extends Liens {
 
@@ -20,6 +24,9 @@ public class Professionnel extends Liens {
 		return "Professionnel";
 	}
 
+	/**
+	 * Applique un bonus social et un impact moral aleatoire selon la journee.
+	 */
 	@Override
 	public void appliquerBonusMental(Habitant proprietaire) {
 		double ratio = this.force / 100.0;
@@ -40,6 +47,10 @@ public class Professionnel extends Liens {
 		}
 	}
 
+	/**
+	 * Fait evoluer la force du lien selon le moral des deux habitants.
+	 * Retourne false si le lien est mort.
+	 */
 	@Override
 	public boolean evoluerForce(Habitant proprietaire) {
 		if (proprietaire.getMoral() > 50 && partenaire.getMoral() > 50) {

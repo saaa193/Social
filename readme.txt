@@ -1,38 +1,34 @@
-PROJET SOCIAL - README
+PROJET SOCIAL
 Génie Logiciel et Projet - L2 Informatique
 CY Cergy Paris Université 2025/2026
 Auteurs : HANANE Sanaa & PIRABAKARAN Parthipan
+Encadrant : Tianxiao LIU
 
-===========================================
-DESCRIPTION DU PROJET
-===========================================
+Description
+-----------
+Simulation psychologique et sociale d'une population de 200 habitants
+autonomes. Chaque habitant possède un profil de personnalité basé sur
+le modèle Big Five (OCEAN : Ouverture, Conscience, Extraversion,
+Agréabilité, Névrosisme). Les habitants se déplacent sur une grille,
+forment des liens sociaux, évoluent psychologiquement et propagent
+des informations selon un modèle SIR adapté.
 
-Social est une simulation sociale d'une population
-de 200 habitants avec des profils psychologiques
-basés sur le modèle Big Five (OCEAN).
-Les habitants se déplacent, forment des liens sociaux,
-vivent des événements et propagent des informations.
-
-===========================================
-LANCER LE PROJET SOUS ECLIPSE
-===========================================
-
-1. Importer le projet :
-   File > Import > General > Existing Projects into Workspace
+Exécution sous Eclipse
+----------------------
+1. File > Import > General > Existing Projects into Workspace
    Sélectionner le dossier racine du projet
 
-2. Ajouter les librairies :
-   Clic droit sur le projet > Build Path > Add External JARs
-   Ajouter tous les fichiers .jar du dossier libs/
+2. Clic droit sur le projet > Build Path > Add External JARs
+   Ajouter les fichiers .jar du dossier libs/
+    - JFreeChart 1.0.19 (graphiques et dashboards)
+    - JUnit 4.11 (tests unitaires)
+    - Log4j 1.2.17 (système de journalisation)
 
-3. Lancer la simulation :
-   Ouvrir src/test/TestGame.java
+3. Ouvrir src/test/TestGame.java
    Clic droit > Run As > Java Application
 
-===========================================
-LANCER LES TESTS UNITAIRES
-===========================================
-
+Tests unitaires
+---------------
 Ouvrir src/test/unit/SocialTestSuite.java
 Clic droit > Run As > JUnit Test
 
@@ -44,24 +40,10 @@ Clic droit > Run As > JUnit Test
 - TestLiens
 - TestCalculateurInteraction
 
-===========================================
-FICHIERS DE LOG
-===========================================
-
-Les logs sont générés automatiquement dans :
-src/log/social-simulation.log
+Logs
+----
+Les logs sont générés automatiquement dans src/log/social-simulation.log
 
 Niveaux utilisés :
-- DEBUG : chaque tour de simulation
-- INFO  : rencontres amicales et événements
-- WARN  : rencontres négatives entre habitants
-
-===========================================
-LIBRAIRIES UTILISÉES
-===========================================
-
-Toutes les librairies sont fournies par l'enseignant
-et sont disponibles dans le dossier libs/ :
-- JFreeChart 1.0.19 (graphiques et dashboards)
-- JUnit 4.11 (tests unitaires)
-- Log4j 1.2.17 (système de journalisation)
+- DEBUG : chaque tour de simulation et rencontres détectées
+- INFO  : rencontres amicales et événements déclenchés

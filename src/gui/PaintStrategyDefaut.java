@@ -5,9 +5,7 @@ import java.awt.Graphics;
 import config.GameConfiguration;
 import engine.habitant.Habitant;
 import engine.habitant.etat.EtatHabitant;
-import engine.habitant.lien.Familial;
 import engine.habitant.lien.Liens;
-import engine.habitant.lien.Professionnel;
 import engine.habitant.visitor.CouleurVisitor;
 import engine.map.Block;
 import engine.map.Map;
@@ -81,14 +79,13 @@ public class PaintStrategyDefaut implements PaintStrategy {
 			for (Liens lien : habitant.getRelation()) {
 				Habitant ami = lien.getPartenaire();
 
-				if (lien instanceof Familial && !afficherFamille) continue;
-				if (lien instanceof Professionnel && !afficherTravail) continue;
-				if (!(lien instanceof Familial) && !(lien instanceof Professionnel)
-						&& !afficherAmis) continue;
+				if (lien.getTypeLien().equals("Familial") && !afficherFamille) continue;
+				if (lien.getTypeLien().equals("Professionnel") && !afficherTravail) continue;
+				if (lien.getTypeLien().equals("Amical") && !afficherAmis) continue;
 
-				if (lien instanceof Familial) {
+				if (lien.getTypeLien().equals("Familial")) {
 					graphics.setColor(Color.PINK);
-				} else if (lien instanceof Professionnel) {
+				} else if (lien.getTypeLien().equals("Professionnel")) {
 					graphics.setColor(Color.BLUE);
 				} else {
 					graphics.setColor(Color.GREEN);

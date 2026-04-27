@@ -91,6 +91,9 @@ public class GameConfiguration {
 	// Résistance collective — modèle ressort
 	public static final double COEFF_RESISTANCE_COLLECTIVE = 0.12;
 
+	public static final int RESISTANCE_COLLECTIVE_DEFAUT = 50;
+
 	public static final double PROBA_BONNE_JOURNEE_PRO = 0.50;
+
 
 }

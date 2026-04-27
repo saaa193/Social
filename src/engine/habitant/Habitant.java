@@ -54,7 +54,7 @@ public class Habitant extends MobileElement {
 	private Block domicile;
 	private Block destination;
 
-	private int resistanceCollective = 50;
+	private int resistanceCollective = GameConfiguration.RESISTANCE_COLLECTIVE_DEFAUT;
 
 	private static final ContagionVisitor contagionVisitor = new ContagionVisitor();
 
@@ -221,7 +221,8 @@ public class Habitant extends MobileElement {
 	}
 
 	/**
-	 * Retourne vrai si l'habitant est porteur d'une information.
+	 * Vieillit l'information portee par l'habitant.
+	 * Supprime l'information si elle depasse le seuil d'oubli.
 	 */
 	public void vieillirInformation() {
 		if (!estInforme) return;

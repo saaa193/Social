@@ -9,9 +9,14 @@ import engine.habitant.besoin.Besoins;
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
- * Nutrition névrosée : l'habitant oublie de manger, sa faim remonte peu.
+ * Nutrition nevrosee : l'habitant oublie de manger, sa faim remonte peu.
  */
 public class NutritionNevrosee implements StrategieNutrition {
+
+	/**
+	 * Augmente la faim avec une faible probabilite.
+	 */
+	@Override
 	public void appliquer(Besoins besoins) {
 		if (RandomProvider.getInstance().nextDouble() < 0.25) {
 			besoins.setFaim(besoins.getFaim() + 1);
