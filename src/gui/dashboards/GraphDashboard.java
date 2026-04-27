@@ -8,6 +8,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
+import engine.habitant.visitor.DiagnosticVisitor;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -174,13 +175,14 @@ public class GraphDashboard extends JPanel {
 				engine.habitant.etat.EtatHabitant etat =
 						h.getPsychologie().determinerEtat(b);
 
-				if      (etat instanceof engine.habitant.etat.EtatEpanoui)    epanoui++;
-				else if (etat instanceof engine.habitant.etat.EtatEuphorique) euphorique++;
-				else if (etat instanceof engine.habitant.etat.EtatStable)     stable++;
-				else if (etat instanceof engine.habitant.etat.EtatAnxieux)    anxieux++;
-				else if (etat instanceof engine.habitant.etat.EtatIsole)      isole++;
-				else if (etat instanceof engine.habitant.etat.EtatDepressif)  depressif++;
-				else if (etat instanceof engine.habitant.etat.EtatBurnout)    burnout++;
+				String diagnostic = etat.accept(new DiagnosticVisitor());
+				if      (diagnostic.equals("ÉPANOUI"))   epanoui++;
+				else if (diagnostic.equals("EUPHORIQUE")) euphorique++;
+				else if (diagnostic.equals("STABLE"))    stable++;
+				else if (diagnostic.equals("ANXIEUX"))   anxieux++;
+				else if (diagnostic.equals("DÉTRESSE"))  isole++;
+				else if (diagnostic.equals("DÉPRESSIF")) depressif++;
+				else if (diagnostic.equals("BURNOUT"))   burnout++;
 			}
 
 			// [AJOUT SIR] Compte indépendamment des états — un anxieux peut être informé
