@@ -23,6 +23,7 @@ public class Block {
 		return this.column;
 	}
 
+	@Override
 	public String toString() {
 		return "Block [line=" + this.line + ", column=" + this.column + "]";
 	}

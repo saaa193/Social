@@ -145,8 +145,7 @@ public class MobileElementManager implements MobileInterface {
 
 				if (h1.getPosition().equals(h2.getPosition())) {
 					if (h1.getBesoins().getSante() > 0 && h2.getBesoins().getSante() > 0) {
-						logger.warn("Rencontre negative : " + h1.getPrenom() + " fragilise par " + h2.getPrenom());
-
+						logger.debug("Rencontre detectee : " + h1.getPrenom() + " et " + h2.getPrenom());
 						int r1 = rencontresCeTour.getOrDefault(h1, 0);
 						int r2 = rencontresCeTour.getOrDefault(h2, 0);
 						if (r1 >= 2 || r2 >= 2) continue;
@@ -214,8 +213,8 @@ public class MobileElementManager implements MobileInterface {
 	 */
 	private void disperserEntassements() {
 		// Compte les habitants par position
-		java.util.HashMap<String, List<Habitant>> parPosition =
-				new java.util.HashMap<String, List<Habitant>>();
+		HashMap<String, List<Habitant>> parPosition =
+				new HashMap<String, List<Habitant>>();
 
 		for (Habitant h : habitants) {
 			if (h.getBesoins().getSante() <= 0) continue;
@@ -234,7 +233,7 @@ public class MobileElementManager implements MobileInterface {
 			for (int i = 3; i < groupe.size(); i++) {
 				Habitant h = groupe.get(i);
 				// Nouvelle destination aléatoire pour forcer la dispersion
-				int nouvelleLigne   = RandomProvider.getInstance().nextInt(map.getLineCount());
+				int nouvelleLigne = RandomProvider.getInstance().nextInt(map.getLineCount());
 				int nouvelleColonne = RandomProvider.getInstance().nextInt(map.getColumnCount());
 				h.setDestination(map.getBlock(nouvelleLigne, nouvelleColonne));
 			}
@@ -284,20 +283,15 @@ public class MobileElementManager implements MobileInterface {
 	private void enregistrerStatsJour() {
 		if (habitants.isEmpty()) return;
 
-		double totalNevrosisme  = 0;
+		double totalNevrosisme = 0;
 		double totalAgreabilite = 0;
-		double totalMoral       = 0;
+		double totalMoral = 0;
 		double totalExtraversion = 0;
 		for (Habitant h : habitants) {
 			if (h.getBesoins().getSante() > 0) {
-				totalNevrosisme  += h.getNevrosisme();
+				totalNevrosisme += h.getNevrosisme();
 				totalAgreabilite += h.getAgreabilite();
-				totalMoral       += h.getMoral();
-			}
-		}
-
-		for (Habitant h : habitants) {
-			if (h.getBesoins().getSante() > 0) {
+				totalMoral += h.getMoral();
 				totalExtraversion += h.getExtraversion();
 			}
 		}
@@ -311,10 +305,10 @@ public class MobileElementManager implements MobileInterface {
 		logger.info("Stats jour " + horloge.getDateCourte() + " - Moral=" + (int)(totalMoral/taille) + " Nevrosisme=" + (int)(totalNevrosisme/taille));
 	}
 
-	public List<String> getHistoriqueJours()      { return historiqueJours; }
-	public List<Double> getHistoriqueNevrosisme()  { return historiqueNevrosisme; }
+	public List<String> getHistoriqueJours() { return historiqueJours; }
+	public List<Double> getHistoriqueNevrosisme() { return historiqueNevrosisme; }
 	public List<Double> getHistoriqueAgreabilite() { return historiqueAgreabilite; }
-	public List<Double> getHistoriqueMoral()       { return historiqueMoral; }
+	public List<Double> getHistoriqueMoral() { return historiqueMoral; }
 	public int getToursDepuisPropagation() {
 		return toursDepuisPropagation;
 	}
