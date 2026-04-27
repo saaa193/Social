@@ -54,8 +54,11 @@ public class MainGUI extends JFrame implements Runnable {
 
 	private EvenementDashboard evenementDashboard;
 
-	public MainGUI(String title) {
+	private int nbHabitants;
+
+	public MainGUI(String title, int nbHabitants) {
 		super(title);
+		this.nbHabitants = nbHabitants;
 		init();
 	}
 
@@ -93,7 +96,7 @@ public class MainGUI extends JFrame implements Runnable {
 
 		// 3. Initialisation Moteur & Carte
 		map = GameBuilder.buildMap();
-		manager = GameBuilder.buildInitMobile(map);
+		manager = GameBuilder.buildInitMobile(map, nbHabitants);
 		dashboard = new GameDisplay(map, manager);
 
 		// Gestion des interactions souris

@@ -1,6 +1,6 @@
 package test;
 
-import gui.MainGUI;
+import gui.LanceurSimulation;
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -10,10 +10,6 @@ import gui.MainGUI;
  */
 public class TestGame {
 	public static void main(String[] args) {
-
-		MainGUI gameMainGUI = new MainGUI("Social game");
-
-		Thread gameThread = new Thread(gameMainGUI);
-		gameThread.start();
+		new LanceurSimulation();
 	}
 }

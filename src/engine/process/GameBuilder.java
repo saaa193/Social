@@ -14,26 +14,29 @@ import java.util.List;
  *
  * @author HANANE Sanaa & PIRABAKARAN Parthipan
  *
- * GameBuilder : isole la logique de création et d'initialisation du jeu.
- * Évite de surcharger MainGUI avec des détails techniques.
+ * GameBuilder : isole la logique de creation et d'initialisation du jeu.
+ * Evite de surcharger MainGUI avec des details techniques.
  */
 public class GameBuilder {
 
 	/**
-	 * Construit la carte selon les paramètres de configuration globale.
+	 * Construit la carte selon les parametres de configuration globale.
 	 */
 	public static Map buildMap() {
 		return new Map(GameConfiguration.LINE_COUNT, GameConfiguration.COLUMN_COUNT);
 	}
 
 	/**
-	 * Initialise le gestionnaire d'éléments mobiles et peuple la carte.
-	 * Établit les liens familiaux de base pour créer une structure sociale initiale.
+	 * Initialise le gestionnaire d'elements mobiles et peuple la carte.
+	 * Etablit les liens familiaux de base pour creer une structure sociale initiale.
+	 *
+	 * @param map         la carte de la simulation
+	 * @param nbHabitants le nombre d'habitants a creer (150 a 200)
 	 */
-	public static MobileInterface buildInitMobile(Map map) {
+	public static MobileInterface buildInitMobile(Map map, int nbHabitants) {
 		MobileElementManager manager = new MobileElementManager(map);
 
-		for (int i = 0; i < 200; i++) {
+		for (int i = 0; i < nbHabitants; i++) {
 			int line = RandomProvider.getInstance().nextInt(GameConfiguration.LINE_COUNT);
 			int column = RandomProvider.getInstance().nextInt(GameConfiguration.COLUMN_COUNT);
 
