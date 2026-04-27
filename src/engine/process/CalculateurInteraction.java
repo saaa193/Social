@@ -1,12 +1,8 @@
 package engine.process;
 
 import engine.habitant.Habitant;
-import engine.habitant.etat.EtatAnxieux;
-import engine.habitant.etat.EtatBurnout;
-import engine.habitant.etat.EtatDepressif;
-import engine.habitant.etat.EtatEpanoui;
-import engine.habitant.etat.EtatEuphorique;
 import engine.habitant.etat.EtatHabitant;
+import engine.habitant.visitor.FacteurEtatVisitor;
 
 /**
  * Université CY Cergy Paris - L2 Informatique
@@ -20,14 +16,12 @@ import engine.habitant.etat.EtatHabitant;
  */
 public class CalculateurInteraction {
 
-	private static final double POIDS_AGREABILITE   = 0.40;
+	private static final double POIDS_AGREABILITE = 0.40;
 	private static final double POIDS_COMPATIBILITE = 0.30;
-	private static final double POIDS_ETAT          = 0.20;
-	private static final double POIDS_HISTORIQUE    = 0.10;
+	private static final double POIDS_ETAT = 0.20;
+	private static final double POIDS_HISTORIQUE = 0.10;
 
 	private static final double PLAFOND_HISTORIQUE  = 0.20;
-	private static final double BONUS_ETAT_POSITIF  = 0.20;
-	private static final double MALUS_ETAT_NEGATIF  = 0.15;
 
 	/**
 	 * Calcule la probabilite d'interaction entre deux habitants.
@@ -74,13 +68,7 @@ public class CalculateurInteraction {
 	 */
 	private double calculerFacteurEtat(Habitant h1) {
 		EtatHabitant etat = h1.getPsychologie().determinerEtat(h1.getBesoins());
-		if (etat instanceof EtatEpanoui || etat instanceof EtatEuphorique) {
-			return BONUS_ETAT_POSITIF;
-		}
-		if (etat instanceof EtatDepressif || etat instanceof EtatAnxieux || etat instanceof EtatBurnout) {
-			return -MALUS_ETAT_NEGATIF;
-		}
-		return 0.0;
+		return etat.accept(new FacteurEtatVisitor());
 	}
 
 	/**
